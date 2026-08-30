@@ -1,0 +1,338 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aetheris AI - Text Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#7c03d3",
+                      "tertiary": "#b3d17a",
+                      "on-tertiary": "#243600",
+                      "on-primary-fixed": "#00174b",
+                      "error": "#ffb4ab",
+                      "outline": "#8d90a0",
+                      "surface-bright": "#39393b",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary-fixed": "#2c0051",
+                      "inverse-primary": "#0053db",
+                      "surface-container-lowest": "#0e0e10",
+                      "on-error": "#690005",
+                      "surface-container-highest": "#353437",
+                      "inverse-surface": "#e5e1e4",
+                      "on-tertiary-container": "#dcfca0",
+                      "primary": "#b4c5ff",
+                      "surface": "#131315",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-fixed": "#131f00",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "background": "#131315",
+                      "primary-container": "#2563eb",
+                      "on-surface": "#e5e1e4",
+                      "on-secondary-container": "#dfbcff",
+                      "surface-dim": "#131315",
+                      "surface-tint": "#b4c5ff",
+                      "tertiary-fixed-dim": "#b3d17a",
+                      "tertiary-fixed": "#ceee93",
+                      "surface-variant": "#353437",
+                      "on-primary-container": "#eeefff",
+                      "tertiary-container": "#5b762a",
+                      "secondary-fixed-dim": "#ddb8ff",
+                      "on-primary": "#002a78",
+                      "surface-container": "#201f21",
+                      "secondary-fixed": "#f0dbff",
+                      "on-tertiary-fixed-variant": "#364e03",
+                      "surface-container-low": "#1c1b1d",
+                      "on-secondary": "#490080",
+                      "primary-fixed": "#dbe1ff",
+                      "on-secondary-fixed-variant": "#6800b4",
+                      "inverse-on-surface": "#313032",
+                      "secondary": "#ddb8ff",
+                      "error-container": "#93000a",
+                      "surface-container-high": "#2a2a2c",
+                      "on-background": "#e5e1e4",
+                      "on-surface-variant": "#c3c6d7",
+                      "outline-variant": "#434655"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin_desktop": "64px",
+                      "max_width": "1440px",
+                      "gutter": "24px",
+                      "margin_mobile": "16px",
+                      "grid_unit": "8px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-xl": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "data-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "label-caps": [
+                              "10px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "data-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(to right, rgba(141, 144, 160, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(141, 144, 160, 0.05) 1px, transparent 1px);
+            background-size: 64px 64px;
+            color: #e5e1e4;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .surface_glass {
+            background-color: rgba(19, 19, 21, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.3);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.15);
+        }
+
+        .scanning-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #b3d17a, transparent);
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .pulse-purple {
+            animation: pulse-purple 1.5s infinite;
+        }
+
+        @keyframes pulse-purple {
+            0% { box-shadow: 0 0 0 0 rgba(124, 3, 211, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(124, 3, 211, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(124, 3, 211, 0); }
+        }
+
+        .grid-crosshair::before, .grid-crosshair::after {
+            content: '';
+            position: absolute;
+            background-color: rgba(141, 144, 160, 0.3);
+        }
+        .grid-crosshair.tl::before { top: -4px; left: 0; width: 1px; height: 8px; }
+        .grid-crosshair.tl::after { top: 0; left: -4px; width: 8px; height: 1px; }
+
+        .progress-bar-inner {
+            background: linear-gradient(90deg, #0053db, #7c03d3, #b4c5ff);
+            background-size: 200% 100%;
+            animation: gradient-move 2s linear infinite;
+        }
+
+        @keyframes gradient-move {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md min-h-screen flex flex-col relative">
+<!-- Top Navigation (Shell logic applies - keeping TopAppBar for a core tool screen, but it's a live analysis state so user shouldn't navigate away easily. We'll simplify the nav to focus on the task) -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)]">
+<div class="flex justify-between items-center px-margin_desktop h-16 w-full max-w-max_width mx-auto">
+<div class="font-headline-xl text-headline-xl text-primary tracking-tighter">Aetheris AI</div>
+<!-- Suppressed standard nav items during live task -->
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline">notifications</span>
+<span class="material-symbols-outlined text-outline">settings</span>
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A small, stylized profile avatar of a human face rendered in a futuristic, low-poly aesthetic. The colors are muted neon blues and purples. It looks like a high-tech ID badge photo." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTCE7Ha8glki9v1GgD8ZFk6dl1SkcJ6ipqsdK90AyvoQxSuahLJ5TLPsidQCmrCBNhIX14zRgtKf3dcAinsfXFMi892Xy7dMgWhKOwbgkiexGKIKLqLwUUlZIKpl7AWcc4KV7w-vIF6h3p1Y07imEN6FY-2h0MiWz48YueZjoQn5SuZ269mbw5odaxn94Zzo7HJOL2oTpRGnvy_akuanXzpUBlBPwxIvYDiyDxVD0nIUX6tgdzg-qBSA">
+</div>
+</div>
+</div>
+</header>
+<!-- Side Navigation (Suppressed during Live Analysis Task per Shell Logic) -->
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-24 pb-margin_desktop px-margin_mobile md:px-margin_desktop flex justify-center items-center relative min-h-[calc(100vh-64px)] overflow-hidden">
+<!-- Technical Data Noise Background Image from prompt -->
+<div class="absolute inset-0 z-0 opacity-20 mix-blend-screen pointer-events-none" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA-o8v_2D0cQimxPvYWFXWbQRPpXxnaPrVtEhJRlu1aveepn7JaNFR8bTedy0Xoggnq7xFteiiEUmhRk8eJGZ5xLgH3n98_HGs1fR8UutWHLCPMi3H6GiWT0JJSmOqwW9xNDZG0OIT50kxoe49TC7DOl7Df93Z9MjjJkyfnfRN3LhqMrj_NckAuAvPqSaymmk1EfPtRclG3z8vRScQZrIlU_v7uNmQOfkGeXlMz9mgIqsDriHKXjDW5cA'); background-size: cover; background-position: center;"></div>
+<!-- Central HUD Container -->
+<div class="surface_glass rounded-xl w-full max-w-2xl p-8 relative z-10 grid-crosshair tl">
+<div class="absolute top-4 left-4 font-label-caps text-label-caps text-primary/70">SEC_ANALYZE // LIVE</div>
+<div class="scanning-line"></div>
+<!-- Header Section -->
+<div class="text-center mb-12 mt-4">
+<h1 class="font-headline-lg text-headline-lg text-primary mb-2 tracking-tight">Scanning your content...</h1>
+<p class="font-data-lg text-data-lg text-outline font-medium">Processing linguistic structures</p>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden mb-12 border border-outline-variant/50">
+<div class="h-full progress-bar-inner w-3/5 rounded-full"></div>
+</div>
+<!-- Analysis Stages List -->
+<div class="space-y-6">
+<!-- Stage 1: Done -->
+<div class="flex items-center gap-4 opacity-70">
+<div class="w-8 h-8 rounded-full bg-tertiary/20 border border-tertiary/50 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex-grow">
+<span class="font-data-lg text-data-lg text-on-surface">Preparing text</span>
+</div>
+<span class="font-label-caps text-label-caps text-tertiary">100%</span>
+</div>
+<!-- Stage 2: Done -->
+<div class="flex items-center gap-4 opacity-70">
+<div class="w-8 h-8 rounded-full bg-tertiary/20 border border-tertiary/50 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex-grow">
+<span class="font-data-lg text-data-lg text-on-surface">Extracting linguistic features</span>
+</div>
+<span class="font-label-caps text-label-caps text-tertiary">100%</span>
+</div>
+<!-- Stage 3: Active -->
+<div class="flex items-center gap-4 bg-secondary-container/10 p-3 rounded-lg -mx-3 border border-secondary/20">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center pulse-purple shadow-[0_0_10px_#7c03d3]">
+<span class="material-symbols-outlined text-on-secondary-container animate-spin" style="animation-duration: 3s;">sync</span>
+</div>
+<div class="flex-grow">
+<span class="font-data-lg text-data-lg text-secondary font-bold">Analyzing writing patterns</span>
+</div>
+<span class="font-label-caps text-label-caps text-secondary animate-pulse">PROCESSING</span>
+</div>
+<!-- Stage 4: Pending -->
+<div class="flex items-center gap-4 opacity-40">
+<div class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">hourglass_empty</span>
+</div>
+<div class="flex-grow">
+<span class="font-data-lg text-data-lg text-on-surface-variant">Checking AI indicators</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline-variant">PENDING</span>
+</div>
+<!-- Stage 5: Pending -->
+<div class="flex items-center gap-4 opacity-40">
+<div class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">hourglass_empty</span>
+</div>
+<div class="flex-grow">
+<span class="font-data-lg text-data-lg text-on-surface-variant">Comparing similarity signals</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline-variant">PENDING</span>
+</div>
+<!-- Stage 6: Pending -->
+<div class="flex items-center gap-4 opacity-40">
+<div class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">hourglass_empty</span>
+</div>
+<div class="flex-grow">
+<span class="font-data-lg text-data-lg text-on-surface-variant">Generating final assessment</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline-variant">PENDING</span>
+</div>
+</div>
+<!-- Bottom Action (Cancel) -->
+<div class="mt-12 flex justify-center">
+<button class="px-6 py-2 border border-error/50 text-error rounded font-label-caps text-label-caps hover:bg-error/10 transition-colors">ABORT SEQUENCE</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-8 bg-background border-t border-outline-variant/10 z-10 relative">
+<div class="max-w-max_width mx-auto px-margin_desktop flex flex-col md:flex-row justify-between items-center">
+<div class="font-label-caps text-label-caps text-on-surface mb-4 md:mb-0">
+                © 2024 Aetheris Technical Systems. All rights reserved.
+            </div>
+<div class="flex gap-6 font-data-sm text-data-sm text-on-surface-variant">
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aetheris AI - File Analysis Result</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#7c03d3",
+                        "tertiary": "#b3d17a",
+                        "on-tertiary": "#243600",
+                        "on-primary-fixed": "#00174b",
+                        "error": "#ffb4ab",
+                        "outline": "#8d90a0",
+                        "surface-bright": "#39393b",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#2c0051",
+                        "inverse-primary": "#0053db",
+                        "surface-container-lowest": "#0e0e10",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#353437",
+                        "inverse-surface": "#e5e1e4",
+                        "on-tertiary-container": "#dcfca0",
+                        "primary": "#b4c5ff",
+                        "surface": "#131315",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed": "#131f00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "background": "#131315",
+                        "primary-container": "#2563eb",
+                        "on-surface": "#e5e1e4",
+                        "on-secondary-container": "#dfbcff",
+                        "surface-dim": "#131315",
+                        "surface-tint": "#b4c5ff",
+                        "tertiary-fixed-dim": "#b3d17a",
+                        "tertiary-fixed": "#ceee93",
+                        "surface-variant": "#353437",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-container": "#5b762a",
+                        "secondary-fixed-dim": "#ddb8ff",
+                        "on-primary": "#002a78",
+                        "surface-container": "#201f21",
+                        "secondary-fixed": "#f0dbff",
+                        "on-tertiary-fixed-variant": "#364e03",
+                        "surface-container-low": "#1c1b1d",
+                        "on-secondary": "#490080",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#6800b4",
+                        "inverse-on-surface": "#313032",
+                        "secondary": "#ddb8ff",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2c",
+                        "on-background": "#e5e1e4",
+                        "on-surface-variant": "#c3c6d7",
+                        "outline-variant": "#434655"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin_desktop": "64px",
+                        "max_width": "1440px",
+                        "gutter": "24px",
+                        "margin_mobile": "16px",
+                        "grid_unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "data-lg": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"],
+                        "data-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-caps": ["10px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "data-lg": ["18px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "data-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            color: #e5e1e4;
+        }
+        
+        /* Scanning animation effect for buttons */
+        @keyframes scan-line {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        .btn-scan {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-scan::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: translateX(-100%);
+            animation: scan-line 3s infinite linear;
+        }
+
+        /* Glitch effect on score */
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px, 0) skew(0deg); }
+            4%, 60% { transform: translate(-2px, 0) skew(0deg); }
+            62% { transform: translate(0, 0) skew(5deg); }
+        }
+        .glitch-text {
+            animation: glitch 2s cubic-bezier(.25, .46, .45, .94) both infinite;
+        }
+
+        /* Pulse for status indicators */
+        @keyframes neonPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(124, 3, 211, 0.8), 0 0 20px rgba(124, 3, 211, 0.4); }
+            50% { opacity: 0.7; box-shadow: 0 0 5px rgba(124, 3, 211, 0.5), 0 0 10px rgba(124, 3, 211, 0.2); }
+        }
+        .status-pulse-purple {
+            animation: neonPulse 2s infinite;
+        }
+        
+        @keyframes neonPulseLime {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(179, 209, 122, 0.8), 0 0 20px rgba(179, 209, 122, 0.4); }
+            50% { opacity: 0.7; box-shadow: 0 0 5px rgba(179, 209, 122, 0.5), 0 0 10px rgba(179, 209, 122, 0.2); }
+        }
+        .status-pulse-lime {
+            animation: neonPulseLime 2s infinite;
+        }
+
+        /* Scrollbar styling for extracted content */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(32, 31, 33, 0.5); 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #434655; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #b4c5ff; 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)] flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="font-headline-xl text-headline-xl text-primary tracking-tighter">Aetheris AI</span>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-on-surface-variant hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-300 active:scale-95 transition-transform" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-300 active:scale-95 transition-transform" href="#">Upload</a>
+<a class="text-primary font-bold border-b-2 border-primary hover:text-primary transition-colors duration-300 active:scale-95 transition-transform" href="#">Analysis</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-300 active:scale-95 transition-transform" href="#">History</a>
+</nav>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<input class="bg-surface-container-low border-b border-outline-variant text-on-surface font-data-sm text-data-sm px-3 py-1 w-48 focus:outline-none focus:border-primary transition-colors placeholder:text-outline-variant" placeholder="Search logs..." type="text">
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline-variant text-sm" data-icon="search">search</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<img alt="User technical profile avatar" class="w-8 h-8 rounded-full border border-outline-variant/30 object-cover" data-alt="User technical profile avatar. A highly detailed, dark sci-fi aesthetic portrait of a user in a futuristic interface setting. Glowing blue accents on a matte black background. Cool lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCptEhJd0Wx_Pwy7aJaPKQfsdtGUFUE9KGNL_sSedHAAW2diMfK2nHywtjE3BNuZz4MBgwfdU0rgaEB9aCP4aWpIxjHj60xGKJ9jMyA7a1Qi0UrHSYmgOweY9I3CCc29ct9gaSCcanfAfGf_8Ey774BzqWKVbsB-xJaWTLLIIL_h1sw1_gJHF7UjvgcDVxGzQMEOZkIQl7ZByO4pjAdyr7lMTsuARCvuVrHit4eevmSGFnd6WLi8Hwj2Q">
+</div>
+</header>
+<!-- SideNavBar (Hidden on Mobile, Visible on LG+) -->
+<!-- Not rendering SideNavBar as per logic rules for 'linear/transactional' result page intent, but to provide structural depth we include it as it's part of the 'Core Terminal' experience for Analysis -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col bg-surface-container-low/40 backdrop-blur-md border-r border-outline-variant/20 flex flex-col gap-2 p-4 z-40">
+<div class="mb-8 p-4 border-b border-outline-variant/20">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-2 h-2 rounded-full bg-secondary status-pulse-purple"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">System Status</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-primary text-xl">Core Terminal</h2>
+<p class="font-data-sm text-data-sm text-tertiary">SEC_01 // ACTIVE</p>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 group hover:bg-surface-variant/30 hover:text-on-surface transition-all rounded" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="description">description</span>
+<span class="font-data-lg text-data-lg text-sm">Text</span>
+</a>
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all rounded group hover:bg-surface-variant/30 hover:text-on-surface" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200 text-secondary" data-icon="upload_file">upload_file</span>
+<span class="font-data-lg text-data-lg text-sm">Upload File</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 group hover:bg-surface-variant/30 hover:text-on-surface transition-all rounded" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="code">code</span>
+<span class="font-data-lg text-data-lg text-sm">Code</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 group hover:bg-surface-variant/30 hover:text-on-surface transition-all rounded" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="image">image</span>
+<span class="font-data-lg text-data-lg text-sm">Image</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 group hover:bg-surface-variant/30 hover:text-on-surface transition-all rounded" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="summarize">summarize</span>
+<span class="font-data-lg text-data-lg text-sm">Summary</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 group hover:bg-surface-variant/30 hover:text-on-surface transition-all rounded" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="history">history</span>
+<span class="font-data-lg text-data-lg text-sm">History</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/20 flex flex-col gap-2">
+<button class="w-full py-2 bg-primary-container text-on-primary-container font-data-sm text-data-sm rounded border border-primary/50 btn-scan">Upgrade to Pro</button>
+<div class="flex justify-around mt-4">
+<a class="text-outline-variant hover:text-primary transition-colors flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined group-hover:-translate-y-1 transition-transform" data-icon="menu_book">menu_book</span>
+<span class="font-label-caps text-label-caps text-[8px]">Docs</span>
+</a>
+<a class="text-outline-variant hover:text-primary transition-colors flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined group-hover:-translate-y-1 transition-transform" data-icon="support_agent">support_agent</span>
+<span class="font-label-caps text-label-caps text-[8px]">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 pt-24 pb-12 px-margin_mobile md:px-margin_desktop lg:ml-64 max-w-max_width mx-auto w-full flex flex-col gap-8 relative z-10">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-outline-variant/30 pb-6 relative">
+<div class="absolute top-0 left-0 w-2 h-2 bg-primary rounded-full animate-ping"></div>
+<div>
+<p class="font-label-caps text-label-caps text-primary mb-2">SCAN_COMPLETE // REF: 992-A</p>
+<h1 class="font-headline-xl text-headline-xl text-on-surface">Analysis Report</h1>
+<p class="text-on-surface-variant mt-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="description">description</span>
+                    research_proposal_v3.pdf
+                </p>
+</div>
+<div class="flex gap-4">
+<button class="px-4 py-2 bg-surface-container border border-tertiary text-tertiary font-data-sm text-data-sm rounded hover:bg-tertiary/10 transition-colors flex items-center gap-2 group">
+<span class="material-symbols-outlined text-sm group-hover:scale-110 transition-transform" data-icon="share">share</span>
+                     Share
+                 </button>
+<button class="px-4 py-2 bg-primary-container text-on-primary-container font-data-sm text-data-sm rounded border border-primary/50 btn-scan flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)]">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+                     PDF Report
+                 </button>
+</div>
+</div>
+<!-- Main Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Core Score Card (Glassmorphic Analyzer) -->
+<div class="lg:col-span-5 bg-surface/40 backdrop-blur-[12px] border border-outline-variant/30 rounded-xl p-6 shadow-[0_0_20px_rgba(37,99,235,0.05)] relative overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
+<!-- Technical Corner Markers -->
+<div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-primary/50 -translate-x-1 -translate-y-1"></div>
+<div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary/50 translate-x-1 translate-y-1"></div>
+<span class="absolute top-4 left-4 font-label-caps text-label-caps text-outline-variant">SEC_04 // AI_DETECTION</span>
+<div class="relative w-48 h-48 flex items-center justify-center mb-6">
+<!-- Circular Progress Background -->
+<svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#201f21" stroke-width="8"></circle>
+<!-- High AI probability -> Secondary (Purple) indicating anomaly/AI presence in this tech theme -->
+<circle class="drop-shadow-[0_0_10px_rgba(221,184,255,0.5)]" cx="50" cy="50" fill="none" r="45" stroke="#ddb8ff" stroke-dasharray="282.7" stroke-dashoffset="33.92" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center justify-center">
+<span class="font-headline-xl text-headline-xl text-secondary glitch-text">88<span class="text-2xl">%</span></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant tracking-[0.2em] mt-1">AI GENERATED</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-low border border-outline-variant/20 rounded p-4 text-center">
+<p class="font-data-lg text-data-lg text-secondary mb-1">High Probability</p>
+<p class="font-data-sm text-data-sm text-on-surface-variant">The majority of this document exhibits patterns highly consistent with synthetic generation models.</p>
+</div>
+</div>
+<!-- Stats & Details -->
+<div class="lg:col-span-7 flex flex-col gap-gutter">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Stat Card 1 -->
+<div class="bg-surface/40 backdrop-blur-[12px] border border-outline-variant/30 rounded p-4 relative group hover:border-primary/50 transition-colors">
+<span class="font-label-caps text-label-caps text-outline-variant mb-2 block">WORD_COUNT</span>
+<span class="font-data-lg text-data-lg text-on-surface">4,250</span>
+<div class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary group-hover:w-full transition-all duration-500"></div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface/40 backdrop-blur-[12px] border border-outline-variant/30 rounded p-4 relative group hover:border-primary/50 transition-colors">
+<span class="font-label-caps text-label-caps text-outline-variant mb-2 block">SENTENCES</span>
+<span class="font-data-lg text-data-lg text-on-surface">214</span>
+<div class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary group-hover:w-full transition-all duration-500"></div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface/40 backdrop-blur-[12px] border border-outline-variant/30 rounded p-4 relative group hover:border-primary/50 transition-colors">
+<span class="font-label-caps text-label-caps text-outline-variant mb-2 block">BURSTINESS</span>
+<span class="font-data-lg text-data-lg text-tertiary">Low</span>
+<div class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary group-hover:w-full transition-all duration-500"></div>
+</div>
+<!-- Stat Card 4 -->
+<div class="bg-surface/40 backdrop-blur-[12px] border border-outline-variant/30 rounded p-4 relative group hover:border-primary/50 transition-colors">
+<span class="font-label-caps text-label-caps text-outline-variant mb-2 block">PERPLEXITY</span>
+<span class="font-data-lg text-data-lg text-secondary">Low</span>
+<div class="absolute bottom-0 left-0 w-0 h-[1px] bg-primary group-hover:w-full transition-all duration-500"></div>
+</div>
+</div>
+<!-- Sentence Level Analysis Breakdown -->
+<div class="flex-1 bg-surface/40 backdrop-blur-[12px] border border-outline-variant/30 rounded-xl p-6 relative overflow-hidden flex flex-col">
+<span class="absolute top-4 left-4 font-label-caps text-label-caps text-outline-variant">SEC_05 // DISTRIBUTION</span>
+<h3 class="font-data-lg text-data-lg text-on-surface mt-6 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="bar_chart">bar_chart</span>
+                        Signal Distribution
+                    </h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<div class="w-24 font-data-sm text-data-sm text-on-surface-variant">AI Generated</div>
+<div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[88%] shadow-[0_0_10px_rgba(221,184,255,0.5)]"></div>
+</div>
+<div class="w-12 text-right font-data-sm text-data-sm text-secondary">88%</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-24 font-data-sm text-data-sm text-on-surface-variant">Mixed</div>
+<div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[10%] shadow-[0_0_10px_rgba(180,197,255,0.5)]"></div>
+</div>
+<div class="w-12 text-right font-data-sm text-data-sm text-primary">10%</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-24 font-data-sm text-data-sm text-on-surface-variant">Human</div>
+<div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[2%] shadow-[0_0_10px_rgba(179,209,122,0.5)]"></div>
+</div>
+<div class="w-12 text-right font-data-sm text-data-sm text-tertiary">2%</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Extracted Content Section -->
+<div class="mt-8 bg-surface/40 backdrop-blur-[12px] border border-outline-variant/30 rounded-xl p-6 relative">
+<div class="absolute top-0 left-4 w-[1px] h-full bg-outline-variant/10 -z-10"></div>
+<div class="flex justify-between items-center mb-6">
+<div>
+<span class="font-label-caps text-label-caps text-outline-variant">SEC_06 // CONTENT_VIEW</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mt-2">Extracted Content</h2>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-secondary/10 border border-secondary/30 rounded text-secondary font-label-caps text-label-caps flex items-center gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div> AI
+                    </span>
+<span class="px-2 py-1 bg-tertiary/10 border border-tertiary/30 rounded text-tertiary font-label-caps text-label-caps flex items-center gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div> Human
+                    </span>
+</div>
+</div>
+<!-- Scrollable Preview -->
+<div class="h-[400px] overflow-y-auto custom-scrollbar pr-4 font-body-md text-body-md text-on-surface-variant leading-relaxed space-y-6 relative">
+<!-- Scanning Line Overlay Indicator (subtle) -->
+<div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary/50 to-transparent animate-[scan-line_4s_ease-in-out_infinite_alternate] shadow-[0_0_10px_rgba(37,99,235,0.5)] pointer-events-none z-10"></div>
+<div class="relative pl-6 border-l border-outline-variant/20">
+<div class="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-outline-variant"></div>
+<span class="font-label-caps text-label-caps text-outline-variant absolute -top-4 left-6">PAGE 1</span>
+<p class="pt-2">
+<span class="bg-secondary/20 text-on-surface rounded px-1 transition-colors hover:bg-secondary/40 border-b border-secondary/30">The rapid advancement of artificial intelligence technologies has fundamentally altered the landscape of data processing and analysis.</span>
+<span class="bg-secondary/20 text-on-surface rounded px-1 transition-colors hover:bg-secondary/40 border-b border-secondary/30">Machine learning algorithms, particularly deep neural networks, have demonstrated unprecedented capabilities in pattern recognition and predictive modeling across diverse domains.</span>
+<span class="bg-tertiary/20 text-on-surface rounded px-1 transition-colors hover:bg-tertiary/40 border-b border-tertiary/30">However, as we integrate these systems into critical infrastructure, we must remain vigilant about their limitations and potential biases.</span>
+<span class="bg-secondary/20 text-on-surface rounded px-1 transition-colors hover:bg-secondary/40 border-b border-secondary/30">This proposal outlines a comprehensive framework for evaluating the robustness and interpretability of large-scale predictive models in high-stakes environments.</span>
+</p>
+</div>
+<div class="relative pl-6 border-l border-outline-variant/20">
+<div class="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-outline-variant"></div>
+<span class="font-label-caps text-label-caps text-outline-variant absolute -top-4 left-6">PAGE 2</span>
+<p class="pt-2">
+<span class="bg-secondary/20 text-on-surface rounded px-1 transition-colors hover:bg-secondary/40 border-b border-secondary/30">To achieve these objectives, we propose a multi-faceted methodology combining empirical validation techniques with formal verification methods.</span>
+<span class="bg-secondary/20 text-on-surface rounded px-1 transition-colors hover:bg-secondary/40 border-b border-secondary/30">The primary dataset will consist of synthetically generated adversarial examples designed to stress-test the model's decision boundaries.</span>
+<span class="bg-primary/20 text-on-surface rounded px-1 transition-colors hover:bg-primary/40 border-b border-primary/30">Furthermore, we will employ a human-in-the-loop review process to annotate borderline cases, ensuring a nuanced understanding of failure modes.</span>
+<span class="bg-secondary/20 text-on-surface rounded px-1 transition-colors hover:bg-secondary/40 border-b border-secondary/30">Expected outcomes include a scalable toolkit for real-time model monitoring and a set of best practices for deploying AI systems in production settings.</span>
+</p>
+</div>
+<div class="relative pl-6 border-l border-outline-variant/20">
+<div class="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-outline-variant"></div>
+<span class="font-label-caps text-label-caps text-outline-variant absolute -top-4 left-6">PAGE 3</span>
+<p class="pt-2">
+<span class="bg-secondary/20 text-on-surface rounded px-1 transition-colors hover:bg-secondary/40 border-b border-secondary/30">Preliminary results from the pilot phase indicate a strong correlation between model complexity and susceptibility to adversarial perturbations.</span>
+<span class="bg-secondary/20 text-on-surface rounded px-1 transition-colors hover:bg-secondary/40 border-b border-secondary/30">Specifically, models utilizing transformers exhibited a higher vulnerability to targeted semantic shifts compared to traditional convolutional architectures.</span>
+<span class="bg-tertiary/20 text-on-surface rounded px-1 transition-colors hover:bg-tertiary/40 border-b border-tertiary/30">I think we really need to look closer at the transformer data before we publish, the margin of error feels a bit high based on my manual review yesterday.</span>
+<span class="bg-secondary/20 text-on-surface rounded px-1 transition-colors hover:bg-secondary/40 border-b border-secondary/30">Future iterations of the testing suite will incorporate localized sensitivity analysis to isolate problematic features within the input space.</span>
+</p>
+</div>
+</div>
+</div>
+<!-- Disclaimer -->
+<div class="flex items-start gap-3 p-4 border border-outline-variant/20 bg-surface-container-low rounded-lg mt-4">
+<span class="material-symbols-outlined text-outline-variant" data-icon="info">info</span>
+<p class="font-data-sm text-data-sm text-on-surface-variant">
+<span class="text-on-surface font-bold">Disclaimer:</span> AI detection is probabilistic and subject to false positives and negatives. This report should be used as one of many signals in evaluating content authenticity, not as definitive proof.
+            </p>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-8 bg-background border-t border-outline-variant/10 mt-auto z-10 relative">
+<div class="max-w-max_width mx-auto px-margin_desktop flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="font-label-caps text-label-caps text-on-surface">
+                AETHERIS AI // SECURE TERMINAL
+            </div>
+<div class="flex gap-6">
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+<div class="font-data-sm text-data-sm text-outline-variant">
+                © 2024 Aetheris Technical Systems. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

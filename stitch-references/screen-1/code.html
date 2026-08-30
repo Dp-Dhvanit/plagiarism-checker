@@ -1,0 +1,291 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>NEURAL_SCAN // V2.0 - System Initialization</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#0e0e10",
+                      "on-secondary-fixed": "#2c0051",
+                      "primary-fixed": "#dbe1ff",
+                      "surface-dim": "#131315",
+                      "tertiary-fixed": "#ceee93",
+                      "surface": "#131315",
+                      "on-primary-fixed": "#00174b",
+                      "on-surface-variant": "#c3c6d7",
+                      "surface-container-low": "#1c1b1d",
+                      "tertiary": "#b3d17a",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary": "#243600",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "error": "#ffb4ab",
+                      "primary": "#b4c5ff",
+                      "secondary-container": "#7c03d3",
+                      "surface-bright": "#39393b",
+                      "on-secondary-container": "#dfbcff",
+                      "on-tertiary-fixed": "#131f00",
+                      "primary-container": "#2563eb",
+                      "outline-variant": "#434655",
+                      "surface-container": "#201f21",
+                      "on-tertiary-container": "#dcfca0",
+                      "background": "#131315",
+                      "surface-tint": "#b4c5ff",
+                      "inverse-on-surface": "#313032",
+                      "on-primary": "#002a78",
+                      "surface-variant": "#353437",
+                      "error-container": "#93000a",
+                      "on-background": "#e5e1e4",
+                      "secondary-fixed-dim": "#ddb8ff",
+                      "tertiary-container": "#5b762a",
+                      "inverse-primary": "#0053db",
+                      "tertiary-fixed-dim": "#b3d17a",
+                      "on-surface": "#e5e1e4",
+                      "outline": "#8d90a0",
+                      "on-primary-container": "#eeefff",
+                      "surface-container-high": "#2a2a2c",
+                      "on-tertiary-fixed-variant": "#364e03",
+                      "inverse-surface": "#e5e1e4",
+                      "secondary-fixed": "#f0dbff",
+                      "secondary": "#ddb8ff",
+                      "on-secondary-fixed-variant": "#6800b4",
+                      "on-secondary": "#490080",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-highest": "#353437",
+                      "on-error": "#690005"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin_mobile": "16px",
+                      "max_width": "1440px",
+                      "margin_desktop": "64px",
+                      "gutter": "24px",
+                      "grid_unit": "8px"
+              },
+              "fontFamily": {
+                      "headline-xl": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "data-lg": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "data-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "10px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "data-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Technical Grid Background */
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 64px 64px;
+        }
+
+        /* Glassmorphism & Neon Shadows */
+        .glass-panel {
+            background: rgba(19, 19, 21, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(67, 70, 85, 0.3);
+            box-shadow: 0 0 30px rgba(37, 99, 235, 0.05), inset 0 0 10px rgba(180, 197, 255, 0.05);
+        }
+
+        /* Scanner Animation */
+        @keyframes scan {
+            0% { transform: translateY(-100%); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(300%); opacity: 0; }
+        }
+        .scanner-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #b4c5ff;
+            box-shadow: 0 0 15px 2px rgba(180, 197, 255, 0.8), 0 0 30px 5px rgba(37, 99, 235, 0.5);
+            animation: scan 3s linear infinite;
+            z-index: 10;
+        }
+
+        /* Terminal Scroll */
+        @keyframes scrollUp {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(-100%); }
+        }
+        .terminal-content {
+            animation: scrollUp 15s linear infinite;
+        }
+
+        /* Typing Effect for Progress */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cursor {
+            animation: blink 1s step-end infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-on-surface font-body-md relative overflow-hidden flex items-center justify-center">
+<!-- Background Image Overlaid on Grid -->
+<div class="absolute inset-0 z-0 opacity-40 mix-blend-screen bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAsmyZ4u84LSapDcofSX3v21bZtzBidHhF4ACuTOVJnh7N_nbtRTBncbirlHwqTKPN0NseEk0uD9GM36dgtBpEpTretXxfk5u8PuZOqx4GN9L6kqYKRYnneKHEbgl3pXGrDW3sskvBmtUchroDHCiKwApVLm5k1UK4k-ryMCn-mHhCzak1yspB0x-oH6ygMB3VbU2l9lX4TgPpKJOc2Qmjwp-F0SG6cEain2ZSQucN4WJWDFyJWQMYcUC-I9FiLGHG8gpM');"></div>
+<!-- Main Container -->
+<main class="relative z-10 w-full max-w-4xl px-margin_mobile md:px-margin_desktop flex flex-col items-center h-screen">
+<!-- Central Glassmorphic Portal -->
+<div class="w-full max-w-2xl mt-auto mb-24 relative overflow-hidden font-data-sm text-data-sm font-mono text-primary-fixed-dim/70 bg-surface-container-lowest/40 backdrop-blur-sm rounded-xl border border-outline-variant/30 p-6">
+    <div class="absolute top-4 left-4 font-label-caps text-label-caps text-tertiary tracking-widest flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+        SYS_BOOT_SEQ
+    </div>
+    <div class="mt-8 h-48 overflow-hidden relative mask-image-[linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]" style="-webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);">
+        <div class="terminal-content flex flex-col gap-1">
+            <div class="">&gt; INITIATING NEURAL_CORE/OS_V4...</div>
+            <div class="">&gt; ALLOCATING MEMORY SECTORS... [OK]</div>
+            <div class="">&gt; ESTABLISHING SECURE PROTOCOLS... [OK]</div>
+            <div class="">&gt; MOUNTING ROOT_DRIVE: /dev/sda1...</div>
+            <div class="">&gt; VERIFYING INTEGRITY CHECKSUMS... 0x8F9B2A</div>
+            <div class="text-tertiary">&gt; ACCESS GRANTED: SYS_ADMIN</div>
+            <div class="">&gt; LOADING HEURISTIC MODELS...</div>
+            <div class="">&gt; CONNECTING TO DEEP_SPACE_RELAY_01...</div>
+            <div class="">&gt; FETCHING LATEST ANOMALY SIGNATURES...</div>
+            <div class="">&gt; INITIALIZING QUANTUM THREADS... [8/8 ACTIVE]</div>
+            <div class="">&gt; SYNCING CLOCK W/ MAIN_FRAME... 2024.11.08-14:32:00 UTC</div>
+            <div class="">&gt; RUNNING PRE-FLIGHT DIAGNOSTICS... [PASS]</div>
+            <div class="text-tertiary">&gt; SYSTEM READY FOR CALIBRATION</div>
+            <div class="">&gt; WAITING FOR USER INPUT...</div>
+            <div class="">&gt; TIMEOUT. AUTO-CONTINUING BOOT SEQUENCE...</div>
+        </div>
+    </div>
+</div>
+
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest/80 backdrop-blur-sm border-t border-primary/30 px-margin_mobile md:px-margin_desktop py-4 z-20">
+    <div class="scanner-line"></div>
+    <div class="max-w-max_width mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2">
+        <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined text-primary text-2xl font-[300] animate-spin" style="animation-duration: 3s;">
+                data_usage
+            </span>
+            <div class="flex flex-col md:flex-row md:items-baseline md:gap-4">
+                <h1 class="font-label-caps text-on-surface tracking-widest">
+                    SYSTEM INITIALIZATION: <span class="text-primary font-data-lg ml-2" id="progress-text">42%</span><span class="cursor">_</span>
+                </h1>
+                <span class="font-label-caps text-[10px] text-on-surface-variant tracking-widest opacity-70">ANALYZING CORE DEPENDENCIES // SEC_04</span>
+            </div>
+        </div>
+        <div class="hidden md:flex items-center gap-3 font-data-sm text-data-sm text-on-surface-variant">
+            <span class="material-symbols-outlined text-sm">terminal</span>
+            <span class="tracking-widest">NODE: DEEP_SCAN_ALPHA_09</span>
+        </div>
+    </div>
+</div>
+<!-- Floating UI Element / ID Tag -->
+
+</main>
+<script>
+        // Simple script to simulate progress
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressEl = document.getElementById('progress-text');
+            let progress = 42;
+            
+            const updateProgress = () => {
+                if (progress < 99) {
+                    progress += Math.floor(Math.random() * 5) + 1;
+                    if (progress > 99) progress = 99;
+                    progressEl.innerText = `${progress}%`;
+                    setTimeout(updateProgress, Math.random() * 800 + 200);
+                }
+            };
+            
+            setTimeout(updateProgress, 1000);
+        });
+    </script>
+
+
+</body></html>

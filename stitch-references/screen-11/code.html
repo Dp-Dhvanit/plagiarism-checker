@@ -1,0 +1,327 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Image Analysis - Live Processing</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#7c03d3",
+                        "tertiary": "#b3d17a",
+                        "on-tertiary": "#243600",
+                        "on-primary-fixed": "#00174b",
+                        "error": "#ffb4ab",
+                        "outline": "#8d90a0",
+                        "surface-bright": "#39393b",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#2c0051",
+                        "inverse-primary": "#0053db",
+                        "surface-container-lowest": "#0e0e10",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#353437",
+                        "inverse-surface": "#e5e1e4",
+                        "on-tertiary-container": "#dcfca0",
+                        "primary": "#b4c5ff",
+                        "surface": "#131315",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed": "#131f00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "background": "#131315",
+                        "primary-container": "#2563eb",
+                        "on-surface": "#e5e1e4",
+                        "on-secondary-container": "#dfbcff",
+                        "surface-dim": "#131315",
+                        "surface-tint": "#b4c5ff",
+                        "tertiary-fixed-dim": "#b3d17a",
+                        "tertiary-fixed": "#ceee93",
+                        "surface-variant": "#353437",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-container": "#5b762a",
+                        "secondary-fixed-dim": "#ddb8ff",
+                        "on-primary": "#002a78",
+                        "surface-container": "#201f21",
+                        "secondary-fixed": "#f0dbff",
+                        "on-tertiary-fixed-variant": "#364e03",
+                        "surface-container-low": "#1c1b1d",
+                        "on-secondary": "#490080",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#6800b4",
+                        "inverse-on-surface": "#313032",
+                        "secondary": "#ddb8ff",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2c",
+                        "on-background": "#e5e1e4",
+                        "on-surface-variant": "#c3c6d7",
+                        "outline-variant": "#434655"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin_desktop": "64px",
+                        "max_width": "1440px",
+                        "gutter": "24px",
+                        "margin_mobile": "16px",
+                        "grid_unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "data-lg": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"],
+                        "data-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-caps": ["10px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "data-lg": ["18px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "data-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #b4c5ff, transparent);
+            box-shadow: 0 0 10px #b4c5ff, 0 0 20px #b4c5ff;
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .pulse-dot {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+</head>
+<body class="text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden">
+<!-- TopAppBar JSON Component -->
+<header class="bg-surface/60 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)]">
+<div class="flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16 w-full">
+<div class="flex items-center gap-6">
+<span class="font-headline-xl text-headline-xl text-primary tracking-tighter">Aetheris AI</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:text-primary transition-colors duration-300 active:scale-95 transition-transform text-on-surface-variant font-medium">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="hover:text-primary transition-colors duration-300 active:scale-95 transition-transform text-on-surface-variant font-medium">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30">
+<img alt="User technical profile avatar" class="w-full h-full object-cover" data-alt="A highly detailed, ultra-realistic portrait of a cyborg developer in a dimly lit cyber-technical environment. Glowing neon blue implants subtly integrated into the jawline. Intense, focused expression. Shot with a 50mm lens, shallow depth of field, dramatic moody lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBByQigCjBToaubc2KhTHlIWkdBKYF41jwgxXJ3qRIHE0ZOjdOcqoy6iOoGp0T3bhTOD3vyPA0kZtDpfghHiqAyHnT_TNg_tPZ436KHzpEWPLsAeBCl-TLFgb37sw-v7vqojRCht_E29-ffOrq81If9dAre_W7MHehtI___KgEULsEXyebrrOME28x0dVKqT21fWx9751_e8r4GVwmEvUMlKhaoJpP2SVTYOtJMEHbApEGhWXLo9hr_DA">
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar JSON Component -->
+<nav class="bg-surface-container-low/40 backdrop-blur-md fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col border-r border-outline-variant/20 z-40">
+<div class="p-4 border-b border-outline-variant/20 mb-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary">terminal</span>
+</div>
+<div>
+<h2 class="font-data-lg text-data-lg text-on-surface">Core Terminal</h2>
+<p class="font-label-caps text-label-caps text-tertiary">SEC_01 // ACTIVE</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 p-4 flex-grow overflow-y-auto">
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">description</span>
+<span class="font-data-sm text-data-sm">Text</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">upload_file</span>
+<span class="font-data-sm text-data-sm">Upload File</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">code</span>
+<span class="font-data-sm text-data-sm">Code</span>
+</a>
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all group active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" style="font-variation-settings: 'FILL' 1;">image</span>
+<span class="font-data-sm text-data-sm font-bold">Image</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">summarize</span>
+<span class="font-data-sm text-data-sm">Summary</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">history</span>
+<span class="font-data-sm text-data-sm">History</span>
+</a>
+</div>
+<div class="p-4 border-t border-outline-variant/20 mt-auto">
+<button class="w-full bg-primary-container text-on-primary-container hover:bg-primary-fixed transition-colors py-2 px-4 rounded-DEFAULT font-data-sm text-data-sm flex justify-center items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-sm">rocket_launch</span>
+                 Upgrade to Pro
+             </button>
+<div class="flex flex-col gap-2">
+<a class="text-on-surface-variant py-2 flex items-center gap-3 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">menu_book</span>
+<span class="font-data-sm text-data-sm">Docs</span>
+</a>
+<a class="text-on-surface-variant py-2 flex items-center gap-3 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">support_agent</span>
+<span class="font-data-sm text-data-sm">Support</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-24 pb-12 px-margin_mobile md:px-margin_desktop lg:ml-64 relative">
+<div class="max-w-max_width mx-auto">
+<header class="mb-8 flex items-center justify-between">
+<div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2 tracking-tight">ANALYZING IMAGE</h1>
+<div class="flex items-center gap-2 text-tertiary">
+<span class="w-2 h-2 rounded-full bg-tertiary pulse-dot"></span>
+<span class="font-label-caps text-label-caps tracking-widest">LIVE PROCESSING // SYS_ACT_99</span>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Image Preview Section -->
+<div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-gutter">
+<div class="bg-surface-container/60 backdrop-blur-xl border border-outline-variant/30 rounded-lg p-1 relative overflow-hidden group shadow-[0_0_15px_rgba(37,99,235,0.05)]">
+<div class="absolute top-4 left-4 z-10 bg-background/80 backdrop-blur-md px-2 py-1 rounded-DEFAULT border border-outline-variant/50">
+<span class="font-label-caps text-label-caps text-primary">SEC_04 // PREVIEW</span>
+</div>
+<div class="relative w-full aspect-video md:aspect-[16/10] bg-surface-container-lowest rounded-DEFAULT overflow-hidden border border-outline-variant/20">
+<img alt="Analyzed image preview" class="w-full h-full object-cover opacity-60" data-alt="A highly detailed, futuristic city landscape at night, glowing with neon blues and purples. Massive holographic advertisements float between imposing dark skyscrapers. Heavy rain slicking the metallic streets, reflecting the vibrant lights. Cyberpunk aesthetic, cinematic composition, highly technical mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBMKpbTqgwEIazq1zY1cqpjjEEhRxOnpbdLK1T0LbvaKuhpsM15uJT_C7HsJmmjsm4fQ62hoWvn0zk7SE70pvUq27_q6Wz2rfS4pQHHYPVIQdvdnEB0XfD9yAHQstxIpA_sTxBR5RKgQDCige0uN58goYZewp1SUVlaqnzVZ-FOXlW2iEt1mWJZBcy2dqw-pCQIDnL7yfInIGJQsWn1LXfBSMc5MTVL7Spco-f24W9BGbz2whpCMcmlA">
+<!-- Overlay Grid inside image -->
+<div class="absolute inset-0 pointer-events-none" style="background-image: linear-gradient(rgba(180, 197, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(180, 197, 255, 0.1) 1px, transparent 1px); background-size: 10% 10%;"></div>
+<!-- Scanning Line -->
+<div class="scan-line"></div>
+<!-- Bounding Boxes (Simulated Analysis) -->
+<div class="absolute top-[30%] left-[20%] w-[15%] h-[25%] border border-secondary shadow-[0_0_10px_rgba(221,184,255,0.3)] bg-secondary/10 pointer-events-none">
+<div class="absolute -top-5 left-0 bg-secondary text-on-secondary font-label-caps text-[8px] px-1 whitespace-nowrap">ENTITY_01</div>
+</div>
+<div class="absolute top-[50%] left-[60%] w-[25%] h-[35%] border border-tertiary shadow-[0_0_10px_rgba(179,209,122,0.3)] bg-tertiary/10 pointer-events-none">
+<div class="absolute -top-5 left-0 bg-tertiary text-on-tertiary font-label-caps text-[8px] px-1 whitespace-nowrap">STRUCTURE_ALPHA</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Analysis Sequence Section -->
+<div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-gutter">
+<div class="bg-surface-container/60 backdrop-blur-xl border border-outline-variant/30 rounded-lg p-6 h-full flex flex-col shadow-[0_0_15px_rgba(37,99,235,0.05)] relative">
+<div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/10 to-transparent rounded-tr-lg pointer-events-none"></div>
+<h2 class="font-data-lg text-data-lg text-primary mb-6 flex items-center gap-2 border-b border-outline-variant/20 pb-4">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+                            SEQUENCE LOG
+                        </h2>
+<div class="flex flex-col gap-6 relative before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-outline-variant/30">
+<!-- Step 1: Done -->
+<div class="relative flex items-start gap-4">
+<div class="w-6 h-6 rounded-full bg-tertiary-container/30 border border-tertiary flex items-center justify-center shrink-0 z-10 shadow-[0_0_10px_rgba(179,209,122,0.2)]">
+<span class="material-symbols-outlined text-[14px] text-tertiary font-bold" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="pt-0.5">
+<h3 class="font-body-md text-body-md text-on-surface font-bold">Image metadata extracted</h3>
+<p class="font-data-sm text-data-sm text-outline mt-1">Resolution, EXIF data, and color profile identified.</p>
+<div class="mt-2 font-label-caps text-label-caps text-tertiary bg-tertiary/10 inline-block px-2 py-1 rounded-sm border border-tertiary/30">COMPLETE // 0.12s</div>
+</div>
+</div>
+<!-- Step 2: Processing -->
+<div class="relative flex items-start gap-4">
+<div class="w-6 h-6 rounded-full bg-secondary-container/30 border border-secondary flex items-center justify-center shrink-0 z-10 shadow-[0_0_10px_rgba(221,184,255,0.4)]">
+<span class="w-2 h-2 rounded-full bg-secondary pulse-dot"></span>
+</div>
+<div class="pt-0.5">
+<h3 class="font-body-md text-body-md text-primary font-bold">Visual content analysis</h3>
+<p class="font-data-sm text-data-sm text-outline mt-1">Scanning for objects, faces, and semantic relationships.</p>
+<div class="mt-2 font-label-caps text-label-caps text-secondary bg-secondary/10 inline-block px-2 py-1 rounded-sm border border-secondary/30">PROCESSING // ITER_04</div>
+<!-- Mini progress bar -->
+<div class="w-full h-1 bg-surface-container-highest mt-3 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-2/3 shadow-[0_0_5px_#ddb8ff]"></div>
+</div>
+</div>
+</div>
+<!-- Step 3: Pending -->
+<div class="relative flex items-start gap-4 opacity-50">
+<div class="w-6 h-6 rounded-full bg-surface border border-outline-variant flex items-center justify-center shrink-0 z-10">
+<span class="material-symbols-outlined text-[14px] text-outline">schedule</span>
+</div>
+<div class="pt-0.5">
+<h3 class="font-body-md text-body-md text-on-surface-variant font-bold">AI-generation indicators</h3>
+<p class="font-data-sm text-data-sm text-outline mt-1">Checking for artifacting, noise patterns, and synthesis marks.</p>
+<div class="mt-2 font-label-caps text-label-caps text-outline bg-surface-variant/50 inline-block px-2 py-1 rounded-sm border border-outline-variant/30">PENDING</div>
+</div>
+</div>
+<!-- Step 4: Pending -->
+<div class="relative flex items-start gap-4 opacity-50">
+<div class="w-6 h-6 rounded-full bg-surface border border-outline-variant flex items-center justify-center shrink-0 z-10">
+<span class="material-symbols-outlined text-[14px] text-outline">schedule</span>
+</div>
+<div class="pt-0.5">
+<h3 class="font-body-md text-body-md text-on-surface-variant font-bold">Confidence calculation</h3>
+<p class="font-data-sm text-data-sm text-outline mt-1">Aggregating scores for final authenticity assessment.</p>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/20">
+<button class="w-full py-3 border border-error/50 text-error hover:bg-error/10 hover:shadow-[0_0_15px_rgba(255,180,171,0.2)] transition-all rounded-DEFAULT font-data-sm text-data-sm flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-sm">stop_circle</span>
+                                ABORT ANALYSIS
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer JSON Component -->
+<footer class="bg-background w-full py-8 border-t border-outline-variant/10 z-10 mt-auto">
+<div class="max-w-max_width mx-auto px-margin_desktop flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="font-label-caps text-label-caps text-on-surface opacity-80 hover:opacity-100 transition-opacity">
+                © 2024 Aetheris Technical Systems. All rights reserved.
+            </div>
+<div class="flex gap-6">
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+</div>
+</footer>
+</body></html>

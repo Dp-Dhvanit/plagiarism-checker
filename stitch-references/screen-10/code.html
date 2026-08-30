@@ -1,0 +1,261 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aetheris AI - Code Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#7c03d3",
+                        "tertiary": "#b3d17a",
+                        "on-tertiary": "#243600",
+                        "on-primary-fixed": "#00174b",
+                        "error": "#ffb4ab",
+                        "outline": "#8d90a0",
+                        "surface-bright": "#39393b",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#2c0051",
+                        "inverse-primary": "#0053db",
+                        "surface-container-lowest": "#0e0e10",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#353437",
+                        "inverse-surface": "#e5e1e4",
+                        "on-tertiary-container": "#dcfca0",
+                        "primary": "#b4c5ff",
+                        "surface": "#131315",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed": "#131f00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "background": "#131315",
+                        "primary-container": "#2563eb",
+                        "on-surface": "#e5e1e4",
+                        "on-secondary-container": "#dfbcff",
+                        "surface-dim": "#131315",
+                        "surface-tint": "#b4c5ff",
+                        "tertiary-fixed-dim": "#b3d17a",
+                        "tertiary-fixed": "#ceee93",
+                        "surface-variant": "#353437",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-container": "#5b762a",
+                        "secondary-fixed-dim": "#ddb8ff",
+                        "on-primary": "#002a78",
+                        "surface-container": "#201f21",
+                        "secondary-fixed": "#f0dbff",
+                        "on-tertiary-fixed-variant": "#364e03",
+                        "surface-container-low": "#1c1b1d",
+                        "on-secondary": "#490080",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#6800b4",
+                        "inverse-on-surface": "#313032",
+                        "secondary": "#ddb8ff",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2c",
+                        "on-background": "#e5e1e4",
+                        "on-surface-variant": "#c3c6d7",
+                        "outline-variant": "#434655"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin_desktop": "64px",
+                        "max_width": "1440px",
+                        "gutter": "24px",
+                        "margin_mobile": "16px",
+                        "grid_unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "data-lg": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"],
+                        "data-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-caps": ["10px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "data-lg": ["18px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "data-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-image: 
+                linear-gradient(to right, rgba(141, 144, 160, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(141, 144, 160, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            background-color: #0A0A0C;
+        }
+        .scanning-line {
+            animation: scan 2s linear infinite;
+            background: linear-gradient(to right, transparent, #b4c5ff, transparent);
+        }
+        @keyframes scan {
+            0% { transform: translateY(-100%); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+        .glow-border {
+            box-shadow: inset 0 0 0 1px rgba(180, 197, 255, 0.2), 0 0 15px rgba(37, 99, 235, 0.15);
+        }
+        .log-stream {
+            overflow: hidden;
+            position: relative;
+        }
+        .log-stream::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(to bottom, transparent, #131315);
+        }
+        .pulse-purple { animation: pulsePurple 2s infinite; }
+        @keyframes pulsePurple {
+            0% { box-shadow: 0 0 0 0 rgba(124, 3, 211, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(124, 3, 211, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(124, 3, 211, 0); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col font-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface/60 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)] flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16">
+<div class="font-headline-xl text-[24px] md:text-[32px] font-bold text-primary tracking-tighter">Aetheris AI</div>
+<div class="flex items-center gap-6 hidden md:flex">
+<nav class="flex gap-6 h-full items-center">
+<!-- Navigation Suppressed as this is a focused task view -->
+</nav>
+</div>
+<div class="flex items-center gap-4 text-primary">
+<span class="material-symbols-outlined hover:text-primary transition-colors duration-300 cursor-pointer active:scale-95 transition-transform" data-icon="notifications" data-weight="fill" style="font-variation-settings: 'FILL' 1;">notifications</span>
+<span class="material-symbols-outlined hover:text-primary transition-colors duration-300 cursor-pointer active:scale-95 transition-transform" data-icon="settings" data-weight="fill" style="font-variation-settings: 'FILL' 1;">settings</span>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline/30 glow-border">
+<img alt="User technical profile avatar" class="w-full h-full object-cover" data-alt="A highly detailed portrait of a user avatar suitable for a dark sci-fi technical interface, glowing neon blue accents, high contrast, professional lighting, deep shadows, 4k resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFpjeSZJ7rq_10W8DMGiTdYsEFJErv6OONV0i9WvdfA3DiUjFOvv4FrLv9AN5EUBPbj4SW5eTTTWGcgBCg1VCKKm_TiveumpjR7iwxmusKhKLYYTbe6TyUJn9UGr2RGDwBbiyn3vQzCRlOOkp8IRp4JKHV2ID7QtWFEw857fattN6BnVHWcxzdI-z6Y3Qx4oQWoXrLL8J-80Vb1h3K6Z29SuyGlm0RTsFgwpJZlBS0Q7jtPr-15cM6sQ">
+</div>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-margin_desktop px-margin_mobile md:px-margin_desktop max-w-max_width mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-gutter relative">
+<!-- Main Content Canvas -->
+<div class="col-span-1 lg:col-span-8 flex flex-col gap-gutter">
+<!-- Analysis Header -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-4">
+<div class="w-3 h-3 rounded-full bg-secondary-container pulse-purple"></div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary tracking-tight uppercase">ANALYZING CODE</h1>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-data-sm text-data-sm border border-outline-variant/30 bg-surface-container-low/40 backdrop-blur-md px-4 py-2 rounded">
+<span class="material-symbols-outlined text-[16px]">description</span>
+<span>Target: <span class="text-on-surface font-medium">student_assignment.pdf</span></span>
+<span class="text-outline mx-2">|</span>
+<span class="text-tertiary">Status: Code blocks detected: 8</span>
+</div>
+</div>
+<!-- Scanner Visualizer -->
+<div class="relative w-full h-[400px] border border-outline-variant/30 rounded-lg overflow-hidden bg-surface-container-lowest/80 glow-border backdrop-blur-md">
+<div class="absolute top-2 left-2 px-2 py-1 bg-surface-container-high/80 rounded font-label-caps text-label-caps text-on-surface-variant border border-outline-variant/20 z-10">SEC_01 // VISUAL_MAP</div>
+<!-- Background Content being scanned -->
+<div class="absolute inset-0 p-8 font-data-sm text-data-sm text-on-surface-variant/40 overflow-hidden opacity-50">
+<pre><code>
+function detectAI(codeString) {
+    const indicators = [
+        "complex_regex_unlikely",
+        "perfect_formatting_no_comments",
+        "library_import_unused"
+    ];
+    let score = 0;
+    
+    indicators.forEach(indicator =&gt; {
+        if (codeString.includes(indicator)) {
+            score += 25;
+        }
+    });
+
+    return score &gt; 50 ? true : false;
+}
+</code></pre>
+</div>
+<!-- The Scanning Line -->
+<div class="absolute inset-0 z-20 pointer-events-none">
+<div class="w-full h-[2px] scanning-line relative">
+<div class="absolute inset-0 bg-primary/20 blur-sm h-12 -top-6"></div>
+</div>
+</div>
+<!-- Detection Overlays (Mock) -->
+<div class="absolute top-[120px] left-[40px] border border-secondary-container bg-secondary-container/10 p-2 rounded z-10">
+<span class="font-label-caps text-label-caps text-secondary">SUSPICIOUS_PATTERN_01</span>
+</div>
+</div>
+</div>
+<!-- Sidebar / Sequence Log -->
+<div class="col-span-1 lg:col-span-4 flex flex-col gap-gutter h-[calc(100vh-140px)] sticky top-24">
+<!-- Sequence Status -->
+<div class="bg-surface-container-low/40 backdrop-blur-md border border-outline-variant/30 rounded-lg p-6 glow-border flex flex-col gap-4">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-2">ANALYSIS_SEQUENCE</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-[20px]">check_circle</span>
+<div class="flex flex-col">
+<span class="font-data-sm text-data-sm text-on-surface">Extracting code blocks</span>
+<span class="font-label-caps text-label-caps text-tertiary">DONE</span>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-[20px]">check_circle</span>
+<div class="flex flex-col">
+<span class="font-data-sm text-data-sm text-on-surface">Identifying programming language</span>
+<span class="font-label-caps text-label-caps text-tertiary">DONE</span>
+</div>
+</div>
+<div class="flex items-start gap-3 relative">
+<div class="absolute -left-1 top-1 w-1 h-full bg-secondary-container rounded-r"></div>
+<span class="material-symbols-outlined text-secondary text-[20px] animate-spin" style="animation-duration: 3s;">sync</span>
+<div class="flex flex-col">
+<span class="font-data-sm text-data-sm text-secondary font-bold">Separating code sections</span>
+<span class="font-label-caps text-label-caps text-secondary">PROCESSING...</span>
+</div>
+</div>
+<div class="flex items-start gap-3 opacity-50">
+<span class="material-symbols-outlined text-outline text-[20px]">pending</span>
+<div class="flex flex-col">
+<span class="font-data-sm text-data-sm text-on-surface">Analyzing AI indicators</span>
+<span class="font-label-caps text-label-caps text-outline">PENDING</span>
+</div>
+</div>
+</div>
+<!-- Technical Log Stream -->
+<div class="flex-grow bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-4 font-data-sm text-data-sm flex flex-col relative glow-border log-stream">
+<div class="font-label-caps text-label-caps text-primary border-b border-outline-variant/20 pb-2 mb-4">SYSTEM.LOG_STREAM</div>
+<div class="flex flex-col gap-2 text-on-surface-variant h-full overflow-hidden">
+<div class="flex gap-2"><span class="text-outline">[10:42:01]</span><span>INIT: Parsing PDF structure...</span></div>
+<div class="flex gap-2"><span class="text-outline">[10:42:02]</span><span>INF: Found 8 code block boundaries.</span></div>
+<div class="flex gap-2"><span class="text-outline">[10:42:03]</span><span class="text-tertiary">OK: Extraction successful.</span></div>
+<div class="flex gap-2"><span class="text-outline">[10:42:03]</span><span>INIT: Language detection module loaded.</span></div>
+<div class="flex gap-2"><span class="text-outline">[10:42:04]</span><span>INF: Block 1 -&gt; JavaScript (Confidence: 98%)</span></div>
+<div class="flex gap-2"><span class="text-outline">[10:42:04]</span><span>INF: Block 2 -&gt; Python (Confidence: 99%)</span></div>
+<div class="flex gap-2"><span class="text-outline">[10:42:05]</span><span class="text-secondary">SYS: Separating functional logic from comments...</span></div>
+<div class="flex gap-2"><span class="text-outline">[10:42:05]</span><span class="text-secondary">SYS: Analyzing AST for Block 1...</span></div>
+<div class="flex gap-2"><span class="text-outline">[10:42:06]</span><span class="text-secondary">SYS: Comparing token density...</span></div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aetheris AI - Upload File</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#7c03d3",
+                      "tertiary": "#b3d17a",
+                      "on-tertiary": "#243600",
+                      "on-primary-fixed": "#00174b",
+                      "error": "#ffb4ab",
+                      "outline": "#8d90a0",
+                      "surface-bright": "#39393b",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary-fixed": "#2c0051",
+                      "inverse-primary": "#0053db",
+                      "surface-container-lowest": "#0e0e10",
+                      "on-error": "#690005",
+                      "surface-container-highest": "#353437",
+                      "inverse-surface": "#e5e1e4",
+                      "on-tertiary-container": "#dcfca0",
+                      "primary": "#b4c5ff",
+                      "surface": "#131315",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-fixed": "#131f00",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "background": "#131315",
+                      "primary-container": "#2563eb",
+                      "on-surface": "#e5e1e4",
+                      "on-secondary-container": "#dfbcff",
+                      "surface-dim": "#131315",
+                      "surface-tint": "#b4c5ff",
+                      "tertiary-fixed-dim": "#b3d17a",
+                      "tertiary-fixed": "#ceee93",
+                      "surface-variant": "#353437",
+                      "on-primary-container": "#eeefff",
+                      "tertiary-container": "#5b762a",
+                      "secondary-fixed-dim": "#ddb8ff",
+                      "on-primary": "#002a78",
+                      "surface-container": "#201f21",
+                      "secondary-fixed": "#f0dbff",
+                      "on-tertiary-fixed-variant": "#364e03",
+                      "surface-container-low": "#1c1b1d",
+                      "on-secondary": "#490080",
+                      "primary-fixed": "#dbe1ff",
+                      "on-secondary-fixed-variant": "#6800b4",
+                      "inverse-on-surface": "#313032",
+                      "secondary": "#ddb8ff",
+                      "error-container": "#93000a",
+                      "surface-container-high": "#2a2a2c",
+                      "on-background": "#e5e1e4",
+                      "on-surface-variant": "#c3c6d7",
+                      "outline-variant": "#434655"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin_desktop": "64px",
+                      "max_width": "1440px",
+                      "gutter": "24px",
+                      "margin_mobile": "16px",
+                      "grid_unit": "8px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-xl": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "data-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "label-caps": [
+                              "10px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "data-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(rgba(141, 144, 160, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(141, 144, 160, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .scanning-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(180, 197, 255, 0.8), transparent);
+            box-shadow: 0 0 10px rgba(180, 197, 255, 0.5);
+            animation: scan 2.5s infinite linear;
+            opacity: 0;
+        }
+        .group:hover .scanning-line {
+            opacity: 1;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface/60 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)] flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16 w-full">
+<div class="font-headline-xl text-headline-xl text-primary tracking-tighter">Aetheris AI</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 transition-transform cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 transition-transform cursor-pointer">settings</span>
+<img alt="User technical profile avatar" class="w-8 h-8 rounded-full border border-primary/50 object-cover" data-alt="A highly detailed avatar of a user in a dark, cyberpunk setting, lit by blue neon light, facing forward, hyper-realistic, 8k resolution, technical aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAC2vwKS63GiHF5nBJDH1NrD9zfmNzY8goGXUl9iZWBZ2vr-1JGGX3cvU6_2e2Z1XAk21DXrOl7Mf4gZxxBZjg51MSz38W4LrxC8LJ5wwjC64kwkOVB6UwTb6Aln2_tSWwwbwTEgV9dRhTz0x05dLOCBLtsn-529gaTb5MIYVTmw66GSm9zCl8S0PONU_2YHIfwSGlkFVBK-1JPwV5xtVHspTx_N08dU74F5rzdQHCBlODm_UPGfRc2-g">
+</div>
+</header>
+<div class="flex flex-1 pt-16">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low/40 backdrop-blur-md fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col border-r border-outline-variant/20 p-4 gap-2">
+<div class="mb-8 px-4">
+<div class="font-label-caps text-label-caps text-primary mb-1">SEC_01 // ACTIVE</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">Core Terminal</div>
+</div>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-body-md text-body-md">Text</span>
+</a>
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">upload_file</span>
+<span class="font-body-md text-body-md font-bold">Upload File</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">code</span>
+<span class="font-body-md text-body-md">Code</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">image</span>
+<span class="font-body-md text-body-md">Image</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">summarize</span>
+<span class="font-body-md text-body-md">Summary</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md text-body-md">History</span>
+</a>
+<div class="mt-auto">
+<button class="w-full bg-primary-container text-on-primary-container font-data-sm text-data-sm py-3 rounded-DEFAULT hover:bg-primary transition-colors flex items-center justify-center gap-2 relative overflow-hidden group">
+<span class="relative z-10 font-bold uppercase tracking-widest">Upgrade to Pro</span>
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+</button>
+<div class="mt-4 flex flex-col gap-2">
+<a class="text-on-surface-variant p-2 flex items-center gap-3 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">menu_book</span>
+<span class="font-data-sm text-data-sm">Docs</span>
+</a>
+<a class="text-on-surface-variant p-2 flex items-center gap-3 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">support_agent</span>
+<span class="font-data-sm text-data-sm">Support</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 lg:ml-64 p-margin_mobile md:p-margin_desktop min-h-[calc(100vh-64px)] flex flex-col items-center justify-center relative">
+<div class="w-full max-w-4xl relative group">
+<!-- Data Anomaly Scanner Visual -->
+<div class="absolute -inset-4 bg-primary/5 blur-2xl rounded-xl z-0 group-hover:bg-primary/10 transition-all duration-500"></div>
+<!-- Drop Zone Card -->
+<div class="relative z-10 bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant/30 rounded-xl p-12 md:p-24 flex flex-col items-center justify-center text-center shadow-[0_0_30px_rgba(37,99,235,0.05)] hover:shadow-[0_0_40px_rgba(37,99,235,0.15)] transition-all duration-500 overflow-hidden cursor-pointer border-dashed border-2 hover:border-primary/50">
+<div class="scanning-line"></div>
+<div class="absolute top-4 left-4 font-label-caps text-label-caps text-outline-variant/70 font-bold">
+                        ZONE_04 // UPLOAD
+                    </div>
+<div class="absolute top-4 right-4 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">AWAITING_INPUT</span>
+</div>
+<div class="bg-surface/50 border border-outline-variant/20 p-6 rounded-full mb-8 relative">
+<div class="absolute inset-0 bg-primary/10 rounded-full blur-md animate-pulse"></div>
+<span class="material-symbols-outlined text-6xl text-primary relative z-10" style="font-variation-settings: 'FILL' 0;">cloud_upload</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-4">
+                        Drag &amp; Drop files here or <span class="text-primary hover:text-primary-fixed transition-colors underline decoration-primary/50 underline-offset-4">Browse</span>
+</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-lg mb-12">
+                        Initiate secure transfer of documents to the Core Terminal for deep-analysis. Maximum file size: 50MB per node.
+                    </p>
+<div class="grid grid-cols-5 gap-4 md:gap-8 opacity-60">
+<div class="flex flex-col items-center gap-2 group/icon">
+<span class="material-symbols-outlined text-3xl text-outline group-hover/icon:text-primary transition-colors">picture_as_pdf</span>
+<span class="font-label-caps text-label-caps text-outline group-hover/icon:text-primary transition-colors">PDF</span>
+</div>
+<div class="flex flex-col items-center gap-2 group/icon">
+<span class="material-symbols-outlined text-3xl text-outline group-hover/icon:text-primary transition-colors">slideshow</span>
+<span class="font-label-caps text-label-caps text-outline group-hover/icon:text-primary transition-colors">PPTX</span>
+</div>
+<div class="flex flex-col items-center gap-2 group/icon">
+<span class="material-symbols-outlined text-3xl text-outline group-hover/icon:text-primary transition-colors">description</span>
+<span class="font-label-caps text-label-caps text-outline group-hover/icon:text-primary transition-colors">DOCX</span>
+</div>
+<div class="flex flex-col items-center gap-2 group/icon">
+<span class="material-symbols-outlined text-3xl text-outline group-hover/icon:text-primary transition-colors">text_snippet</span>
+<span class="font-label-caps text-label-caps text-outline group-hover/icon:text-primary transition-colors">TXT</span>
+</div>
+<div class="flex flex-col items-center gap-2 group/icon">
+<span class="material-symbols-outlined text-3xl text-outline group-hover/icon:text-primary transition-colors">table</span>
+<span class="font-label-caps text-label-caps text-outline group-hover/icon:text-primary transition-colors">CSV</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-background border-t border-outline-variant/10 w-full py-8 lg:ml-64">
+<div class="max-w-max_width mx-auto px-margin_mobile md:px-margin_desktop flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="font-data-sm text-data-sm text-on-surface-variant opacity-80 hover:opacity-100 transition-opacity">
+                © 2024 Aetheris Technical Systems. All rights reserved.
+            </div>
+<div class="flex items-center gap-6">
+<a class="font-label-caps text-label-caps text-on-surface hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-label-caps text-label-caps text-on-surface hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-on-surface hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+</div>
+</footer>
+</body></html>

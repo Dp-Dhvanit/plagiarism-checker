@@ -1,0 +1,363 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>File Analysis - Live Processing</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#7c03d3",
+                      "tertiary": "#b3d17a",
+                      "on-tertiary": "#243600",
+                      "on-primary-fixed": "#00174b",
+                      "error": "#ffb4ab",
+                      "outline": "#8d90a0",
+                      "surface-bright": "#39393b",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary-fixed": "#2c0051",
+                      "inverse-primary": "#0053db",
+                      "surface-container-lowest": "#0e0e10",
+                      "on-error": "#690005",
+                      "surface-container-highest": "#353437",
+                      "inverse-surface": "#e5e1e4",
+                      "on-tertiary-container": "#dcfca0",
+                      "primary": "#b4c5ff",
+                      "surface": "#131315",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-fixed": "#131f00",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "background": "#131315",
+                      "primary-container": "#2563eb",
+                      "on-surface": "#e5e1e4",
+                      "on-secondary-container": "#dfbcff",
+                      "surface-dim": "#131315",
+                      "surface-tint": "#b4c5ff",
+                      "tertiary-fixed-dim": "#b3d17a",
+                      "tertiary-fixed": "#ceee93",
+                      "surface-variant": "#353437",
+                      "on-primary-container": "#eeefff",
+                      "tertiary-container": "#5b762a",
+                      "secondary-fixed-dim": "#ddb8ff",
+                      "on-primary": "#002a78",
+                      "surface-container": "#201f21",
+                      "secondary-fixed": "#f0dbff",
+                      "on-tertiary-fixed-variant": "#364e03",
+                      "surface-container-low": "#1c1b1d",
+                      "on-secondary": "#490080",
+                      "primary-fixed": "#dbe1ff",
+                      "on-secondary-fixed-variant": "#6800b4",
+                      "inverse-on-surface": "#313032",
+                      "secondary": "#ddb8ff",
+                      "error-container": "#93000a",
+                      "surface-container-high": "#2a2a2c",
+                      "on-background": "#e5e1e4",
+                      "on-surface-variant": "#c3c6d7",
+                      "outline-variant": "#434655"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin_desktop": "64px",
+                      "max_width": "1440px",
+                      "gutter": "24px",
+                      "margin_mobile": "16px",
+                      "grid_unit": "8px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-xl": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "data-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "label-caps": [
+                              "10px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "data-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(to right, rgba(141, 144, 160, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(141, 144, 160, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            color: #e5e1e4;
+        }
+
+        .scanning-line {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #2563eb, transparent);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scanVertical 3s ease-in-out infinite;
+            box-shadow: 0 0 10px #2563eb, 0 0 5px #b4c5ff;
+            opacity: 0.8;
+            z-index: 10;
+        }
+
+        @keyframes scanVertical {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .pulse-glow {
+            animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 15px rgba(124, 3, 211, 0.2); border-color: rgba(124, 3, 211, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(124, 3, 211, 0.6); border-color: rgba(124, 3, 211, 1); }
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 10px rgba(180, 197, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md antialiased overflow-x-hidden">
+<!-- TopAppBar Shared Component -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)] flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16 w-full">
+<div class="font-headline-xl text-headline-xl text-primary tracking-tighter glow-text">Aetheris AI</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-on-surface-variant font-medium hover:text-primary transition-colors duration-300 active:scale-95 transition-transform cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant font-medium hover:text-primary transition-colors duration-300 active:scale-95 transition-transform cursor-pointer">settings</span>
+<div class="h-8 w-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/50 ml-2">
+<img alt="User technical profile avatar" class="w-full h-full object-cover" data-alt="A highly detailed close-up portrait of a futuristic android avatar. The android features sleek, glowing blue cybernetic enhancements against matte black synthetic skin. The lighting is dramatic and cinematic, reminiscent of high-end sci-fi films, with deep shadows and sharp neon highlights. The overall mood is cold, calculated, and highly technical." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl027amipWLKPcGLO8qjDYL7cTJNWStpCwse6zuFYNBmFqI6YlNYELGHJHlqvSyjBKbcUolWoeLlrofpyqhFB7oLWPiUg-B4SjwrTo1OTtffhunDWOIU7zPZTYWLRcLGe0cAemwvEDyEBw9l0DNp3GnsdShqiNiEPxjEP0iNnl_ltY3kcDrpFtkuO83ILTe477GdPxKlZ0VcyeMXY-GRUq2DXgZzI-nla5OHRPOAZlP7_e_ik7eWcSag">
+</div>
+</div>
+</header>
+<div class="flex flex-1 pt-16">
+<!-- SideNavBar Shared Component -->
+<nav class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col bg-surface-container-low/40 backdrop-blur-md border-r border-outline-variant/20 flex flex-col gap-2 p-4 z-40">
+<div class="mb-8 mt-4 px-4">
+<div class="font-headline-lg text-headline-lg text-primary glow-text">Core Terminal</div>
+<div class="font-label-caps text-label-caps text-tertiary mt-1 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                    SEC_01 // ACTIVE
+                </div>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-data-sm text-data-sm uppercase tracking-wider">Text</span>
+</a>
+<!-- Active Navigation Item based on intent (Upload File -> Analysis) -->
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all rounded-DEFAULT pulse-glow" href="#">
+<span class="material-symbols-outlined">upload_file</span>
+<span class="font-data-sm text-data-sm uppercase tracking-wider font-bold">Upload File</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">code</span>
+<span class="font-data-sm text-data-sm uppercase tracking-wider">Code</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">image</span>
+<span class="font-data-sm text-data-sm uppercase tracking-wider">Image</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">summarize</span>
+<span class="font-data-sm text-data-sm uppercase tracking-wider">Summary</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:bg-surface-variant/30 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-data-sm text-data-sm uppercase tracking-wider">History</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2 pt-4 border-t border-outline-variant/20">
+<button class="w-full py-3 px-4 bg-primary-container text-on-primary-container font-data-sm text-data-sm font-bold tracking-widest uppercase rounded-DEFAULT hover:bg-primary transition-colors flex justify-center items-center gap-2 group">
+<span class="material-symbols-outlined group-hover:animate-pulse">bolt</span>
+                    Upgrade to Pro
+                </button>
+<div class="flex justify-between px-2 mt-4">
+<a class="text-on-surface-variant hover:text-primary transition-colors flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-sm group-hover:-translate-y-1 transition-transform">menu_book</span>
+<span class="font-label-caps text-[8px] text-label-caps">Docs</span>
+</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-sm group-hover:-translate-y-1 transition-transform">support_agent</span>
+<span class="font-label-caps text-[8px] text-label-caps">Support</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 p-margin_mobile md:p-margin_desktop flex flex-col items-center justify-center min-h-[calc(100vh-64px)] relative">
+<!-- Analysis Container -->
+<div class="w-full max-w-3xl bg-surface/40 backdrop-blur-xl border border-outline-variant/30 rounded-lg p-8 relative overflow-hidden shadow-[0_0_30px_rgba(37,99,235,0.1)]">
+<!-- Technical Corner Accents -->
+<div class="absolute top-0 left-0 w-4 h-4 border-t border-l border-primary/50"></div>
+<div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-primary/50"></div>
+<div class="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-primary/50"></div>
+<div class="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-primary/50"></div>
+<div class="font-label-caps text-label-caps text-outline absolute top-4 left-4">
+                    SYS_PROC // 0x4F9A
+                </div>
+<!-- Header -->
+<div class="text-center mb-10 mt-6">
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-2 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined animate-spin text-secondary" style="font-variation-settings: 'FILL' 1;">sync</span>
+                        ANALYZING DOCUMENT
+                    </h1>
+<p class="font-data-sm text-data-sm text-on-surface-variant tracking-widest uppercase">Deep Content Extraction Protocol</p>
+</div>
+<!-- File Info Card -->
+<div class="bg-surface-container-high/50 border border-outline-variant/40 rounded-DEFAULT p-4 flex items-center gap-4 mb-10 relative overflow-hidden group">
+<div class="scanning-line"></div>
+<div class="bg-primary/10 p-3 rounded-DEFAULT border border-primary/30">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">insert_drive_file</span>
+</div>
+<div>
+<div class="font-data-lg text-data-lg text-on-surface mb-1">strategy_deck.pptx</div>
+<div class="font-data-sm text-data-sm text-outline flex items-center gap-2">
+<span>PPTX</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>5.1MB</span>
+</div>
+</div>
+<div class="ml-auto font-label-caps text-label-caps text-secondary animate-pulse">
+                        PROCESSING...
+                    </div>
+</div>
+<!-- Sequence / Stages -->
+<div class="space-y-6 relative before:absolute before:inset-0 before:ml-4 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-tertiary before:via-secondary before:to-outline-variant/30">
+<!-- Stage 1: Done -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border border-tertiary bg-surface-container-lowest text-tertiary shadow-[0_0_10px_rgba(179,209,122,0.3)] z-10 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] p-4 rounded-DEFAULT border border-tertiary/30 bg-tertiary/5 text-left md:text-right md:group-even:text-left shadow-[0_0_15px_rgba(179,209,122,0.05)]">
+<h3 class="font-data-lg text-data-lg text-tertiary mb-1">Reading slides</h3>
+<p class="font-data-sm text-data-sm text-on-surface-variant">100% Complete</p>
+</div>
+</div>
+<!-- Stage 2: Done -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border border-tertiary bg-surface-container-lowest text-tertiary shadow-[0_0_10px_rgba(179,209,122,0.3)] z-10 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] p-4 rounded-DEFAULT border border-tertiary/30 bg-tertiary/5 text-left md:text-right md:group-even:text-left shadow-[0_0_15px_rgba(179,209,122,0.05)]">
+<h3 class="font-data-lg text-data-lg text-tertiary mb-1">Extracting text</h3>
+<p class="font-data-sm text-data-sm text-on-surface-variant">Data successfully buffered</p>
+</div>
+</div>
+<!-- Stage 3: Processing -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border border-secondary bg-surface-container-lowest text-secondary z-10 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 pulse-glow">
+<div class="w-3 h-3 bg-secondary rounded-full"></div>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] p-4 rounded-DEFAULT border border-secondary/50 bg-secondary/10 text-left md:text-right md:group-even:text-left shadow-[0_0_20px_rgba(124,3,211,0.15)] relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-secondary/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+<h3 class="font-data-lg text-data-lg text-secondary mb-1 flex items-center md:justify-end md:group-even:justify-start gap-2">
+                                Processing slide content
+                                <span class="material-symbols-outlined text-sm animate-spin">memory</span>
+</h3>
+<p class="font-data-sm text-data-sm text-on-surface-variant font-mono">Analyzing layout blocks: 45/112</p>
+</div>
+</div>
+<!-- Stage 4: Pending -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border border-outline-variant/50 bg-surface-container-lowest text-outline-variant z-10 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+<div class="w-1.5 h-1.5 bg-outline-variant rounded-full"></div>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] p-4 rounded-DEFAULT border border-outline-variant/20 bg-surface-container/30 text-left md:text-right md:group-even:text-left opacity-60">
+<h3 class="font-data-lg text-data-lg text-outline mb-1">Analyzing content</h3>
+<p class="font-data-sm text-data-sm text-outline-variant">Awaiting previous stage</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer Shared Component (Hidden on main layout to focus on processing, but included for structure if needed, placed inside main if it was required, but usually omitted in focused full-height views. I'll omit it for cleaner focused UI as per the intent logic). -->
+<style>
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</body></html>

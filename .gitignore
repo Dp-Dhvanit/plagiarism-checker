@@ -1,0 +1,38 @@
+# Secrets — never commit
+.env
+*.env
+# Also covers variants and backups (.env.bak, .env.local, .env.save …),
+# which plain `.env` / `*.env` do NOT match.
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+backend/.venv/
+
+# Node / frontend
+node_modules/
+dist/
+
+# Stray empty repo GitHub Desktop created inside this folder by mistake —
+# harmless leftover, kept out so it's never mistaken for part of the project.
+Plagarism_checker/
+
+# Local runtime data — not project files, and grows with use
+backend/data/history.db
+
+# Python/venv cache that can appear if a script imports a package outside
+# the tracked .venv
+__pycache__/
+*.pyc
+*.pyo
+
+# HuggingFace / model cache, in case anything gets created inside the repo
+# rather than the user cache dir
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,278 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aetheris AI - Text Analysis Result</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-container": "#7c03d3",
+                        "tertiary": "#b3d17a",
+                        "on-tertiary": "#243600",
+                        "on-primary-fixed": "#00174b",
+                        "error": "#ffb4ab",
+                        "outline": "#8d90a0",
+                        "surface-bright": "#39393b",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#2c0051",
+                        "inverse-primary": "#0053db",
+                        "surface-container-lowest": "#0e0e10",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#353437",
+                        "inverse-surface": "#e5e1e4",
+                        "on-tertiary-container": "#dcfca0",
+                        "primary": "#b4c5ff",
+                        "surface": "#131315",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed": "#131f00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "background": "#131315",
+                        "primary-container": "#2563eb",
+                        "on-surface": "#e5e1e4",
+                        "on-secondary-container": "#dfbcff",
+                        "surface-dim": "#131315",
+                        "surface-tint": "#b4c5ff",
+                        "tertiary-fixed-dim": "#b3d17a",
+                        "tertiary-fixed": "#ceee93",
+                        "surface-variant": "#353437",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-container": "#5b762a",
+                        "secondary-fixed-dim": "#ddb8ff",
+                        "on-primary": "#002a78",
+                        "surface-container": "#201f21",
+                        "secondary-fixed": "#f0dbff",
+                        "on-tertiary-fixed-variant": "#364e03",
+                        "surface-container-low": "#1c1b1d",
+                        "on-secondary": "#490080",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#6800b4",
+                        "inverse-on-surface": "#313032",
+                        "secondary": "#ddb8ff",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2c",
+                        "on-background": "#e5e1e4",
+                        "on-surface-variant": "#c3c6d7",
+                        "outline-variant": "#434655"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        margin_desktop: "64px",
+                        max_width: "1440px",
+                        gutter: "24px",
+                        margin_mobile: "16px",
+                        grid_unit: "8px"
+                    },
+                    fontFamily: {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "data-lg": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"],
+                        "data-sm": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "headline-lg-mobile": ["24px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "headline-lg": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "headline-xl": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "800" }],
+                        "label-caps": ["10px", { lineHeight: "1", letterSpacing: "0.1em", fontWeight: "700" }],
+                        "data-lg": ["18px", { lineHeight: "1.4", letterSpacing: "0.05em", fontWeight: "500" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "data-sm": ["12px", { lineHeight: "1.4", fontWeight: "400" }]
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 64px 64px;
+        }
+        
+        .glass-panel {
+            background-color: rgba(19, 19, 21, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.3);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.15);
+        }
+
+        .scanning-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #b4c5ff, transparent);
+            animation: scan 3s infinite linear;
+            opacity: 0.5;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.95); box-shadow: 0 0 0 0 rgba(124, 3, 211, 0.7); }
+            70% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 10px rgba(124, 3, 211, 0); }
+            100% { opacity: 0.5; transform: scale(0.95); box-shadow: 0 0 0 0 rgba(124, 3, 211, 0); }
+        }
+        
+        .progress-circle {
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-on-surface font-body-md overflow-x-hidden min-h-screen flex flex-col">
+<div class="scanning-line z-0 pointer-events-none"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)] flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16">
+<div class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg font-headline-xl text-headline-xl text-primary tracking-tighter">
+            Aetheris AI
+        </div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 transition-transform cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 transition-transform cursor-pointer" data-icon="settings">settings</span>
+<img alt="User technical profile avatar" class="w-8 h-8 rounded-full border border-primary object-cover" data-alt="A small, ultra-minimalist avatar placeholder image featuring a glowing cyan wireframe of a human head against a pitch-black background. High contrast, sharp edges, technical cyber aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_ah4PGwE9BcieMY9MpuwZtwEiazL9QAWm9GI4Bst9i6BMaiqhnDQdk0lnpAeWPE-Gpp-WYrbo3-qYWKjnOFP2zCU4XM5IaD8GD69bYBqNmSflYBBIbrsOrVlfAy9XHnvScYrK8I68PEnR4xQ-_Pu21K_6Z8xjS2PmQqBguJta4qvdNbOoHw5zqWLHE3a-ToZGanTY2okw2auQiDrbnRelFOb1efZdtvnluWz3D_DBnXmy72o-s-3RGg">
+</div>
+</header>
+<div class="flex flex-1 pt-16">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col bg-surface-container-low/40 backdrop-blur-md border-r border-outline-variant/20 p-4 gap-2 z-40">
+<div class="mb-6 pb-4 border-b border-outline-variant/20">
+<div class="font-headline-lg text-headline-lg text-primary flex items-center gap-2 mb-1">
+<span class="w-2 h-2 rounded-full bg-secondary pulse-dot"></span> Core Terminal
+                </div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">SEC_01 // ACTIVE</div>
+</div>
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="description">description</span> Text
+            </a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="upload_file">upload_file</span> Upload File
+            </a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="code">code</span> Code
+            </a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="image">image</span> Image
+            </a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="summarize">summarize</span> Summary
+            </a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="history">history</span> History
+            </a>
+<div class="mt-auto flex flex-col gap-2 pt-4 border-t border-outline-variant/20">
+<button class="w-full bg-primary-container/20 border border-primary text-primary py-2 px-4 rounded hover:bg-primary-container/40 transition-colors font-data-sm text-data-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">bolt</span> Upgrade to Pro
+                </button>
+<div class="flex justify-between px-2 mt-2">
+<a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-xs" data-icon="menu_book">menu_book</span> Docs
+                    </a>
+<a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-xs" data-icon="support_agent">support_agent</span> Support
+                    </a>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 lg:ml-64 p-margin_mobile md:p-margin_desktop min-h-[calc(100vh-64px)] relative z-10 flex flex-col items-center justify-center">
+<div class="w-full max-w-4xl glass-panel rounded-xl p-8 relative overflow-hidden flex flex-col lg:flex-row gap-12">
+<div class="absolute top-0 left-0 p-4 font-label-caps text-label-caps text-outline opacity-50">RES_88 // AI_PROB</div>
+<!-- Circular Visualization -->
+<div class="flex-1 flex flex-col items-center justify-center relative pt-8">
+<div class="relative w-64 h-64 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+<!-- Background Circle -->
+<circle cx="50" cy="50" fill="transparent" r="45" stroke="#2a2a2c" stroke-width="2"></circle>
+<!-- Foreground Circle -->
+<circle class="progress-circle text-secondary" cx="50" cy="50" fill="transparent" r="45" stroke="currentColor" stroke-dasharray="282.7" stroke-dashoffset="79.1" stroke-width="4" style="stroke-linecap: round; filter: drop-shadow(0 0 8px rgba(124, 3, 211, 0.5));"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-xl text-headline-xl text-secondary">72%</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-2 tracking-widest text-center">AI CONTENT<br>PROBABILITY</span>
+</div>
+</div>
+</div>
+<!-- Supporting Metrics -->
+<div class="flex-1 flex flex-col justify-center gap-6">
+<div class="grid grid-cols-2 gap-4">
+<div class="glass-panel p-4 rounded-lg relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary opacity-50 group-hover:opacity-100 transition-opacity"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">AI LIKELIHOOD</div>
+<div class="font-data-lg text-data-lg text-secondary">72%</div>
+</div>
+<div class="glass-panel p-4 rounded-lg relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary opacity-50 group-hover:opacity-100 transition-opacity"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">HUMAN LIKELIHOOD</div>
+<div class="font-data-lg text-data-lg text-tertiary">28%</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+<span class="font-data-sm text-data-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">verified_user</span> Confidence Level
+                            </span>
+<span class="font-data-lg text-data-lg text-primary">High</span>
+</div>
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+<span class="font-data-sm text-data-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">compare_arrows</span> Similarity Index
+                            </span>
+<span class="font-data-lg text-data-lg text-on-surface">14%</span>
+</div>
+</div>
+<div class="mt-4">
+<button class="w-full bg-surface-container border border-outline-variant/30 hover:border-primary/50 text-on-surface py-3 px-6 rounded-lg font-data-sm text-data-sm flex items-center justify-center gap-2 transition-all">
+<span class="material-symbols-outlined text-sm">manage_search</span> View Detailed Analysis
+                        </button>
+</div>
+</div>
+</div>
+<p class="font-label-caps text-label-caps text-outline mt-8 max-w-2xl text-center">
+<span class="material-symbols-outlined text-xs align-middle mr-1">info</span>
+                AI detection is probabilistic and should not be treated as definitive proof.
+            </p>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full py-8 bg-background border-t border-outline-variant/10 max-w-max_width mx-auto px-margin_desktop flex flex-col md:flex-row justify-between items-center z-40 relative">
+<div class="font-label-caps text-label-caps text-on-surface mb-4 md:mb-0">
+            © 2024 Aetheris Technical Systems. All rights reserved.
+        </div>
+<div class="flex gap-6 font-data-sm text-data-sm text-on-surface-variant">
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+</footer>
+<script>
+        // Simple animation trigger for circle progress
+        setTimeout(() => {
+            document.querySelectorAll('.progress-circle').forEach(circle => {
+                circle.style.strokeDashoffset = '79.1'; // (1 - 0.72) * 282.7
+            });
+        }, 100);
+    </script>
+</body></html>

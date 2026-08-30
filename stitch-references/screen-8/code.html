@@ -1,0 +1,475 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aetheris AI - File Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#7c03d3",
+                      "tertiary": "#b3d17a",
+                      "on-tertiary": "#243600",
+                      "on-primary-fixed": "#00174b",
+                      "error": "#ffb4ab",
+                      "outline": "#8d90a0",
+                      "surface-bright": "#39393b",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary-fixed": "#2c0051",
+                      "inverse-primary": "#0053db",
+                      "surface-container-lowest": "#0e0e10",
+                      "on-error": "#690005",
+                      "surface-container-highest": "#353437",
+                      "inverse-surface": "#e5e1e4",
+                      "on-tertiary-container": "#dcfca0",
+                      "primary": "#b4c5ff",
+                      "surface": "#131315",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-fixed": "#131f00",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "background": "#131315",
+                      "primary-container": "#2563eb",
+                      "on-surface": "#e5e1e4",
+                      "on-secondary-container": "#dfbcff",
+                      "surface-dim": "#131315",
+                      "surface-tint": "#b4c5ff",
+                      "tertiary-fixed-dim": "#b3d17a",
+                      "tertiary-fixed": "#ceee93",
+                      "surface-variant": "#353437",
+                      "on-primary-container": "#eeefff",
+                      "tertiary-container": "#5b762a",
+                      "secondary-fixed-dim": "#ddb8ff",
+                      "on-primary": "#002a78",
+                      "surface-container": "#201f21",
+                      "secondary-fixed": "#f0dbff",
+                      "on-tertiary-fixed-variant": "#364e03",
+                      "surface-container-low": "#1c1b1d",
+                      "on-secondary": "#490080",
+                      "primary-fixed": "#dbe1ff",
+                      "on-secondary-fixed-variant": "#6800b4",
+                      "inverse-on-surface": "#313032",
+                      "secondary": "#ddb8ff",
+                      "error-container": "#93000a",
+                      "surface-container-high": "#2a2a2c",
+                      "on-background": "#e5e1e4",
+                      "on-surface-variant": "#c3c6d7",
+                      "outline-variant": "#434655"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin_desktop": "64px",
+                      "max_width": "1440px",
+                      "gutter": "24px",
+                      "margin_mobile": "16px",
+                      "grid_unit": "8px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-xl": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "data-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "label-caps": [
+                              "10px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "data-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(to right, rgba(141, 144, 160, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(141, 144, 160, 0.05) 1px, transparent 1px);
+            background-size: 64px 64px;
+            background-attachment: fixed;
+            color: #e5e1e4;
+        }
+
+        .scanning-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #b3d17a, transparent);
+            animation: scan 2s linear infinite;
+            box-shadow: 0 0 10px #b3d17a, 0 0 20px #b3d17a;
+            opacity: 0.8;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        
+        .pulse-neon {
+            animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px #7c03d3; }
+            50% { opacity: .5; box-shadow: 0 0 2px #7c03d3; }
+        }
+
+        .glass-panel {
+            background: rgba(19, 19, 21, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.3);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.05);
+        }
+        
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #2563eb, #b4c5ff);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .step-line {
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            bottom: -8px;
+            width: 2px;
+            background-color: rgba(67, 70, 85, 0.3);
+            z-index: 0;
+        }
+        
+        .step-line-active {
+            background-color: #2563eb;
+            box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md min-h-screen flex flex-col relative overflow-x-hidden">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)] flex justify-between items-center px-margin_desktop h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="font-headline-xl text-headline-xl text-primary tracking-tighter">Aetheris AI</span>
+<div class="h-6 w-px bg-outline-variant/30 ml-4"></div>
+<span class="font-data-sm text-data-sm text-tertiary ml-4 tracking-widest flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_#b3d17a]"></span> SYSTEM ACTIVE
+            </span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group cursor-pointer hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">notifications</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full shadow-[0_0_5px_#ffb4ab]"></span>
+</div>
+<div class="relative cursor-pointer hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">settings</span>
+</div>
+<div class="h-8 w-8 rounded-full border border-primary/30 overflow-hidden cursor-pointer active:scale-95 transition-transform ml-2">
+<img alt="User technical profile avatar" class="w-full h-full object-cover" data-alt="A futuristic, technical avatar profile picture for an advanced AI system user. The avatar features a stylized, glowing wireframe face or helmet set against a deep void background with neon blue accents. High-tech HUD elements overlay the image slightly. Deep space cyber-technical aesthetic, utilizing deep blacks, primary blue, and subtle purple hues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLtG3KrKeFwmxafvdPmOiK_rUMI1flbkcTmP2H8qihj_iJ5qVLTXH-Drh9F6qCCNV3RLV5IH7zd3KzxAk6d9cAHJa4E6DWzzq9Yus5IIOA6BnCgLGM4dL5Rooi1j2F75tb1q_4ua6U955ikFw3KLsHtQuXl9UUmvoSXP2B18LKOcfBpCRmTj69EqLpgNwIEl-cDFR1-6C42D2XvdTsUmwSzzHsC4fd_-3w27t53ilwodNMSKaQQ2BR7g">
+</div>
+</div>
+</header>
+<!-- Side Navigation Shell -->
+<nav class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col bg-surface-container-low/40 backdrop-blur-md border-r border-outline-variant/20 flex flex-col gap-2 p-4 z-40">
+<div class="mb-8 mt-4 px-4">
+<div class="font-label-caps text-label-caps text-outline mb-1">TERMINAL ID</div>
+<div class="font-data-lg text-data-lg text-primary tracking-wider">SEC_01 // ACTIVE</div>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all rounded group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">description</span>
+<span>Text</span>
+</a>
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all rounded group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">upload_file</span>
+<span class="font-bold">Upload File</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all rounded group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">code</span>
+<span>Code</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all rounded group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">image</span>
+<span>Image</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all rounded group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">summarize</span>
+<span>Summary</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all rounded group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200">history</span>
+<span>History</span>
+</a>
+</div>
+<div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-2">
+<button class="w-full bg-transparent border border-secondary text-secondary py-2 px-4 rounded hover:bg-secondary/10 transition-colors font-data-sm text-data-sm tracking-widest flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">upgrade</span> UPGRADE TO PRO
+            </button>
+<a class="text-on-surface-variant p-3 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all rounded text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">menu_book</span> Docs
+            </a>
+<a class="text-on-surface-variant p-3 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all rounded text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">support_agent</span> Support
+            </a>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 mt-16 lg:ml-64 p-margin_mobile md:p-margin_desktop w-full max-w-max_width mx-auto relative z-10">
+<!-- Crosshairs for grid alignment aesthetic -->
+<div class="absolute top-0 left-0 w-4 h-4 border-t border-l border-outline-variant/40 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+<div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-outline-variant/40 translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+<div class="mb-12">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary tracking-tight mb-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-[32px] pulse-neon text-secondary">memory</span>
+                ANALYZING DOCUMENT
+            </h1>
+<p class="font-data-sm text-data-sm text-outline tracking-widest uppercase">ID: JOB_8492_XQ // IN_PROGRESS</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter relative">
+<!-- Left Column: File Details & Progress -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Main Analyzer Card -->
+<div class="glass-panel rounded-lg p-6 relative overflow-hidden">
+<div class="scanning-line"></div>
+<div class="absolute top-0 left-0 font-label-caps text-label-caps text-outline bg-surface-container px-2 py-1 border-b border-r border-outline-variant/30 rounded-br">SEC_04 // 72%</div>
+<div class="mt-4 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between border-b border-outline-variant/20 pb-6 mb-6">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded bg-surface-container-high border border-outline-variant/30 flex items-center justify-center relative overflow-hidden">
+<span class="material-symbols-outlined text-[32px] text-tertiary">picture_as_pdf</span>
+<!-- Subtle animated background behind icon -->
+<div class="absolute inset-0 bg-gradient-to-tr from-transparent via-tertiary/5 to-transparent animate-pulse"></div>
+</div>
+<div>
+<h2 class="font-data-lg text-data-lg text-on-surface mb-1">quarterly_report.pdf</h2>
+<p class="font-data-sm text-data-sm text-outline">PDF Document • 2.4MB • 48 Pages</p>
+</div>
+</div>
+<div class="text-right">
+<div class="font-headline-lg text-headline-lg text-primary">72<span class="text-lg text-primary/60">%</span></div>
+<div class="font-label-caps text-label-caps text-secondary animate-pulse mt-1">PROCESSING</div>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-3 bg-surface-container-highest rounded-full overflow-hidden mb-4 border border-outline-variant/20">
+<div class="progress-bar-fill h-full w-[72%] transition-all duration-500 ease-out"></div>
+</div>
+<div class="flex justify-between items-center text-data-sm font-data-sm">
+<span class="text-outline">Est. time remaining: ~12s</span>
+<span class="text-primary tracking-widest">145MB/s</span>
+</div>
+</div>
+<!-- Live Data Stream (Visual Filler) -->
+<div class="glass-panel rounded-lg p-6 flex-1 min-h-[300px] relative">
+<div class="absolute top-0 left-0 font-label-caps text-label-caps text-outline bg-surface-container px-2 py-1 border-b border-r border-outline-variant/30 rounded-br">LOG_STREAM</div>
+<div class="absolute top-4 right-4 flex gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary pulse-neon"></span>
+<span class="font-label-caps text-label-caps text-secondary">LIVE REC</span>
+</div>
+<div class="mt-8 font-label-caps text-label-caps text-outline-variant space-y-2 font-mono h-full overflow-hidden relative">
+<!-- Fade mask for logs -->
+<div class="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-[rgba(19,19,21,0.6)] to-transparent z-10"></div>
+<p class="opacity-30">&gt; [SYS] Initializing vector extraction protocols...</p>
+<p class="opacity-40">&gt; [SYS] Memory allocation: 4096MB OK.</p>
+<p class="opacity-50">&gt; [EXT] Reading page 1..10 headers.</p>
+<p class="opacity-60">&gt; [EXT] Found 3 data tables. Parsing layout...</p>
+<p class="opacity-70">&gt; [NLP] Tokenizing text blocks (batch 1/5).</p>
+<p class="opacity-80">&gt; [NLP] Identifying key entities (org, date, financial).</p>
+<p class="text-secondary">&gt; [ANALYSIS] Cross-referencing Q3 projections...</p>
+<p class="text-primary">&gt; [AI_CORE] Generating sentiment indices...</p>
+<p class="text-primary animate-pulse">&gt; _</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Processing Stages -->
+<div class="lg:col-span-4 h-full">
+<div class="glass-panel rounded-lg p-6 h-full border-t-2 border-t-primary">
+<h3 class="font-data-lg text-data-lg text-on-surface mb-6 border-b border-outline-variant/20 pb-4">Analysis Stages</h3>
+<div class="relative space-y-8 pl-2">
+<!-- Step 1: Done -->
+<div class="relative z-10 flex gap-4 items-start group">
+<div class="step-line step-line-active"></div>
+<div class="w-6 h-6 rounded-full bg-tertiary flex items-center justify-center shrink-0 border-2 border-surface shadow-[0_0_10px_rgba(179,209,122,0.3)] z-10 relative">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary font-bold">check</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md text-on-surface">File uploaded</h4>
+<p class="font-data-sm text-data-sm text-outline mt-1">2.4MB received.</p>
+</div>
+</div>
+<!-- Step 2: Done -->
+<div class="relative z-10 flex gap-4 items-start group">
+<div class="step-line step-line-active"></div>
+<div class="w-6 h-6 rounded-full bg-tertiary flex items-center justify-center shrink-0 border-2 border-surface shadow-[0_0_10px_rgba(179,209,122,0.3)] z-10 relative">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary font-bold">check</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md text-on-surface">File validated</h4>
+<p class="font-data-sm text-data-sm text-outline mt-1">Format: PDF/A-1b. Clean.</p>
+</div>
+</div>
+<!-- Step 3: Done -->
+<div class="relative z-10 flex gap-4 items-start group">
+<div class="step-line step-line-active"></div>
+<div class="w-6 h-6 rounded-full bg-tertiary flex items-center justify-center shrink-0 border-2 border-surface shadow-[0_0_10px_rgba(179,209,122,0.3)] z-10 relative">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary font-bold">check</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md text-on-surface">Extracting document content</h4>
+<p class="font-data-sm text-data-sm text-outline mt-1">12,403 tokens extracted.</p>
+</div>
+</div>
+<!-- Step 4: Done -->
+<div class="relative z-10 flex gap-4 items-start group">
+<div class="step-line step-line-active"></div>
+<div class="w-6 h-6 rounded-full bg-tertiary flex items-center justify-center shrink-0 border-2 border-surface shadow-[0_0_10px_rgba(179,209,122,0.3)] z-10 relative">
+<span class="material-symbols-outlined text-[14px] text-on-tertiary font-bold">check</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md text-on-surface">Processing pages</h4>
+<p class="font-data-sm text-data-sm text-outline mt-1">48/48 pages completed.</p>
+</div>
+</div>
+<!-- Step 5: Processing (Active) -->
+<div class="relative z-10 flex gap-4 items-start group">
+<div class="step-line"></div>
+<div class="w-6 h-6 rounded-full bg-surface-container-high border-2 border-primary flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(37,99,235,0.6)] z-10 relative">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+</div>
+<div>
+<h4 class="font-body-md text-body-md text-primary font-bold">Analyzing extracted content</h4>
+<p class="font-data-sm text-data-sm text-secondary animate-pulse mt-1">Running NLP models...</p>
+</div>
+</div>
+<!-- Step 6: Pending -->
+<div class="relative z-10 flex gap-4 items-start group opacity-50">
+<div class="step-line"></div>
+<div class="w-6 h-6 rounded-full bg-surface border-2 border-outline-variant flex items-center justify-center shrink-0 z-10 relative">
+</div>
+<div>
+<h4 class="font-body-md text-body-md text-on-surface-variant">Calculating AI indicators</h4>
+<p class="font-data-sm text-data-sm text-outline mt-1">Pending</p>
+</div>
+</div>
+<!-- Step 7: Pending -->
+<div class="relative z-10 flex gap-4 items-start group opacity-50">
+<div class="w-6 h-6 rounded-full bg-surface border-2 border-outline-variant flex items-center justify-center shrink-0 z-10 relative">
+</div>
+<div>
+<h4 class="font-body-md text-body-md text-on-surface-variant">Preparing final report</h4>
+<p class="font-data-sm text-data-sm text-outline mt-1">Pending</p>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full bg-transparent border border-error/50 text-error/80 hover:bg-error/10 hover:text-error hover:border-error transition-colors py-3 rounded font-label-caps text-label-caps tracking-widest">
+                        ABORT PROCESS
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Alignment -->
+<footer class="w-full py-8 max-w-max_width mx-auto px-margin_desktop flex flex-col md:flex-row justify-between items-center border-t border-outline-variant/10 lg:ml-64 relative z-10 bg-background mt-auto">
+<div class="font-label-caps text-label-caps text-on-surface mb-4 md:mb-0">
+            © 2024 Aetheris Technical Systems. All rights reserved.
+        </div>
+<div class="flex gap-6">
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+</footer>
+</body></html>

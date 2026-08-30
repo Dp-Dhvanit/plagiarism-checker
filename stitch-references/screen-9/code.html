@@ -1,0 +1,315 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Code Analysis - Empty State</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#7c03d3",
+                        "tertiary": "#b3d17a",
+                        "on-tertiary": "#243600",
+                        "on-primary-fixed": "#00174b",
+                        "error": "#ffb4ab",
+                        "outline": "#8d90a0",
+                        "surface-bright": "#39393b",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#2c0051",
+                        "inverse-primary": "#0053db",
+                        "surface-container-lowest": "#0e0e10",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#353437",
+                        "inverse-surface": "#e5e1e4",
+                        "on-tertiary-container": "#dcfca0",
+                        "primary": "#b4c5ff",
+                        "surface": "#131315",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed": "#131f00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "background": "#131315",
+                        "primary-container": "#2563eb",
+                        "on-surface": "#e5e1e4",
+                        "on-secondary-container": "#dfbcff",
+                        "surface-dim": "#131315",
+                        "surface-tint": "#b4c5ff",
+                        "tertiary-fixed-dim": "#b3d17a",
+                        "tertiary-fixed": "#ceee93",
+                        "surface-variant": "#353437",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-container": "#5b762a",
+                        "secondary-fixed-dim": "#ddb8ff",
+                        "on-primary": "#002a78",
+                        "surface-container": "#201f21",
+                        "secondary-fixed": "#f0dbff",
+                        "on-tertiary-fixed-variant": "#364e03",
+                        "surface-container-low": "#1c1b1d",
+                        "on-secondary": "#490080",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#6800b4",
+                        "inverse-on-surface": "#313032",
+                        "secondary": "#ddb8ff",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2c",
+                        "on-background": "#e5e1e4",
+                        "on-surface-variant": "#c3c6d7",
+                        "outline-variant": "#434655"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin_desktop": "64px",
+                        "max_width": "1440px",
+                        "gutter": "24px",
+                        "margin_mobile": "16px",
+                        "grid_unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "data-lg": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"],
+                        "data-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-caps": ["10px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "data-lg": ["18px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "data-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 64px 64px;
+            background-position: center top;
+        }
+        .surface-glass {
+            background-color: rgba(19, 19, 21, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .neon-stroke {
+            box-shadow: inset 0 0 0 1px rgba(141, 144, 160, 0.2), 0 0 15px rgba(37, 99, 235, 0.05);
+        }
+        .neon-stroke:hover {
+            box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.5), 0 0 20px rgba(37, 99, 235, 0.15);
+        }
+        .neon-stroke-active {
+            box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.8), 0 0 25px rgba(37, 99, 235, 0.2);
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #b4c5ff, transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .btn-scan:hover .scan-line {
+            opacity: 1;
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .glass-btn {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(37, 99, 235, 0.05) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .glass-btn:hover {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(37, 99, 235, 0.1) 100%);
+            border: 1px solid rgba(37, 99, 235, 0.5);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+        }
+    </style>
+</head>
+<body class="text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)] flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="font-headline-xl text-headline-xl text-primary tracking-tighter">Aetheris AI</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6">
+<!-- Navigation suppressed for focused task state -->
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button aria-label="notifications" class="text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button aria-label="settings" class="text-on-surface-variant hover:text-primary transition-colors duration-300 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<img alt="User technical profile avatar" class="w-8 h-8 rounded-full border border-outline-variant/50 object-cover" data-alt="A highly detailed close-up of a minimalist, technical user avatar profile picture. It features glowing cyan geometric shapes on a dark, pure black background, reflecting a deep space cyber-technical aesthetic with high contrast and sharp edges." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0K9Ixe_UvES4-7KWyrdC9kVgskYkjwWlnkVQunGxHlflrXebZmOlHxJysVlQqIWOMoxAA54U3zbHVRYumz88mbmnMw88EYllLS_UYh6D58h9E-nIYY0JfCsBG9Y9ilVbRbBpI_vXih8Pvqz47tUvfNFPy-VpQ_jKsgyDXzO09ZAWQUAzwdTZs7BSVtPhkxDSyEtJjr2qhZpa7pvDwaaTqy3r0_LzaxCnFEOoERjjrqarKN8eSw1R-2A">
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col bg-surface-container-low/40 backdrop-blur-md border-r border-outline-variant/20 flex flex-col gap-2 p-4 z-40">
+<div class="mb-8 px-4 py-2 border-b border-outline-variant/20">
+<h2 class="font-headline-lg text-headline-lg-mobile text-primary">Core Terminal</h2>
+<div class="flex items-center gap-2 mt-1">
+<span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">SEC_01 // ACTIVE</span>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-lg" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">description</span>
+<span class="font-body-md text-body-md">Text</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-lg" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">upload_file</span>
+<span class="font-body-md text-body-md">Upload File</span>
+</a>
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all group rounded-lg" href="#">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">code</span>
+<span class="font-body-md text-body-md font-bold">Code</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-lg" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">image</span>
+<span class="font-body-md text-body-md">Image</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-lg" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">summarize</span>
+<span class="font-body-md text-body-md">Summary</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-lg" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">history</span>
+<span class="font-body-md text-body-md">History</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-4 border-t border-outline-variant/20 pt-4">
+<button class="w-full py-3 px-4 border border-secondary text-secondary hover:bg-secondary/10 rounded-lg transition-colors font-data-lg text-data-sm text-center">
+                Upgrade to Pro
+            </button>
+<div class="flex flex-col gap-2">
+<a class="text-on-surface-variant py-2 px-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-lg text-sm" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-primary" style="font-variation-settings: 'FILL' 0;">menu_book</span>
+                    Docs
+                </a>
+<a class="text-on-surface-variant py-2 px-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-lg text-sm" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-primary" style="font-variation-settings: 'FILL' 0;">support_agent</span>
+                    Support
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 lg:ml-64 pt-24 pb-16 px-margin_mobile md:px-margin_desktop flex flex-col items-center justify-center min-h-screen relative z-10">
+<div class="w-full max-w-4xl flex flex-col gap-8 relative">
+<!-- Background Decorative Element -->
+<div class="absolute -top-32 -left-32 w-96 h-96 bg-primary-container/5 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="absolute -bottom-32 -right-32 w-96 h-96 bg-secondary-container/5 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="text-center space-y-4 mb-4">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded border border-outline-variant/30 bg-surface-container-low/50 backdrop-blur-sm mb-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant tracking-widest">MODULE_INIT // READY</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface">Initialize Analysis</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">
+                    Aetheris core requires raw syntax for processing. Provide target source via paste, file upload, or document ingestion to begin deep-scan protocol.
+                </p>
+</div>
+<!-- Bento Grid Options -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Option 1: Paste Code -->
+<div class="surface-glass neon-stroke rounded-xl p-6 flex flex-col items-center text-center gap-4 cursor-pointer group transition-all duration-300 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="font-label-caps text-label-caps text-outline absolute top-4 left-4">OP_01</span>
+<div class="w-16 h-16 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center group-hover:border-primary/50 transition-colors z-10 mt-4">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">content_paste</span>
+</div>
+<div class="z-10">
+<h3 class="font-data-lg text-data-lg text-on-surface mb-2">Paste Snippet</h3>
+<p class="font-data-sm text-data-sm text-on-surface-variant">Direct memory injection.</p>
+</div>
+</div>
+<!-- Option 2: Upload File -->
+<div class="surface-glass neon-stroke rounded-xl p-6 flex flex-col items-center text-center gap-4 cursor-pointer group transition-all duration-300 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="font-label-caps text-label-caps text-outline absolute top-4 left-4">OP_02</span>
+<div class="w-16 h-16 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center group-hover:border-secondary/50 transition-colors z-10 mt-4">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant group-hover:text-secondary transition-colors" style="font-variation-settings: 'FILL' 0;">upload_file</span>
+</div>
+<div class="z-10">
+<h3 class="font-data-lg text-data-lg text-on-surface mb-2">Upload Source</h3>
+<p class="font-data-sm text-data-sm text-on-surface-variant">Supported extensions.</p>
+</div>
+</div>
+<!-- Option 3: Upload PDF -->
+<div class="surface-glass neon-stroke rounded-xl p-6 flex flex-col items-center text-center gap-4 cursor-pointer group transition-all duration-300 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-tertiary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="font-label-caps text-label-caps text-outline absolute top-4 left-4">OP_03</span>
+<div class="w-16 h-16 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center group-hover:border-tertiary/50 transition-colors z-10 mt-4">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant group-hover:text-tertiary transition-colors" style="font-variation-settings: 'FILL' 0;">picture_as_pdf</span>
+</div>
+<div class="z-10">
+<h3 class="font-data-lg text-data-lg text-on-surface mb-2">Ingest PDF</h3>
+<p class="font-data-sm text-data-sm text-on-surface-variant">Extract from document.</p>
+</div>
+</div>
+</div>
+<!-- Supported Languages Bar -->
+<div class="surface-glass border border-outline-variant/20 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+<span class="font-label-caps text-label-caps text-on-surface-variant">SUPPORTED SYNTAX:</span>
+<div class="flex flex-wrap justify-center gap-3">
+<span class="font-data-sm text-data-sm text-outline px-2 py-1 rounded bg-surface-container-high/50 border border-outline-variant/30">Python</span>
+<span class="font-data-sm text-data-sm text-outline px-2 py-1 rounded bg-surface-container-high/50 border border-outline-variant/30">Java</span>
+<span class="font-data-sm text-data-sm text-outline px-2 py-1 rounded bg-surface-container-high/50 border border-outline-variant/30">JavaScript</span>
+<span class="font-data-sm text-data-sm text-outline px-2 py-1 rounded bg-surface-container-high/50 border border-outline-variant/30">C++</span>
+<span class="font-data-sm text-data-sm text-outline px-2 py-1 rounded bg-surface-container-high/50 border border-outline-variant/30">TypeScript</span>
+<span class="font-data-sm text-data-sm text-outline px-2 py-1 rounded bg-surface-container-high/50 border border-outline-variant/30">Go</span>
+<span class="font-data-sm text-data-sm text-outline px-2 py-1 rounded bg-surface-container-high/50 border border-outline-variant/30">Rust</span>
+</div>
+</div>
+<!-- Primary Action -->
+<div class="flex justify-center mt-8">
+<button class="glass-btn btn-scan relative overflow-hidden px-12 py-5 rounded-lg group">
+<div class="scan-line"></div>
+<div class="flex items-center gap-3 relative z-10">
+<span class="material-symbols-outlined text-primary group-hover:text-white transition-colors" style="font-variation-settings: 'FILL' 1;">radar</span>
+<span class="font-data-lg text-data-lg text-primary group-hover:text-white transition-colors tracking-widest uppercase">Initiate Code Scan</span>
+</div>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-background py-8 border-t border-outline-variant/10 w-full z-40 relative lg:ml-64 lg:w-[calc(100%-256px)]">
+<div class="max-w-max_width mx-auto px-margin_desktop flex flex-col md:flex-row justify-between items-center gap-4">
+<span class="font-label-caps text-label-caps text-on-surface">© 2024 Aetheris Technical Systems. All rights reserved.</span>
+<div class="flex gap-6">
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+</div>
+</footer>
+</body></html>

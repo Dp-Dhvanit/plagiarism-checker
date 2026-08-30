@@ -1,0 +1,428 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aetheris AI - Image Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#7c03d3",
+                      "tertiary": "#b3d17a",
+                      "on-tertiary": "#243600",
+                      "on-primary-fixed": "#00174b",
+                      "error": "#ffb4ab",
+                      "outline": "#8d90a0",
+                      "surface-bright": "#39393b",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary-fixed": "#2c0051",
+                      "inverse-primary": "#0053db",
+                      "surface-container-lowest": "#0e0e10",
+                      "on-error": "#690005",
+                      "surface-container-highest": "#353437",
+                      "inverse-surface": "#e5e1e4",
+                      "on-tertiary-container": "#dcfca0",
+                      "primary": "#b4c5ff",
+                      "surface": "#131315",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-fixed": "#131f00",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "background": "#131315",
+                      "primary-container": "#2563eb",
+                      "on-surface": "#e5e1e4",
+                      "on-secondary-container": "#dfbcff",
+                      "surface-dim": "#131315",
+                      "surface-tint": "#b4c5ff",
+                      "tertiary-fixed-dim": "#b3d17a",
+                      "tertiary-fixed": "#ceee93",
+                      "surface-variant": "#353437",
+                      "on-primary-container": "#eeefff",
+                      "tertiary-container": "#5b762a",
+                      "secondary-fixed-dim": "#ddb8ff",
+                      "on-primary": "#002a78",
+                      "surface-container": "#201f21",
+                      "secondary-fixed": "#f0dbff",
+                      "on-tertiary-fixed-variant": "#364e03",
+                      "surface-container-low": "#1c1b1d",
+                      "on-secondary": "#490080",
+                      "primary-fixed": "#dbe1ff",
+                      "on-secondary-fixed-variant": "#6800b4",
+                      "inverse-on-surface": "#313032",
+                      "secondary": "#ddb8ff",
+                      "error-container": "#93000a",
+                      "surface-container-high": "#2a2a2c",
+                      "on-background": "#e5e1e4",
+                      "on-surface-variant": "#c3c6d7",
+                      "outline-variant": "#434655"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin_desktop": "64px",
+                      "max_width": "1440px",
+                      "gutter": "24px",
+                      "margin_mobile": "16px",
+                      "grid_unit": "8px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-xl": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "data-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "label-caps": [
+                              "10px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "data-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .glass-panel {
+            background: rgba(19, 19, 21, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.3);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.05);
+        }
+        .neon-border-hover:hover {
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.15);
+            border-color: rgba(180, 197, 255, 0.5);
+        }
+        .scanning-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .scanning-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg) translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        .scanning-btn:hover::after {
+            transform: rotate(45deg) translateX(100%);
+        }
+        
+        .upload-zone {
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23434655' stroke-width='2' stroke-dasharray='8%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+            transition: all 0.3s ease;
+        }
+        .upload-zone.dragover {
+            background-color: rgba(37, 99, 235, 0.1);
+            border-color: #b4c5ff;
+        }
+    </style>
+</head>
+<body class="text-on-surface min-h-screen font-body-md flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-surface/60 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)]">
+<div class="flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16 w-full">
+<div class="font-headline-xl text-headline-xl text-primary tracking-tighter">
+                Aetheris AI
+            </div>
+<nav class="hidden md:flex gap-8 items-center h-full">
+<!-- Assuming active nav item is not clear, leaving neutral, but structure is ready -->
+</nav>
+<div class="flex items-center gap-4 text-primary">
+<button class="hover:text-primary transition-colors duration-300 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:text-primary transition-colors duration-300 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30 ml-2">
+<img alt="User technical profile avatar" class="w-full h-full object-cover" data-alt="A futuristic avatar of a user in a cyberpunk setting. High tech, glowing blue accents, dark background, highly detailed digital painting, sharp focus, vibrant colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc3vd57b6KmwzwaMG1r2tXBVGRmzyp17Yz9wVSEwL_tUuHSWNfk20v_XAO-PO3G3CmpfXQbCgrE0uONVsH29kdPPSHHxUtJE_9cFq3J1uXbZWvKA5ycq8KqGebwoT-9p0xpjgDE44sWf6tIqIBiarj8Rum2IgnKE3hBplfInZVVPNqMwdPEUNmfqug_nOol20LFNn4tqiRIKW5nzBU7YSQ3G6mLsrXecj7Q82vh8qVE9qer2KehF95qQ">
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 pt-16">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low/40 backdrop-blur-md fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col border-r border-outline-variant/20">
+<div class="p-4 border-b border-outline-variant/20 mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="terminal">terminal</span>
+</div>
+<div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Core Terminal</div>
+<div class="font-label-caps text-label-caps text-tertiary">SEC_01 // ACTIVE</div>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-2 p-4 flex-1 overflow-y-auto">
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="description">description</span>
+<span class="font-body-md text-body-md">Text</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="upload_file">upload_file</span>
+<span class="font-body-md text-body-md">Upload File</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="code">code</span>
+<span class="font-body-md text-body-md">Code</span>
+</a>
+<!-- ACTIVE TAB -->
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all group rounded-l-DEFAULT" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="image">image</span>
+<span class="font-body-md text-body-md">Image</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="summarize">summarize</span>
+<span class="font-body-md text-body-md">Summary</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="history">history</span>
+<span class="font-body-md text-body-md">History</span>
+</a>
+</nav>
+<div class="p-4 mt-auto border-t border-outline-variant/20">
+<button class="w-full bg-primary-container text-on-primary-container font-data-lg text-data-lg py-3 rounded-lg scanning-btn mb-4">
+                    Upgrade to Pro
+                </button>
+<div class="flex flex-col gap-2">
+<a class="text-on-surface-variant flex items-center gap-3 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="menu_book">menu_book</span>
+<span class="font-data-sm text-data-sm">Docs</span>
+</a>
+<a class="text-on-surface-variant flex items-center gap-3 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="support_agent">support_agent</span>
+<span class="font-data-sm text-data-sm">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 lg:ml-64 p-margin_mobile md:p-margin_desktop flex flex-col relative z-10">
+<div class="max-w-4xl mx-auto w-full">
+<header class="mb-12">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(179,209,122,0.8)]"></div>
+<span class="font-label-caps text-label-caps text-tertiary">ANALYSIS_MODULE // IMG_PROC</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Visual Data Intake</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Initialize deep scanning sequence for supported visual formats. Secure transmission protocol enabled.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Upload Area -->
+<div class="lg:col-span-8">
+<div class="glass-panel rounded-xl p-8 h-[400px] flex flex-col items-center justify-center upload-zone neon-border-hover relative" id="drop-zone">
+<div class="absolute top-4 left-4 font-label-caps text-label-caps text-outline-variant">ZONE_ALPHA</div>
+<div class="absolute top-4 right-4 flex gap-2">
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded font-label-caps text-label-caps">JPG</span>
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded font-label-caps text-label-caps">PNG</span>
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded font-label-caps text-label-caps">WEBP</span>
+</div>
+<div class="w-20 h-20 rounded-full bg-surface-container-high border border-outline-variant/30 flex items-center justify-center mb-6 text-primary shadow-[0_0_20px_rgba(37,99,235,0.1)]">
+<span class="material-symbols-outlined text-4xl" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<h3 class="font-data-lg text-data-lg text-on-surface mb-2 text-center">Drop image here or Browse</h3>
+<p class="font-data-sm text-data-sm text-on-surface-variant mb-6 text-center">Maximum payload size: 25MB.</p>
+<button class="bg-surface-variant text-primary border border-primary/30 px-6 py-3 rounded-lg font-data-lg text-data-lg hover:bg-primary/10 transition-colors flex items-center gap-2" id="mock-upload-btn">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+                                Initialize Browse
+                            </button>
+</div>
+</div>
+<!-- Side Info / Preview (Initially Empty) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<div class="glass-panel rounded-xl p-6 flex-1 flex flex-col">
+<div class="flex items-center gap-2 mb-6 pb-4 border-b border-outline-variant/30">
+<span class="material-symbols-outlined text-primary" data-icon="image_search">image_search</span>
+<h3 class="font-data-lg text-data-lg text-primary">Buffer Status</h3>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center text-center opacity-50" id="empty-status">
+<span class="material-symbols-outlined text-4xl text-outline-variant mb-4" data-icon="hourglass_empty">hourglass_empty</span>
+<p class="font-data-sm text-data-sm text-outline-variant">Awaiting image data stream...</p>
+</div>
+<!-- Hidden Preview Content -->
+<div class="hidden flex-1 flex-col" id="preview-content">
+<div class="aspect-video bg-surface-container-lowest rounded-lg mb-4 overflow-hidden border border-outline-variant/30 relative group">
+<img alt="Uploaded Preview" class="w-full h-full object-cover" data-alt="A highly detailed, macro shot of a complex circuit board with glowing neon pathways in deep blue and purple. The lighting is cinematic, focusing on a central microchip that looks like a futuristic city. Depth of field is shallow, creating a tech-noir aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjyw-sL19qczaMpqSjW-1vfcHUpd0C-j3k2OfstLnZSxN80vFkBj3hk5ngRhB_90GkBUkVcU0-iHr6abrozfk5LMA8dspt0NjdJ49QXhK6v7H_bL-QyWCVrxccmXxMrBZ31bFygTk277bwruLqVq_DXKiXcVtHHw5VX7vMwQQsgbO4b3tYOi_L3p4vNK7IfO2LZ5zRfRXquaTVHKXCJXCXxyRTUBWBypeRdlOzHC8jJjpqMtFuD--Ypw">
+<div class="absolute inset-0 bg-primary/20 mix-blend-overlay"></div>
+<div class="absolute inset-0 border border-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<!-- Mock scanning line -->
+<div class="absolute top-0 left-0 w-full h-[2px] bg-tertiary shadow-[0_0_8px_rgba(179,209,122,1)] animate-[scan_3s_ease-in-out_infinite]"></div>
+</div>
+<div class="space-y-3 font-data-sm text-data-sm">
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-2">
+<span class="text-on-surface-variant">FILE_ID</span>
+<span class="text-on-surface">scan_subject_001.jpg</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-2">
+<span class="text-on-surface-variant">RESOLUTION</span>
+<span class="text-tertiary">1920x1080</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-2">
+<span class="text-on-surface-variant">PAYLOAD_SIZE</span>
+<span class="text-on-surface">4.2 MB</span>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-data-lg text-data-lg py-4 rounded-xl scanning-btn opacity-50 cursor-not-allowed transition-all shadow-[0_0_15px_rgba(37,99,235,0.1)] flex items-center justify-center gap-2" disabled="" id="analyze-btn">
+<span class="material-symbols-outlined" data-icon="memory">memory</span>
+                            Execute Analysis
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-background w-full py-8 border-t border-outline-variant/10 lg:ml-64 relative z-10">
+<div class="max-w-max_width mx-auto px-margin_desktop flex flex-col md:flex-row justify-between items-center">
+<div class="font-label-caps text-label-caps text-on-surface mb-4 md:mb-0">
+                AETHERIS AI // SEC_04
+            </div>
+<div class="font-data-sm text-data-sm text-on-surface-variant mb-4 md:mb-0">
+                © 2024 Aetheris Technical Systems. All rights reserved.
+            </div>
+<div class="flex gap-6">
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-data-sm text-data-sm text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+</div>
+</footer>
+<style>
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+<script>
+        // Simple JS for mock interaction
+        const uploadBtn = document.getElementById('mock-upload-btn');
+        const emptyStatus = document.getElementById('empty-status');
+        const previewContent = document.getElementById('preview-content');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const dropZone = document.getElementById('drop-zone');
+
+        uploadBtn.addEventListener('click', () => {
+            // Simulate processing
+            uploadBtn.innerHTML = '<span class="material-symbols-outlined animate-spin" data-icon="sync">sync</span> Buffering...';
+            
+            setTimeout(() => {
+                emptyStatus.classList.add('hidden');
+                previewContent.classList.remove('hidden');
+                previewContent.classList.add('flex');
+                
+                analyzeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                analyzeBtn.classList.add('hover:shadow-[0_0_20px_rgba(37,99,235,0.4)]');
+                analyzeBtn.removeAttribute('disabled');
+                
+                uploadBtn.innerHTML = '<span class="material-symbols-outlined" data-icon="check">check</span> Data Loaded';
+                uploadBtn.classList.remove('bg-surface-variant', 'text-primary');
+                uploadBtn.classList.add('bg-tertiary/20', 'text-tertiary', 'border-tertiary/50');
+            }, 800);
+        });
+
+        // Drag and drop visual feedback
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            uploadBtn.click(); // Trigger mock upload on drop
+        });
+    </script>
+</body></html>

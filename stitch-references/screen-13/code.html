@@ -1,0 +1,300 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aetheris AI - Summary Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#7c03d3",
+                        "tertiary": "#b3d17a",
+                        "on-tertiary": "#243600",
+                        "on-primary-fixed": "#00174b",
+                        "error": "#ffb4ab",
+                        "outline": "#8d90a0",
+                        "surface-bright": "#39393b",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#2c0051",
+                        "inverse-primary": "#0053db",
+                        "surface-container-lowest": "#0e0e10",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#353437",
+                        "inverse-surface": "#e5e1e4",
+                        "on-tertiary-container": "#dcfca0",
+                        "primary": "#b4c5ff",
+                        "surface": "#131315",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed": "#131f00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "background": "#131315",
+                        "primary-container": "#2563eb",
+                        "on-surface": "#e5e1e4",
+                        "on-secondary-container": "#dfbcff",
+                        "surface-dim": "#131315",
+                        "surface-tint": "#b4c5ff",
+                        "tertiary-fixed-dim": "#b3d17a",
+                        "tertiary-fixed": "#ceee93",
+                        "surface-variant": "#353437",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-container": "#5b762a",
+                        "secondary-fixed-dim": "#ddb8ff",
+                        "on-primary": "#002a78",
+                        "surface-container": "#201f21",
+                        "secondary-fixed": "#f0dbff",
+                        "on-tertiary-fixed-variant": "#364e03",
+                        "surface-container-low": "#1c1b1d",
+                        "on-secondary": "#490080",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#6800b4",
+                        "inverse-on-surface": "#313032",
+                        "secondary": "#ddb8ff",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2c",
+                        "on-background": "#e5e1e4",
+                        "on-surface-variant": "#c3c6d7",
+                        "outline-variant": "#434655"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin_desktop": "64px",
+                        "max_width": "1440px",
+                        "gutter": "24px",
+                        "margin_mobile": "16px",
+                        "grid_unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "data-lg": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"],
+                        "data-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-caps": ["10px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "data-lg": ["18px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "data-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0C;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            background-position: center center;
+        }
+        .glass-card {
+            background: rgba(19, 19, 21, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(141, 144, 160, 0.2);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(180, 197, 255, 0.5), transparent);
+            opacity: 0.5;
+        }
+        .scanning-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #b4c5ff, transparent);
+            box-shadow: 0 0 10px #b4c5ff;
+            opacity: 0;
+            animation: scan 3s infinite linear;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body class="text-on-surface font-body-md min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface/60 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)] flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16 w-full">
+<div class="font-headline-xl text-headline-xl text-primary tracking-tighter">
+            Aetheris AI
+        </div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant font-medium hover:text-primary transition-colors duration-300 active:scale-95 cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant font-medium hover:text-primary transition-colors duration-300 active:scale-95 cursor-pointer" data-icon="settings">settings</span>
+<img alt="User technical profile avatar" class="w-8 h-8 rounded-full border border-primary/50 object-cover" data-alt="A highly detailed avatar image of a futuristic, glowing technical profile icon set against a dark void background. The avatar features sharp, neon blue and violet geometric accents, embodying a high-end cyber-technical aesthetic. Lighting is dramatic and high-contrast, perfectly suited for a mission-critical HUD interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsQhIv5E2DWBpj8rMsB2CiXTqPD176IHzO8LO-9i4kGoq2FH0Brcr6jqzssvCLgBKZdE7iAKRVy22L7E05d0Cm-HFb8Aow3JLfjsFUWPfifebFfuWuUaOhJUrSyck5aLLsgP8xTYPpolMBEnpTOHNXPci_LCFL4H3h29Q-PDQo_Y9-FCgTrPXkJQfHrYLSFP1v8npkNAtsWZbneqWa828Cm7HOzPfGwkaBhBQuBXbWYjAk8mp8NjlC8g">
+</div>
+</header>
+<div class="flex flex-1 pt-16">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low/40 backdrop-blur-md fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col border-r border-outline-variant/20 flex flex-col gap-2 p-4">
+<div class="mb-8 p-4">
+<div class="font-data-lg text-data-lg text-on-surface-variant">Core Terminal</div>
+<div class="font-label-caps text-label-caps text-tertiary mt-1 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse shadow-[0_0_8px_#b3d17a]"></span> SEC_01 // ACTIVE
+                </div>
+</div>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span>Text</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="upload_file">upload_file</span>
+<span>Upload File</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="code">code</span>
+<span>Code</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="image">image</span>
+<span>Image</span>
+</a>
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all rounded-l-lg" href="#">
+<span class="material-symbols-outlined" data-icon="summarize" style="font-variation-settings: 'FILL' 1;">summarize</span>
+<span class="font-bold">Summary</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group-hover:translate-x-1 duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>History</span>
+</a>
+<div class="mt-auto">
+<button class="w-full bg-primary-container text-on-primary-container py-2 rounded-lg font-data-sm text-data-sm uppercase tracking-widest hover:bg-primary-container/80 transition-colors mb-4 border border-primary/30 shadow-[0_0_10px_rgba(37,99,235,0.2)]">Upgrade to Pro</button>
+<div class="flex flex-col gap-2 border-t border-outline-variant/20 pt-4">
+<a class="text-on-surface-variant p-2 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all text-sm rounded" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="menu_book">menu_book</span>
+<span>Docs</span>
+</a>
+<a class="text-on-surface-variant p-2 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all text-sm rounded" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="support_agent">support_agent</span>
+<span>Support</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 lg:ml-64 p-margin_mobile md:p-margin_desktop max-w-max_width mx-auto w-full flex flex-col gap-gutter">
+<div class="flex justify-between items-end mb-4 border-b border-outline-variant/20 pb-4">
+<div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Analysis Complete</h1>
+<p class="font-data-sm text-data-sm text-on-surface-variant mt-2 tracking-widest uppercase">ID: SUM_992_X // 100% CONFIDENCE</p>
+</div>
+<div class="flex items-center gap-2 text-tertiary">
+<span class="material-symbols-outlined" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-data-sm text-data-sm uppercase tracking-wider">Verified</span>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+<!-- Metric Cards -->
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-outline absolute top-4 left-4">MTR_01</span>
+<div class="mt-4 flex justify-between items-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-data-sm text-data-sm uppercase tracking-wider text-primary">Volume</span>
+</div>
+<div class="font-headline-xl text-headline-xl mt-4 text-on-surface">84.2k</div>
+<div class="text-tertiary font-data-sm text-data-sm mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span> +12.4%
+                    </div>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-outline absolute top-4 left-4">MTR_02</span>
+<div class="mt-4 flex justify-between items-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+<span class="font-data-sm text-data-sm uppercase tracking-wider text-secondary">Latency</span>
+</div>
+<div class="font-headline-xl text-headline-xl mt-4 text-on-surface">14ms</div>
+<div class="text-secondary font-data-sm text-data-sm mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="trending_down">trending_down</span> -2.1ms
+                    </div>
+</div>
+<!-- Main Chart Area -->
+<div class="glass-card p-6 rounded-xl md:col-span-2 lg:col-span-2 row-span-2 flex flex-col">
+<div class="scanning-line"></div>
+<span class="font-label-caps text-label-caps text-outline absolute top-4 left-4">VIZ_01 // SENTIMENT</span>
+<div class="mt-8 flex-1 flex flex-col justify-end relative">
+<!-- Pseudo Bar Chart -->
+<div class="flex items-end justify-between h-48 gap-2 px-4 border-b border-outline-variant/30 pb-2">
+<div class="w-full bg-primary/20 hover:bg-primary/40 transition-colors h-[60%] rounded-t border-t border-primary relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface p-1 rounded text-data-sm font-data-sm hidden group-hover:block border border-primary/50 text-primary">60%</div>
+</div>
+<div class="w-full bg-secondary/20 hover:bg-secondary/40 transition-colors h-[85%] rounded-t border-t border-secondary relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface p-1 rounded text-data-sm font-data-sm hidden group-hover:block border border-secondary/50 text-secondary">85%</div>
+</div>
+<div class="w-full bg-tertiary/20 hover:bg-tertiary/40 transition-colors h-[30%] rounded-t border-t border-tertiary relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface p-1 rounded text-data-sm font-data-sm hidden group-hover:block border border-tertiary/50 text-tertiary">30%</div>
+</div>
+<div class="w-full bg-error/20 hover:bg-error/40 transition-colors h-[15%] rounded-t border-t border-error relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface p-1 rounded text-data-sm font-data-sm hidden group-hover:block border border-error/50 text-error">15%</div>
+</div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 transition-colors h-[50%] rounded-t border-t border-primary relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface p-1 rounded text-data-sm font-data-sm hidden group-hover:block border border-primary/50 text-primary">50%</div>
+</div>
+</div>
+<div class="flex justify-between px-4 mt-2 font-data-sm text-data-sm text-on-surface-variant uppercase">
+<span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span><span>Q1</span>
+</div>
+</div>
+</div>
+<!-- Key Takeaways -->
+<div class="glass-card p-6 rounded-xl md:col-span-3 lg:col-span-2 row-span-2">
+<span class="font-label-caps text-label-caps text-outline absolute top-4 left-4">TXT_01 // INSIGHTS</span>
+<h3 class="font-data-lg text-data-lg text-primary mt-8 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="lightbulb">lightbulb</span> Key Takeaways
+                    </h3>
+<ul class="space-y-4">
+<li class="flex gap-3 items-start border-l-2 border-secondary pl-3 bg-gradient-to-r from-secondary/5 to-transparent py-2">
+<span class="material-symbols-outlined text-secondary text-sm mt-1" data-icon="arrow_right">arrow_right</span>
+<p class="font-body-md text-body-md text-on-surface">Significant uptick in positive sentiment detected during Q2, correlating with the deployment of SEC_04 protocols.</p>
+</li>
+<li class="flex gap-3 items-start border-l-2 border-primary pl-3 bg-gradient-to-r from-primary/5 to-transparent py-2">
+<span class="material-symbols-outlined text-primary text-sm mt-1" data-icon="arrow_right">arrow_right</span>
+<p class="font-body-md text-body-md text-on-surface-variant">System latency reduced across all nodes. Edge processing efficiency increased by 14.2% globally.</p>
+</li>
+<li class="flex gap-3 items-start border-l-2 border-error pl-3 bg-gradient-to-r from-error/5 to-transparent py-2">
+<span class="material-symbols-outlined text-error text-sm mt-1" data-icon="warning">warning</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Anomaly detected in Q4 data stream. Recommend isolated review of node sector 7G for corruption analysis.</p>
+</li>
+</ul>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-background w-full py-8 border-t border-outline-variant/10 max-w-max_width mx-auto px-margin_desktop flex flex-col md:flex-row justify-between items-center z-10 relative">
+<div class="font-label-caps text-label-caps text-on-surface mb-4 md:mb-0">
+            © 2024 Aetheris Technical Systems. All rights reserved.
+        </div>
+<div class="flex gap-6 font-data-sm text-data-sm">
+<a class="text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+</footer>
+</body></html>

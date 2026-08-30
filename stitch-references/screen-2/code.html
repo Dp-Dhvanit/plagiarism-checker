@@ -1,0 +1,318 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aetheris AI - Text Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#7c03d3",
+                        "tertiary": "#b3d17a",
+                        "on-tertiary": "#243600",
+                        "on-primary-fixed": "#00174b",
+                        "error": "#ffb4ab",
+                        "outline": "#8d90a0",
+                        "surface-bright": "#39393b",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#2c0051",
+                        "inverse-primary": "#0053db",
+                        "surface-container-lowest": "#0e0e10",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#353437",
+                        "inverse-surface": "#e5e1e4",
+                        "on-tertiary-container": "#dcfca0",
+                        "primary": "#b4c5ff",
+                        "surface": "#131315",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed": "#131f00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "background": "#131315",
+                        "primary-container": "#2563eb",
+                        "on-surface": "#e5e1e4",
+                        "on-secondary-container": "#dfbcff",
+                        "surface-dim": "#131315",
+                        "surface-tint": "#b4c5ff",
+                        "tertiary-fixed-dim": "#b3d17a",
+                        "tertiary-fixed": "#ceee93",
+                        "surface-variant": "#353437",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-container": "#5b762a",
+                        "secondary-fixed-dim": "#ddb8ff",
+                        "on-primary": "#002a78",
+                        "surface-container": "#201f21",
+                        "secondary-fixed": "#f0dbff",
+                        "on-tertiary-fixed-variant": "#364e03",
+                        "surface-container-low": "#1c1b1d",
+                        "on-secondary": "#490080",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#6800b4",
+                        "inverse-on-surface": "#313032",
+                        "secondary": "#ddb8ff",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2c",
+                        "on-background": "#e5e1e4",
+                        "on-surface-variant": "#c3c6d7",
+                        "outline-variant": "#434655"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin_desktop": "64px",
+                        "max_width": "1440px",
+                        "gutter": "24px",
+                        "margin_mobile": "16px",
+                        "grid_unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "data-lg": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"],
+                        "data-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-caps": ["10px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "data-lg": ["18px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "data-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            background-image: 
+                linear-gradient(to right, rgba(141, 144, 160, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(141, 144, 160, 0.05) 1px, transparent 1px);
+            background-size: 64px 64px;
+            background-attachment: fixed;
+        }
+        
+        .glass-panel {
+            background: rgba(28, 27, 29, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(67, 70, 85, 0.2);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.05);
+        }
+
+        .neon-border-focus:focus-within {
+            border-color: theme('colors.primary');
+            box-shadow: 0 0 15px rgba(180, 197, 255, 0.2);
+        }
+
+        .scanning-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .scanning-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.7s ease;
+        }
+        
+        .scanning-btn:hover::after {
+            left: 200%;
+        }
+        
+        .scan-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, theme('colors.primary'), transparent);
+            box-shadow: 0 0 10px theme('colors.primary');
+            opacity: 0;
+            animation: scan 3s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { top: 100%; opacity: 0; }
+        }
+        
+        textarea {
+            resize: none;
+        }
+        
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        textarea::-webkit-scrollbar-thumb {
+            background-color: theme('colors.surface-variant');
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container"><div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-20"><div class="absolute top-20 left-10 font-data-sm text-primary/40 text-[10px] animate-pulse">LAT: 40.7128<br>LONG: -74.0060</div><div class="absolute bottom-20 right-10 font-data-sm text-primary/40 text-[10px] animate-pulse">HEX_STREAM: 0x4A 0x2F 0x99 0xBC</div><div class="absolute top-1/4 right-1/4 font-data-sm text-primary/20 text-[8px] rotate-90">SYSTEM_READY // V.2.0.4</div></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_15px_rgba(37,99,235,0.15)] flex justify-between items-center px-margin_mobile md:px-margin_desktop h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="font-headline-xl text-headline-lg-mobile md:text-headline-lg text-primary tracking-tighter">Aetheris AI</span>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors duration-300 cursor-pointer text-[24px]">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors duration-300 cursor-pointer text-[24px]">settings</span>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/30 cursor-pointer">
+<img alt="User technical profile avatar" class="w-full h-full object-cover" data-alt="A futuristic UI avatar placeholder featuring a technical, wireframe-style head or geometric shape representing a user profile, rendered in deep blues and purples on a dark background. Glowing accents give it a cybernetic feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPAUlthp1Z4cOVcfy5-6bGETabrOCSr85rUu-H8H-kqvdorMOHSUqK0ec7YQVewENM-7UIViEcQNOPyA0fRmWDsRyjbp5ni4oIl5a5Y_Vw_IyhQEE6h5Uswk2DOxIYUxBt29bFwnXwKHBI2iUP7f4Y_k2-CpMwmSVYf2EgzZFBIusp4r73I2JLWl8SpOsdWjIjynGGs-rAQxNVMUPyJMper_KDkhxSudWl1RV71xrcB6Sgbci1eSrBGQ">
+</div>
+</div>
+</header>
+<div class="flex flex-1 pt-16">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 hidden lg:flex flex-col bg-surface-container-low/40 backdrop-blur-md border-r border-outline-variant/20 flex flex-col gap-2 p-4 z-40">
+<div class="mb-8 px-4 py-2 border-b border-outline-variant/20">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(221,184,255,0.8)]"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">SEC_01 // ACTIVE</span>
+</div>
+<h2 class="font-headline-lg text-[20px] font-bold text-on-surface">Core Terminal</h2>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="bg-secondary-container/30 text-secondary border-r-2 border-secondary p-4 flex items-center gap-4 transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span class="font-data-lg text-[14px] group-hover:translate-x-1 duration-200">Text</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]">upload_file</span>
+<span class="font-data-lg text-[14px] group-hover:translate-x-1 duration-200">Upload File</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]">code</span>
+<span class="font-data-lg text-[14px] group-hover:translate-x-1 duration-200">Code</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]">image</span>
+<span class="font-data-lg text-[14px] group-hover:translate-x-1 duration-200">Image</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]">summarize</span>
+<span class="font-data-lg text-[14px] group-hover:translate-x-1 duration-200">Summary</span>
+</a>
+<a class="text-on-surface-variant p-4 flex items-center gap-4 hover:bg-surface-variant/20 hover:text-on-surface transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="font-data-lg text-[14px] group-hover:translate-x-1 duration-200">History</span>
+</a>
+</div>
+<div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-2">
+<button class="w-full py-3 px-4 border border-secondary text-secondary rounded-DEFAULT hover:bg-secondary/10 transition-colors font-data-sm text-[12px] uppercase tracking-wider mb-4">
+                    Upgrade to Pro
+                </button>
+<a class="text-on-surface-variant px-4 py-2 flex items-center gap-3 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+<span class="font-data-sm text-[12px]">Docs</span>
+</a>
+<a class="text-on-surface-variant px-4 py-2 flex items-center gap-3 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">support_agent</span>
+<span class="font-data-sm text-[12px]">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 p-margin_mobile md:p-margin_desktop flex flex-col min-h-full">
+<div class="max-w-4xl mx-auto w-full flex-1 flex flex-col gap-6">
+<header class="flex justify-between items-end mb-4">
+<div>
+<h1 class="font-headline-xl text-[36px] text-on-surface mb-2">Text Analysis Engine</h1>
+<p class="text-on-surface-variant font-data-lg text-[14px]">Awaiting input stream for linguistic decryption.</p>
+</div>
+<div class="hidden md:flex items-center gap-2 px-3 py-1 bg-surface-container-high rounded border border-outline-variant/30">
+<div class="w-2 h-2 rounded-full bg-outline-variant animate-pulse"></div>
+<span class="font-label-caps text-label-caps text-outline-variant">SYSTEM IDLE</span>
+</div>
+</header>
+<!-- Editor Card -->
+<div class="flex items-center gap-2 mb-1 px-1"><span class="w-1 h-1 bg-primary rounded-full animate-pulse"></span><span class="font-label-caps text-[9px] text-primary/60 tracking-[0.2em] uppercase">Input_Stream // SEC_01</span></div><div class="glass-panel rounded-lg flex-1 flex flex-col overflow-hidden relative group">
+<!-- Tech decorations -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t border-l border-primary/40 pointer-events-none"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t border-r border-primary/40 pointer-events-none"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-primary/40 pointer-events-none"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-primary/40 pointer-events-none"></div>
+<div class="px-4 py-2 border-b border-outline-variant/20 flex justify-between items-center bg-surface/50">
+<span class="font-label-caps text-label-caps text-primary">TXT_IN // 00</span>
+<div class="flex gap-1"><div class="flex items-center gap-2 mr-4"><span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span><span class="font-label-caps text-[9px] text-tertiary tracking-widest">AWAITING STREAM</span></div>
+<div class="w-1 h-3 bg-outline-variant/30"></div>
+<div class="w-1 h-3 bg-outline-variant/30"></div>
+<div class="w-1 h-3 bg-outline-variant/30"></div>
+</div>
+</div>
+<div class="flex-1 relative neon-border-focus transition-all duration-300">
+<div class="scan-line group-focus-within:opacity-50"></div>
+<textarea class="w-full h-full bg-transparent border-none p-6 font-data-lg text-[16px] text-on-surface placeholder:text-outline-variant/50 focus:ring-0 resize-none outline-none leading-relaxed" placeholder="Paste your text here..." spellcheck="false"></textarea>
+</div>
+<!-- Toolbar / Status bar -->
+<div class="px-6 py-4 border-t border-outline-variant/20 bg-surface-container-low/80 flex flex-col sm:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-6 text-on-surface-variant font-data-sm text-data-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">text_fields</span>
+<span class="">Chars: <span class="text-on-surface font-medium">0</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">segment</span>
+<span class="">Words: <span class="text-on-surface font-medium">0</span></span>
+</div>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<button class="px-4 py-2 text-on-surface-variant hover:text-error transition-colors font-data-sm text-[12px] uppercase tracking-wider flex items-center gap-2 border border-transparent hover:border-error/30 rounded">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+                                Clear
+                            </button>
+<button class="scanning-btn flex-1 sm:flex-none px-6 py-3 bg-primary-container text-on-primary-container font-data-sm text-[12px] uppercase tracking-[0.1em] font-bold rounded flex justify-center items-center gap-2 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] shadow-[0_0_15px_rgba(37,99,235,0.3)] animate-pulse">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+                                Analyze Text
+                            </button>
+</div>
+</div>
+</div>
+<!-- Spacer to push footer down if content is short -->
+<div class="flex-grow"></div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full py-8 bg-background border-t border-outline-variant/10 max-w-max_width mx-auto px-margin_desktop flex flex-col md:flex-row justify-between items-center lg:ml-64 z-10 relative">
+<div class="font-label-caps text-label-caps text-on-surface mb-4 md:mb-0">
+            © 2024 Aetheris Technical Systems. All rights reserved.
+        </div>
+<div class="flex items-center gap-6 font-data-sm text-data-sm text-on-surface-variant">
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">API Docs</a>
+</div>
+</footer>
+
+
+</body></html>

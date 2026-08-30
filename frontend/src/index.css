@@ -1,0 +1,244 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════════════════════════════════
+   The Void — flat solid background, applied once globally on body so
+   every page inherits the same color via normal CSS cascade.
+   ══════════════════════════════════════════════════════════════════════ */
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #0a0a0b;
+    color: #e5e1e4;
+    font-family: "Hanken Grotesk", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: #2563eb;
+    color: #eeefff;
+  }
+
+  /* Scrollbars, tuned to the surface stack. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #353437 transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #353437;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #434655;
+  }
+
+  /* Material Symbols — block display so glyph names never flash as text. */
+  .ms {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+  .ms-fill {
+    font-variation-settings: "FILL" 1;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Keyframes used by the hand-written component classes below.
+   These must live here, not only in tailwind.config.js: Tailwind emits a
+   config keyframe only when a matching `animate-*` utility appears in the
+   scanned source, and these are referenced from CSS instead.
+   ══════════════════════════════════════════════════════════════════════ */
+@keyframes scan-y {
+  0% { top: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@layer components {
+  /* ── The Glass Layer ────────────────────────────────────────────────── */
+  .glass {
+    background-color: rgba(19, 19, 21, 0.62);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(67, 70, 85, 0.35);
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.08);
+  }
+
+  .glass-strong {
+    background-color: rgba(19, 19, 21, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(67, 70, 85, 0.45);
+    box-shadow: 0 0 30px rgba(37, 99, 235, 0.1), inset 0 0 12px rgba(180, 197, 255, 0.03);
+  }
+
+  .glass-inset {
+    background-color: rgba(14, 14, 16, 0.7);
+    border: 1px solid rgba(67, 70, 85, 0.3);
+  }
+
+  /* ── Reinforced corner brackets (screen-2 "tech decorations") ───────── */
+  .brackets::before,
+  .brackets::after {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+    border-color: rgba(180, 197, 255, 0.35);
+  }
+  .brackets::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  .brackets::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+
+  /* ── The Scanner Line ───────────────────────────────────────────────── */
+  .scanner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    pointer-events: none;
+    z-index: 5;
+    background: linear-gradient(90deg, transparent, #b4c5ff, transparent);
+    box-shadow: 0 0 10px rgba(180, 197, 255, 0.7);
+    animation: scan-y 3s linear infinite;
+  }
+  .scanner-lime {
+    background: linear-gradient(90deg, transparent, #b3d17a, transparent);
+    box-shadow: 0 0 10px rgba(179, 209, 122, 0.7);
+  }
+  .scanner-purple {
+    background: linear-gradient(90deg, transparent, #ddb8ff, transparent);
+    box-shadow: 0 0 10px rgba(221, 184, 255, 0.7);
+  }
+
+  /* ── Buttons: a light beam passes across on hover ───────────────────── */
+  .btn-scan {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-scan::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: -100%;
+    width: 45%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.18), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.7s ease;
+    pointer-events: none;
+  }
+  .btn-scan:hover:not(:disabled)::after {
+    left: 200%;
+  }
+
+  /* ── Live progress fill: a moving tri-tone gradient ─────────────────── */
+  .progress-live {
+    background: linear-gradient(90deg, #0053db, #7c03d3, #b4c5ff, #0053db);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+  .progress-done {
+    background: linear-gradient(90deg, #5b762a, #b3d17a);
+  }
+  .progress-failed {
+    background: linear-gradient(90deg, #93000a, #ffb4ab);
+  }
+
+  /* ── Inputs: inset box, bottom border glows on focus ────────────────── */
+  .field {
+    background-color: rgba(14, 14, 16, 0.72);
+    border: 1px solid rgba(67, 70, 85, 0.45);
+    color: #e5e1e4;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .field::placeholder {
+    color: rgba(141, 144, 160, 0.55);
+  }
+  .field:focus,
+  .field:focus-visible {
+    outline: none;
+    border-color: rgba(180, 197, 255, 0.6);
+    box-shadow: 0 0 0 1px rgba(180, 197, 255, 0.18), 0 0 18px rgba(180, 197, 255, 0.14);
+  }
+
+  /* ── Chamfered corner — "military-grade" status flags ───────────────── */
+  .chamfer {
+    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  }
+
+  /* ── Terminal log stream ────────────────────────────────────────────── */
+  .log-mask {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+  }
+}
+
+@layer utilities {
+  /* Sequential card entrance — used by result panels. */
+  .stagger > * {
+    animation: rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger > *:nth-child(2) { animation-delay: 70ms; }
+  .stagger > *:nth-child(3) { animation-delay: 140ms; }
+  .stagger > *:nth-child(4) { animation-delay: 210ms; }
+  .stagger > *:nth-child(5) { animation-delay: 280ms; }
+  .stagger > *:nth-child(6) { animation-delay: 350ms; }
+  .stagger > *:nth-child(n + 7) { animation-delay: 420ms; }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
