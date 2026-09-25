@@ -15,6 +15,13 @@ const FILTERS = [
   { key: "image", label: "Image", icon: "image" },
 ];
 
+/** The record id in a "#history/12" deep link, or null. */
+function historyIdFromHash() {
+  const [surface, id] = window.location.hash.replace("#", "").split("/");
+  const n = Number(id);
+  return surface === "history" && Number.isInteger(n) && n > 0 ? n : null;
+}
+
 export default function HistoryTab({ onNavigate }) {
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -38,6 +45,34 @@ export default function HistoryTab({ onNavigate }) {
   }, [filter, sort]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Open the record named in the URL (#history/12) — on arrival, and again if the
+  // hash changes while this tab is open. A record that no longer exists (deleted
+  // since the link was made) reports that instead of showing a blank page.
+  useEffect(() => {
+    let cancelled = false;
+    const openFromHash = async () => {
+      const id = historyIdFromHash();
+      if (!id) return;
+      try {
+        const d = await getJSON(`/history/${id}`);
+        if (!cancelled) setDetail(d);
+      } catch {
+        if (!cancelled) setError("That analysis is no longer on record — it may have been deleted.");
+      }
+    };
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("hashchange", openFromHash);
+    };
+  }, []);
+
+  const closeDetail = () => {
+    setDetail(null);
+    if (historyIdFromHash()) window.history.replaceState(null, "", "#history");
+  };
 
   const view = async (id) => {
     setBusyId(id);
@@ -78,17 +113,16 @@ export default function HistoryTab({ onNavigate }) {
   };
 
   if (detail) {
-    return <HistoryDetailPanel detail={detail} onClose={() => setDetail(null)} />;
+    return <HistoryDetailPanel detail={detail} onClose={closeDetail} />;
   }
 
   return (
     <>
       <PageHeader
-        eyebrow="SEC_06 // ARCHIVE"
-        title="Analysis History"
+        title="History"
         subtitle="Every analysis this terminal has run, newest first."
         status={items.length ? "done" : "idle"}
-        statusLabel={loading ? "LOADING" : `${items.length} RECORD${items.length === 1 ? "" : "S"}`}
+        statusLabel={loading ? "Loading" : `${items.length} record${items.length === 1 ? "" : "s"}`}
         action={
           <Button onClick={load} variant="ghost" size="sm" icon="refresh" loading={loading}>
             Refresh
@@ -98,30 +132,30 @@ export default function HistoryTab({ onNavigate }) {
 
       <GlassCard bodyClassName="p-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex gap-1 rounded border border-outline-variant/35 bg-surface-lowest/50 p-1">
+          <div className="flex gap-1 rounded-lg bg-surface-lowest p-1">
             {FILTERS.map((f) => (
               <button
                 key={f.key}
                 type="button"
                 onClick={() => setFilter(f.key)}
-                className={`flex items-center gap-2 rounded px-3.5 py-2 font-mono text-[11.5px] uppercase tracking-[0.1em] transition-all ${
+                className={`flex items-center gap-2 rounded-md px-3.5 py-2 text-[13px] font-medium transition-colors ${
                   filter === f.key
-                    ? "bg-secondary-container/30 text-secondary"
+                    ? "bg-surface text-primary shadow-soft"
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
-                <Icon name={f.icon} size={15} />
+                <Icon name={f.icon} size={16} />
                 {f.label}
               </button>
             ))}
           </div>
 
           <label className="flex items-center gap-2.5">
-            <span className="font-mono text-label-caps uppercase tracking-[0.14em] text-outline">Sort</span>
+            <span className="text-[12.5px] font-medium text-on-surface-variant">Sort</span>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="field rounded px-3 py-2 text-[12px] outline-none"
+              className="field rounded-lg px-3 py-2 text-[13px] outline-none"
             >
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
@@ -136,10 +170,7 @@ export default function HistoryTab({ onNavigate }) {
         {loading ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-[86px] animate-pulse rounded-lg border border-outline-variant/20 bg-surface-low/30"
-              />
+              <div key={i} className="h-[84px] animate-pulse rounded-xl border border-outline-variant/30 bg-surface-low" />
             ))}
           </div>
         ) : items.length === 0 ? (

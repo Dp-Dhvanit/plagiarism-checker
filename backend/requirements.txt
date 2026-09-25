@@ -1,15 +1,21 @@
-fastapi>=0.115.0
-uvicorn[standard]>=0.34.0
-transformers>=4.47.0
-torch>=2.9.0
-pydantic>=2.10.0
-numpy>=2.0.0
-python-multipart>=0.0.20
-pdfplumber>=0.11.0
-python-pptx>=1.0.0
-python-docx>=0.8.10
-google-genai>=1.0.0
-python-dotenv>=1.0.0
-sentence-transformers>=3.0.0
-reportlab>=4.2.0
-pillow>=10.0.0
+# Pinned to exactly what's installed and tested in backend/.venv (see
+# `pip freeze`), rather than open-ended `>=` ranges — a transitive major
+# bump (numpy 1->2 ABI, transformers API changes, etc.) previously had no
+# ceiling here and could silently break the app on a fresh install. Bump
+# deliberately: `pip install -U <pkg>`, run the test suite, then re-pin.
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+transformers==5.16.1
+torch==2.13.0
+pydantic==2.13.4
+numpy==2.5.2
+python-multipart==0.0.32
+pdfplumber==0.11.10
+python-pptx==1.0.2
+python-docx==1.2.0
+google-genai==2.20.0
+python-dotenv==1.2.3
+sentence-transformers==6.0.0
+reportlab==5.0.1
+pillow==12.3.0
+requests==2.34.2

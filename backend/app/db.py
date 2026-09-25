@@ -20,7 +20,7 @@ import json
 import os
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Iterator, Literal
 
 import numpy as np
@@ -41,9 +41,17 @@ def _ensure_dirs() -> None:
 @contextmanager
 def _connect() -> Iterator[sqlite3.Connection]:
     _ensure_dirs()
-    conn = sqlite3.connect(DB_PATH)
+    # timeout: wait up to 30s for a lock instead of raising "database is
+    # locked" immediately — each request opens its own short-lived
+    # connection, so concurrent requests can otherwise collide on a write.
+    conn = sqlite3.connect(DB_PATH, timeout=30)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
+    # WAL lets readers proceed while a write is in progress, instead of
+    # blocking the whole file — meaningfully reduces lock contention under
+    # concurrent requests. Cheap to set on every connect (SQLite persists it
+    # in the DB file after the first call).
+    conn.execute("PRAGMA journal_mode = WAL")
     try:
         yield conn
         conn.commit()
@@ -149,6 +157,10 @@ def delete_history(history_id: int) -> bool:
         return cur.rowcount > 0
 
 
+def _avg(values: list[float]) -> float | None:
+    return round(sum(values) / len(values), 1) if values else None
+
+
 def get_dashboard_stats() -> dict[str, Any]:
     with _connect() as conn:
         total = conn.execute("SELECT COUNT(*) FROM analysis_history").fetchone()[0]
@@ -161,15 +173,41 @@ def get_dashboard_stats() -> dict[str, Any]:
         ai_flagged = conn.execute(
             "SELECT COUNT(*) FROM analysis_history WHERE ai_probability >= 60"
         ).fetchone()[0]
-        avg_similarity = conn.execute(
-            "SELECT AVG(similarity_score) FROM analysis_history WHERE similarity_score IS NOT NULL"
-        ).fetchone()[0]
+        rows = conn.execute(
+            "SELECT ai_probability, similarity_score, created_at FROM analysis_history"
+        ).fetchall()
+
+    # Week-over-week deltas, computed in Python rather than SQLite date
+    # functions — `created_at` is stored via `datetime.isoformat()`, which
+    # includes a "+00:00" offset SQLite's own date functions don't reliably
+    # parse, and the row count here is small enough that this is cheap.
+    now = datetime.now(timezone.utc)
+    week_ago = now - timedelta(days=7)
+    two_weeks_ago = now - timedelta(days=14)
+
+    def _parse(ts: str) -> datetime:
+        dt = datetime.fromisoformat(ts)
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+    this_week = [r for r in rows if _parse(r["created_at"]) >= week_ago]
+    prev_week = [r for r in rows if two_weeks_ago <= _parse(r["created_at"]) < week_ago]
+
+    similarities_all = [r["similarity_score"] for r in rows if r["similarity_score"] is not None]
+    ai_all = [r["ai_probability"] for r in rows if r["ai_probability"] is not None]
+
     return {
         "total_analyses": total,
         "text_analyses": text_count,
         "image_analyses": image_count,
         "ai_flagged": ai_flagged,
-        "average_similarity": round(avg_similarity, 1) if avg_similarity is not None else 0.0,
+        "average_similarity": _avg(similarities_all) or 0.0,
+        "average_ai_probability": _avg(ai_all) or 0.0,
+        "scans_this_week": len(this_week),
+        "scans_prev_week": len(prev_week),
+        "avg_ai_this_week": _avg([r["ai_probability"] for r in this_week if r["ai_probability"] is not None]),
+        "avg_ai_prev_week": _avg([r["ai_probability"] for r in prev_week if r["ai_probability"] is not None]),
+        "avg_similarity_this_week": _avg([r["similarity_score"] for r in this_week if r["similarity_score"] is not None]),
+        "avg_similarity_prev_week": _avg([r["similarity_score"] for r in prev_week if r["similarity_score"] is not None]),
     }
 
 
@@ -201,17 +239,30 @@ def insert_reference_chunks(history_id: int, file_name: str, chunks: list[str], 
 
 
 def get_all_reference_chunks() -> list[dict[str, Any]]:
+    """Every stored passage, with where it came from.
+
+    `file_name` is the corpus TAG (pasted text is tagged with a content hash so
+    it can be excluded from its own rewrite check). `display_name` and
+    `submitted_at` come from the history row, so a match can say "an earlier
+    submission, <name>, on <date>" instead of showing an internal tag.
+    """
     with _connect() as conn:
         rows = conn.execute(
-            "SELECT history_id, file_name, chunk_index, chunk_text, embedding FROM reference_chunks"
+            "SELECT c.history_id, c.file_name, c.chunk_index, c.chunk_text, c.embedding, "
+            "       h.file_name AS display_name, h.created_at AS submitted_at "
+            "FROM reference_chunks c JOIN analysis_history h ON h.id = c.history_id"
         ).fetchall()
     return [
         {
             "history_id": r["history_id"],
             "file_name": r["file_name"],
+            "display_name": r["display_name"],
+            "submitted_at": r["submitted_at"],
             "chunk_index": r["chunk_index"],
             "chunk_text": r["chunk_text"],
             "embedding": np.frombuffer(r["embedding"], dtype=np.float32),
+            "kind": "submission",
+            "url": None,
         }
         for r in rows
     ]

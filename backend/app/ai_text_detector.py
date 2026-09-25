@@ -25,7 +25,7 @@ from pydantic import BaseModel, ValidationError
 from app.gemini_client import (
     GEMINI_MODEL_FLASH,
     TIMEOUT_MS,
-    get_client,
+    call_gemini,
     is_configured,
     log_failure,
 )
@@ -89,9 +89,8 @@ def analyze_text_ai(text: str) -> GeminiTextDetection | None:
     try:
         from google.genai import types as genai_types
 
-        client = get_client()
         prompt = _PROMPT_TEMPLATE.format(text=truncated)
-        response = client.models.generate_content(
+        response = call_gemini(lambda client: client.models.generate_content(
             model=GEMINI_MODEL_FLASH,
             contents=prompt,
             config=genai_types.GenerateContentConfig(
@@ -100,7 +99,7 @@ def analyze_text_ai(text: str) -> GeminiTextDetection | None:
                 temperature=0.2,
                 http_options=genai_types.HttpOptions(timeout=TIMEOUT_MS),
             ),
-        )
+        ))
         result = response.parsed
         if result is None:
             result = GeminiTextDetection.model_validate(json.loads(response.text))

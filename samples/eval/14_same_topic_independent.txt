@@ -1,0 +1,22 @@
+Cities have always run a few degrees warmer than the land surrounding them, but the
+gap has widened as construction has intensified. Engineers call this the urban heat
+island effect, and its footprint shows up clearly in satellite thermal imagery taken
+after sunset.
+
+The mechanism is straightforward thermodynamics. Concrete and asphalt have a much
+higher heat capacity than soil or vegetation, so they soak up solar radiation during
+the day and release it slowly through the night. A tree canopy, by contrast, cools
+the air through evapotranspiration and casts shade that never lets pavement reach
+peak temperature in the first place.
+
+Municipal planners in Phoenix and Singapore have both experimented with reflective
+"cool pavement" coatings that bounce sunlight back into the atmosphere rather than
+absorbing it. Early results are mixed: the coatings lower surface temperature but can
+increase glare and, in some studies, raise the ambient temperature felt by pedestrians
+at eye level even as the road surface itself cools.
+
+A more consistent finding across dozens of cities is that tree cover correlates with
+lower nighttime temperatures far more reliably than any single engineered surface
+treatment. That has pushed several city governments to fund canopy expansion as a
+public-health measure rather than a purely aesthetic one, tying tree-planting budgets
+directly to emergency-room admissions during summer heat waves.

@@ -1,63 +1,88 @@
 /** @type {import('tailwindcss').Config} */
 //
-// "Deep Space Intelligence" — tokens transcribed from
-// stitch-references/*/DESIGN.md (all 13 share one system).
+// Clean, off-white SaaS theme. Token NAMES are unchanged from the previous
+// dark theme on purpose — every component references these same names, so
+// recoloring them here cascades the whole redesign without touching class
+// strings in ~50 component files. Only the semantic-color usages that
+// genuinely needed a different token (see app/data/constants.js TONE map)
+// were changed at the call site.
 //
+// Neutral tokens are CSS variables (defined for light and dark in src/index.css) so the
+// whole palette swaps with the .dark class. Stored as RGB channels so Tailwind's
+// opacity utilities (bg-outline-variant/40, ...) still work. Accent hues below stay
+// fixed hex: they were chosen as mid-tones that read on both backgrounds.
+const v = (name) => `rgb(var(--${name}) / <alpha-value>)`;
+
 export default {
   darkMode: "class",
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
-    // Replaced (not extended): the shape language is deliberately sharp.
-    // "Containers: 4px radius for a sharp, machined appearance."
+    // Rounded, modern shape language — replaces the old sharp 2-4px scale.
     borderRadius: {
       none: "0",
-      sm: "2px",
-      DEFAULT: "4px",
-      md: "6px",
-      lg: "8px",
-      xl: "12px",
+      sm: "6px",
+      DEFAULT: "10px",
+      md: "12px",
+      lg: "16px",
+      xl: "20px",
       full: "9999px",
     },
     extend: {
       colors: {
-        void: "#0a0a0b",
-        surface: "#131315",
-        "surface-dim": "#131315",
-        "surface-bright": "#39393b",
-        "surface-lowest": "#0e0e10",
-        "surface-low": "#1c1b1d",
-        "surface-container": "#201f21",
-        "surface-high": "#2a2a2c",
-        "surface-highest": "#353437",
-        "surface-variant": "#353437",
-        "on-surface": "#e5e1e4",
-        "on-surface-variant": "#c3c6d7",
-        outline: "#8d90a0",
-        "outline-variant": "#434655",
+        // ── Neutrals — warm off-white, not stark white/gray ─────────────
+        void: v("void"),                   // page background
+        surface: v("surface"),                // cards
+        "surface-dim": v("surface"),
+        "surface-bright": v("surface"),
+        "surface-lowest": v("surface-lowest"), // recessed areas: inputs, code blocks
+        "surface-low": v("surface-low"),       // secondary card bg, hover states
+        "surface-container": v("surface-container"),
+        "surface-high": v("surface-high"),     // icon chips, pill backgrounds
+        "surface-highest": v("surface-highest"),
+        "surface-variant": v("surface-highest"),
+        "on-surface": v("on-surface"),         // primary text
+        "on-surface-variant": v("on-surface-variant"), // secondary text
+        outline: v("outline"),              // muted icons / de-emphasized text
+        "outline-variant": v("outline-variant"), // borders (picked deliberately darker
+                                          // than a "final" light gray — most
+                                          // borders in this app are drawn at
+                                          // 20-50% opacity, and a paler base
+                                          // would wash out to invisible on a
+                                          // white card at that opacity)
 
-        // Deep Tech Blue — navigation, primary actions, "system ready".
-        primary: "#b4c5ff",
-        "on-primary": "#002a78",
-        "primary-container": "#2563eb",
-        "on-primary-container": "#eeefff",
-        "primary-dim": "#8fa5eb",
+        // ── Brand accent — muted lavender, used for actions/nav/links ───
+        primary: "#7C6EEA",
+        "on-primary": "#FFFFFF",
+        "primary-container": "#7C6EEA",
+        "on-primary-container": "#FFFFFF",
+        "primary-dim": "#6357C9",
 
-        // Electric Purple — reserved for AI / machine-generated signals.
-        secondary: "#ddb8ff",
-        "on-secondary": "#490080",
-        "secondary-container": "#7c03d3",
-        "on-secondary-container": "#dfbcff",
+        // ── Result semantics — restrained, one hue each ─────────────────
+        // "higher concern" (AI-likely, unverified-but-flagged, etc.)
+        secondary: "#D97862",
+        "on-secondary": "#FFFFFF",
+        "secondary-container": "#D97862",
+        "on-secondary-container": "#FFFFFF",
 
-        // Cyber Lime — human-origin, verified, "good" data.
-        tertiary: "#b3d17a",
-        "on-tertiary": "#243600",
-        "tertiary-container": "#5b762a",
-        "on-tertiary-container": "#dcfca0",
+        // "lower concern" (human-likely, verified-clean, success)
+        tertiary: "#6FAF7C",
+        "on-tertiary": "#FFFFFF",
+        "tertiary-container": "#6FAF7C",
+        "on-tertiary-container": "#FFFFFF",
 
-        error: "#ffb4ab",
-        "on-error": "#690005",
-        "error-container": "#93000a",
-        "on-error-container": "#ffdad6",
+        // "uncertain" — its own family so it never collides visually with
+        // the lavender brand color used for navigation/actions.
+        warning: "#D99A3C",
+        "on-warning": "#FFFFFF",
+        "warning-container": "#D99A3C",
+        "on-warning-container": "#FFFFFF",
+
+        // genuine faults (request failed, service unavailable) — distinct
+        // from the softer AI-concern coral above.
+        error: "#D6544A",
+        "on-error": "#FFFFFF",
+        "error-container": "#D6544A",
+        "on-error-container": "#FFFFFF",
       },
       fontFamily: {
         sans: ['"Hanken Grotesk"', "system-ui", "sans-serif"],
@@ -65,15 +90,15 @@ export default {
         mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
       },
       fontSize: {
-        "headline-xl": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "800" }],
-        "headline-lg": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
-        "headline-md": ["24px", { lineHeight: "1.2", fontWeight: "700" }],
-        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
-        "data-lg": ["16px", { lineHeight: "1.4", letterSpacing: "0.03em", fontWeight: "500" }],
+        "headline-xl": ["44px", { lineHeight: "1.15", letterSpacing: "-0.015em", fontWeight: "700" }],
+        "headline-lg": ["30px", { lineHeight: "1.25", letterSpacing: "-0.01em", fontWeight: "700" }],
+        "headline-md": ["22px", { lineHeight: "1.3", fontWeight: "600" }],
+        "body-md": ["15px", { lineHeight: "1.6", fontWeight: "400" }],
+        "data-lg": ["16px", { lineHeight: "1.4", fontWeight: "500" }],
         "data-md": ["13px", { lineHeight: "1.5", fontWeight: "400" }],
-        "data-sm": ["12px", { lineHeight: "1.4", fontWeight: "400" }],
-        "data-xs": ["11px", { lineHeight: "1.4", fontWeight: "400" }],
-        "label-caps": ["10px", { lineHeight: "1", letterSpacing: "0.1em", fontWeight: "700" }],
+        "data-sm": ["12.5px", { lineHeight: "1.5", fontWeight: "400" }],
+        "data-xs": ["11.5px", { lineHeight: "1.4", fontWeight: "400" }],
+        "label-caps": ["11px", { lineHeight: "1.3", letterSpacing: "0.02em", fontWeight: "600" }],
       },
       spacing: {
         gutter: "24px",
@@ -85,33 +110,34 @@ export default {
         content: "1180px",
       },
       boxShadow: {
-        neon: "0 0 15px rgba(37,99,235,0.15)",
-        "neon-lg": "0 0 30px rgba(37,99,235,0.18), inset 0 0 12px rgba(180,197,255,0.04)",
-        "glow-primary": "0 0 18px rgba(180,197,255,0.28)",
-        "glow-secondary": "0 0 18px rgba(221,184,255,0.30)",
-        "glow-tertiary": "0 0 18px rgba(179,209,122,0.28)",
+        // Soft, physical, close-in shadows — no glow/neon.
+        soft: "0 1px 2px rgba(43,42,39,0.05)",
+        card: "0 1px 2px rgba(43,42,39,0.04), 0 6px 16px -4px rgba(43,42,39,0.06)",
+        "card-hover": "0 2px 6px rgba(43,42,39,0.06), 0 12px 28px -6px rgba(43,42,39,0.10)",
+        dropdown: "0 8px 24px -4px rgba(43,42,39,0.14)",
+        "focus-ring": "0 0 0 3px rgba(124,110,234,0.18)",
       },
       keyframes: {
-        "pulse-ring": {
-          "0%": { boxShadow: "0 0 0 0 rgba(124,3,211,0.55)" },
-          "70%": { boxShadow: "0 0 0 9px rgba(124,3,211,0)" },
-          "100%": { boxShadow: "0 0 0 0 rgba(124,3,211,0)" },
-        },
-        blink: { "0%,100%": { opacity: "1" }, "50%": { opacity: "0" } },
         rise: {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "0%": { opacity: "0", transform: "translateY(8px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "fade-in": { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+        "scale-in": {
+          "0%": { opacity: "0", transform: "scale(0.97)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "150% 0" },
+          "100%": { backgroundPosition: "-50% 0" },
+        },
       },
       animation: {
-        // NOTE: `scan-y` and `shimmer` are declared in src/index.css because
-        // they are driven by component classes rather than these utilities.
-        "pulse-ring": "pulse-ring 1.8s ease-out infinite",
-        blink: "blink 1.1s step-end infinite",
-        rise: "rise 0.42s cubic-bezier(0.22,1,0.36,1) both",
-        "fade-in": "fade-in 0.35s ease both",
+        rise: "rise 0.4s cubic-bezier(0.22,1,0.36,1) both",
+        "fade-in": "fade-in 0.3s ease both",
+        "scale-in": "scale-in 0.25s cubic-bezier(0.22,1,0.36,1) both",
         "spin-slow": "spin 3s linear infinite",
+        shimmer: "shimmer 1.8s linear infinite",
       },
       transitionTimingFunction: {
         out: "cubic-bezier(0.22,1,0.36,1)",

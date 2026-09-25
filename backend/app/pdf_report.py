@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import io
 from typing import Any
+from xml.sax.saxutils import escape
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import LETTER
@@ -40,6 +41,19 @@ _disclaimer_style = ParagraphStyle(
     "Disclaimer", parent=_styles["BodyText"], textColor=_MUTED, fontSize=8.5,
     borderColor=_MUTED, borderWidth=0.5, borderPadding=8, backColor=colors.HexColor("#f9fafb"),
 )
+
+
+_cell = ParagraphStyle("Cell", parent=_styles["BodyText"], textColor=_INK, fontSize=8, leading=10)
+
+
+def _source_cell(m: dict) -> Paragraph:
+    """Where a matched passage came from: its name, then its URL (external
+    pages) or the date it was analysed (earlier submissions). Older reports
+    predate `source_name`, so fall back to the stored tag."""
+    name = m.get("source_name") or m.get("source_file") or "—"
+    detail = m.get("source_url") or (m.get("source_created_at") or "")[:10]
+    text = escape(name) + (f"<br/><font color='#6b7280' size='7'>{escape(detail)}</font>" if detail else "")
+    return Paragraph(text, _cell)
 
 
 def _footer(canvas, doc) -> None:
@@ -119,16 +133,16 @@ def generate_report(history_row: dict[str, Any]) -> bytes:
         story.append(_table(rows, col_widths=[2.6 * inch, 1.9 * inch, 1.5 * inch]))
         if gemini_text and gemini_text.get("explanation"):
             story.append(Spacer(1, 6))
-            story.append(Paragraph(f"<b>Explanation:</b> {gemini_text['explanation']}", _body))
+            story.append(Paragraph(f"<b>Explanation:</b> {escape(str(gemini_text['explanation']))}", _body))
 
         flagged = (gemini_text or {}).get("flagged_sections") or []
         if flagged:
             story.append(Spacer(1, 8))
             story.append(Paragraph("Flagged Sections", _h2))
             for sec in flagged[:10]:
-                story.append(Paragraph(f"&ldquo;{sec.get('text', '')}&rdquo;", _body))
+                story.append(Paragraph(f"&ldquo;{escape(str(sec.get('text', '')))}&rdquo;", _body))
                 if sec.get("reason"):
-                    story.append(Paragraph(f"<i>{sec['reason']}</i>", _muted))
+                    story.append(Paragraph(f"<i>{escape(str(sec['reason']))}</i>", _muted))
                 story.append(Spacer(1, 4))
 
     similarity = result.get("similarity")
@@ -145,6 +159,12 @@ def generate_report(history_row: dict[str, Any]) -> bytes:
                 col_widths=[2.6 * inch, 3.4 * inch],
             )
         )
+        external = similarity.get("external")
+        if external and external.get("note"):
+            story.append(Spacer(1, 4))
+            story.append(Paragraph(escape(external["note"]), _muted))
+            for s in external.get("sources") or []:
+                story.append(Paragraph(f"{escape(s.get('title', ''))} — {escape(s.get('url', ''))}", _muted))
         matches = similarity.get("matches") or []
         if matches:
             story.append(Spacer(1, 8))
@@ -153,10 +173,10 @@ def generate_report(history_row: dict[str, Any]) -> bytes:
             for m in matches[:10]:
                 rows.append([
                     f"{m.get('score', 0):.1f}%",
-                    m.get("source_file", "—"),
-                    (m.get("matched_text", "") or "")[:200],
+                    _source_cell(m),
+                    Paragraph(escape((m.get("matched_text", "") or "")[:200]), _cell),
                 ])
-            story.append(_table(rows, col_widths=[0.7 * inch, 1.6 * inch, 4.2 * inch]))
+            story.append(_table(rows, col_widths=[0.7 * inch, 1.9 * inch, 3.9 * inch]))
         elif similarity.get("note"):
             story.append(Paragraph(similarity["note"], _muted))
 
@@ -179,20 +199,28 @@ def generate_report(history_row: dict[str, Any]) -> bytes:
             story.append(Spacer(1, 6))
             story.append(Paragraph("<b>Possible indicators:</b>", _body))
             for ind in indicators:
-                story.append(Paragraph(f"&bull; {ind}", _body))
+                story.append(Paragraph(f"&bull; {escape(str(ind))}", _body))
         if image_result.get("explanation"):
             story.append(Spacer(1, 6))
-            story.append(Paragraph(f"<b>Explanation:</b> {image_result['explanation']}", _body))
+            story.append(Paragraph(f"<b>Explanation:</b> {escape(str(image_result['explanation']))}", _body))
 
     extracted_preview = result.get("extracted_text_preview")
     if extracted_preview:
         story.append(Paragraph("Original Text (excerpt)", _h2))
         preview = extracted_preview[:1500] + ("…" if len(extracted_preview) > 1500 else "")
-        story.append(Paragraph(preview.replace("\n", "<br/>"), _muted))
+        story.append(Paragraph(escape(preview).replace("\n", "<br/>"), _muted))
 
     story.append(Spacer(1, 10))
     story.append(Paragraph("Final Summary", _h2))
     summary_bits = []
+    # Lead with the same overall verdict the app headlines, so the report can't
+    # say "Likely AI" while the interface says "Uncertain". Records saved before
+    # the verdict was archived simply skip this line.
+    if result.get("final_verdict"):
+        line = f"Overall verdict: {escape(str(result['final_verdict']))}."
+        if result.get("verdict_reason"):
+            line += f" {escape(str(result['verdict_reason']))}"
+        summary_bits.append(line)
     if gemini_text:
         summary_bits.append(f"AI-generated likelihood was estimated at {gemini_text.get('ai_probability', 0):.1f}% ({gemini_text.get('confidence', '—')} confidence).")
     elif heuristic:

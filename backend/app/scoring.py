@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import math
 import re
+import threading
 from dataclasses import dataclass, field
 from typing import Literal
 
@@ -97,16 +98,23 @@ class TextScorer:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._tokenizer = None
         self._model = None
+        self._load_lock = threading.Lock()
 
     def load(self) -> None:
         if self._model is not None:
             return
-        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        self._model = AutoModelForCausalLM.from_pretrained(self.model_name)
-        self._model.to(self.device)
-        self._model.eval()
-        if self._tokenizer.pad_token is None:
-            self._tokenizer.pad_token = self._tokenizer.eos_token
+        # FastAPI runs sync request handlers in a thread pool, so concurrent
+        # first requests can race here without a lock — each would load its
+        # own copy of the model into memory.
+        with self._load_lock:
+            if self._model is not None:
+                return
+            self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            self._model = AutoModelForCausalLM.from_pretrained(self.model_name)
+            self._model.to(self.device)
+            self._model.eval()
+            if self._tokenizer.pad_token is None:
+                self._tokenizer.pad_token = self._tokenizer.eos_token
 
     @property
     def tokenizer(self):

@@ -2,25 +2,26 @@ import Icon from "./Icon.jsx";
 import { TONE } from "../../data/constants.js";
 
 /**
- * Technical status flag. `chamfer` clips the corners for high-level
- * verdict flags, matching the "military-grade hardware" shape language.
+ * Status pill. `chamfer` (the old sci-fi clipped-corner shape) is retired —
+ * the prop is still accepted so call sites don't need to change, but every
+ * badge now renders as a simple rounded pill.
  */
 export default function StatusBadge({
   label,
   tone = TONE.neutral,
   icon,
-  chamfer = false,
+  chamfer, // eslint-disable-line no-unused-vars -- accepted for API compatibility
   dot = false,
   className = "",
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 border px-2.5 py-1 font-mono text-[10.5px] font-bold uppercase leading-none tracking-[0.09em] ${
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] font-medium leading-none ${
         tone.bg
-      } ${tone.border} ${tone.text} ${chamfer ? "chamfer" : "rounded"} ${className}`}
+      } ${tone.border} ${tone.text} ${className}`}
     >
       {dot && <span className="h-1.5 w-1.5 rounded-full" style={{ background: tone.hex }} />}
-      {icon && <Icon name={icon} size={13} />}
+      {icon && <Icon name={icon} size={14} />}
       {label}
     </span>
   );
@@ -29,8 +30,8 @@ export default function StatusBadge({
 /** Neutral key/value chip — file type, size, counts. */
 export function MetaChip({ icon, children }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded border border-outline-variant/40 bg-surface-high/50 px-2.5 py-1 font-mono text-[11px] text-on-surface-variant">
-      {icon && <Icon name={icon} size={13} className="text-outline" />}
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-outline-variant/50 bg-surface-low px-2.5 py-1 text-[12px] text-on-surface-variant">
+      {icon && <Icon name={icon} size={14} className="text-outline" />}
       {children}
     </span>
   );

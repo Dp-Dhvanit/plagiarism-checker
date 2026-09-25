@@ -7,15 +7,14 @@ import { SectionTitle } from "../common/PageHeader.jsx";
 import { BarTooltip, GroupedTooltip, HBarTooltip, LineTooltip, PieTooltip } from "./ChartTooltips.jsx";
 import { CHART_COLORS } from "../../data/constants.js";
 
-const AXIS = { fontSize: 11, fill: "#8d90a0", fontFamily: "JetBrains Mono, monospace" };
-const GRID = "#2a2a2c";
-const CURSOR = { fill: "rgba(180,197,255,0.06)" };
+const AXIS = { fontSize: 11.5, fill: "#8F8A80", fontFamily: "Hanken Grotesk, sans-serif" };
+// Neutral chart colours are theme variables so charts follow light/dark (see index.css).
+const GRID = "rgb(var(--surface-container))";
+const CURSOR = { fill: "rgba(124,110,234,0.08)" };
 
 const CHART_ICON = { bar: "bar_chart", hbar: "bar_chart", pie: "pie_chart", line: "show_chart", "grouped-bar": "stacked_bar_chart" };
 
-const legendStyle = (v) => (
-  <span style={{ fontSize: 11, color: "#c3c6d7", fontFamily: "JetBrains Mono, monospace" }}>{v}</span>
-);
+const legendStyle = (v) => <span style={{ fontSize: 11.5, color: "rgb(var(--on-surface-variant))" }}>{v}</span>;
 
 export default function ChartCard({ chart, index = 0 }) {
   const data = chart.data || [];
@@ -26,7 +25,7 @@ export default function ChartCard({ chart, index = 0 }) {
   const hbarHeight = Math.max(180, data.length * 38);
 
   return (
-    <GlassCard code={`VIZ_${String(index + 1).padStart(2, "0")} // ${(chart.type || "bar").toUpperCase()}`}>
+    <GlassCard>
       <SectionTitle icon={CHART_ICON[chart.type] || "bar_chart"}>{chart.title}</SectionTitle>
 
       {chart.type === "bar" && (
@@ -36,10 +35,8 @@ export default function ChartCard({ chart, index = 0 }) {
             <XAxis dataKey="name" tick={AXIS} angle={-30} textAnchor="end" interval={0} tickLine={false} axisLine={{ stroke: GRID }} />
             <YAxis tick={AXIS} tickLine={false} axisLine={false} />
             <Tooltip content={<BarTooltip valueLabel={valueLabel} />} cursor={CURSOR} />
-            <Bar dataKey="value" radius={[3, 3, 0, 0]} maxBarSize={48} animationDuration={900}>
-              {data.map((_, i) => (
-                <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-              ))}
+            <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={48} animationDuration={700}>
+              {data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -49,19 +46,13 @@ export default function ChartCard({ chart, index = 0 }) {
         <ResponsiveContainer width="100%" height={hbarHeight}>
           <BarChart layout="vertical" data={data} margin={{ top: 4, right: 52, left: 4, bottom: 4 }}>
             <CartesianGrid stroke={GRID} strokeDasharray="3 3" horizontal={false} />
-            <XAxis
-              type="number" domain={[0, "dataMax"]} tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }}
-              tickFormatter={(v) => `${v.toLocaleString()}${suffix}`}
-            />
+            <XAxis type="number" domain={[0, "dataMax"]} tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }}
+              tickFormatter={(v) => `${v.toLocaleString()}${suffix}`} />
             <YAxis type="category" dataKey="name" tick={AXIS} width={64} tickLine={false} axisLine={false} />
             <Tooltip content={<HBarTooltip valueLabel={valueLabel} suffix={suffix} />} cursor={CURSOR} />
-            <Bar
-              dataKey="value" radius={[0, 3, 3, 0]} maxBarSize={22} animationDuration={900}
-              label={{ position: "right", fontSize: 11, fill: "#8d90a0", formatter: (v) => `${v.toLocaleString()}${suffix}` }}
-            >
-              {data.map((_, i) => (
-                <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-              ))}
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22} animationDuration={700}
+              label={{ position: "right", fontSize: 11.5, fill: "#8F8A80", formatter: (v) => `${v.toLocaleString()}${suffix}` }}>
+              {data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -70,15 +61,11 @@ export default function ChartCard({ chart, index = 0 }) {
       {chart.type === "pie" && (
         <ResponsiveContainer width="100%" height={280}>
           <PieChart>
-            <Pie
-              data={withTotal} cx="50%" cy="45%" innerRadius={58} outerRadius={94}
-              paddingAngle={3} dataKey="value" animationDuration={900} labelLine={false}
+            <Pie data={withTotal} cx="50%" cy="45%" innerRadius={58} outerRadius={94}
+              paddingAngle={3} dataKey="value" animationDuration={700} labelLine={false}
               label={({ percent }) => (percent > 0.06 ? `${(percent * 100).toFixed(0)}%` : "")}
-              stroke="#131315" strokeWidth={2}
-            >
-              {withTotal.map((_, i) => (
-                <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-              ))}
+              stroke="rgb(var(--surface))" strokeWidth={2}>
+              {withTotal.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
             </Pie>
             <Tooltip content={<PieTooltip />} />
             <Legend formatter={legendStyle} wrapperStyle={{ paddingTop: 14 }} />
@@ -92,12 +79,9 @@ export default function ChartCard({ chart, index = 0 }) {
             <CartesianGrid stroke={GRID} strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="name" tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} />
             <YAxis tick={AXIS} tickLine={false} axisLine={false} tickFormatter={(v) => `${v.toLocaleString()}${suffix}`} />
-            <Tooltip content={<LineTooltip valueLabel={valueLabel} suffix={suffix} />} cursor={{ stroke: "#434655" }} />
-            <Line
-              type="monotone" dataKey="value" stroke={CHART_COLORS[0]} strokeWidth={2}
-              dot={{ r: 3, fill: CHART_COLORS[0], strokeWidth: 0 }}
-              activeDot={{ r: 5 }} animationDuration={900}
-            />
+            <Tooltip content={<LineTooltip valueLabel={valueLabel} suffix={suffix} />} cursor={{ stroke: "rgb(var(--outline-variant))" }} />
+            <Line type="monotone" dataKey="value" stroke={CHART_COLORS[0]} strokeWidth={2.5}
+              dot={{ r: 3, fill: CHART_COLORS[0], strokeWidth: 0 }} activeDot={{ r: 5 }} animationDuration={700} />
           </LineChart>
         </ResponsiveContainer>
       )}
@@ -111,11 +95,8 @@ export default function ChartCard({ chart, index = 0 }) {
             <Tooltip content={<GroupedTooltip />} cursor={CURSOR} />
             <Legend formatter={legendStyle} />
             {(chart.series || []).map((s, i) => (
-              <Bar
-                key={s.key} dataKey={s.key} name={s.label}
-                fill={CHART_COLORS[i % CHART_COLORS.length]}
-                radius={[3, 3, 0, 0]} maxBarSize={26} animationDuration={900}
-              />
+              <Bar key={s.key} dataKey={s.key} name={s.label} fill={CHART_COLORS[i % CHART_COLORS.length]}
+                radius={[4, 4, 0, 0]} maxBarSize={26} animationDuration={700} />
             ))}
           </BarChart>
         </ResponsiveContainer>

@@ -72,9 +72,9 @@ export const STAGES_BY_KIND = {
 
 /** Header copy for each analysis surface. */
 export const RUN_COPY = {
-  text: { title: "Scanning your content", subtitle: "Processing linguistic structures", code: "SEC_ANALYZE" },
-  document: { title: "Analyzing document", subtitle: "Deep content extraction protocol", code: "SYS_PROC" },
-  code: { title: "Analyzing code", subtitle: "Static structure & authorship signals", code: "SEC_CODE" },
-  image: { title: "Analyzing image", subtitle: "Visual authenticity assessment", code: "SYS_ACT" },
-  summary: { title: "Summarizing document", subtitle: "Semantic extraction protocol", code: "SEC_SUM" },
+  text: { title: "Analyzing your text", subtitle: "Checking writing patterns and prior overlap" },
+  document: { title: "Analyzing document", subtitle: "Extracting content and checking for AI writing" },
+  code: { title: "Analyzing code", subtitle: "Reviewing structure and authorship signals" },
+  image: { title: "Analyzing image", subtitle: "Assessing visual authenticity" },
+  summary: { title: "Summarizing document", subtitle: "Extracting key points and figures" },
 };

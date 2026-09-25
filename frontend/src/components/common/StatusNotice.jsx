@@ -6,40 +6,37 @@ import Icon from "./Icon.jsx";
  * are informational, not faults.
  */
 const COPY = {
-  unanalyzable: {
-    icon: "block",
-    title: "Not suitable for AI detection",
-    tone: "warn",
-  },
+  unanalyzable: { icon: "block", title: "Not suitable for AI detection", tone: "warn" },
   insufficient_text: { icon: "notes", title: "Not enough text to assess", tone: "warn" },
   insufficient: { icon: "notes", title: "Not enough text to assess", tone: "warn" },
   extraction_failure: { icon: "description_off", title: "Could not read this file", tone: "muted" },
-  unavailable: { icon: "cloud_off", title: "AI analysis unavailable", tone: "muted" },
+  unavailable: { icon: "cloud_off", title: "This check is currently unavailable", tone: "muted" },
   mixed: { icon: "call_split", title: "Prose and code both detected", tone: "info" },
-  aborted: { icon: "cancel", title: "Analysis aborted", tone: "muted" },
+  aborted: { icon: "cancel", title: "Analysis stopped", tone: "muted" },
 };
 
 const TONES = {
-  warn: "border-primary/30 bg-primary-container/10 text-primary",
-  muted: "border-outline-variant/40 bg-surface-high/40 text-on-surface-variant",
-  info: "border-secondary/30 bg-secondary-container/10 text-secondary",
+  warn: "border-warning/30 bg-warning-container/8 text-on-surface",
+  muted: "border-outline-variant/50 bg-surface-low text-on-surface",
+  info: "border-primary/25 bg-primary-container/6 text-on-surface",
+};
+
+const ICON_TONES = {
+  warn: "text-warning",
+  muted: "text-outline",
+  info: "text-primary",
 };
 
 export default function StatusNotice({ status, message, code }) {
   const meta = COPY[status] || COPY.unanalyzable;
   return (
-    <div className={`relative overflow-hidden rounded-lg border p-5 ${TONES[meta.tone]}`}>
-      {code && (
-        <div className="absolute right-4 top-3 font-mono text-label-caps uppercase tracking-[0.14em] opacity-50">
-          {code}
-        </div>
-      )}
+    <div className={`rounded-xl border p-5 ${TONES[meta.tone]}`}>
       <div className="flex items-start gap-3.5">
-        <Icon name={meta.icon} size={22} className="mt-0.5 shrink-0" />
+        <Icon name={meta.icon} size={22} className={`mt-0.5 shrink-0 ${ICON_TONES[meta.tone]}`} />
         <div className="min-w-0">
-          <p className="font-display text-[15px] font-bold">{meta.title}</p>
+          <p className="font-display text-[15px] font-semibold">{meta.title}</p>
           {message && (
-            <p className="mt-1.5 text-[13.5px] leading-relaxed text-on-surface-variant/85">{message}</p>
+            <p className="mt-1.5 text-[13.5px] leading-relaxed text-on-surface-variant">{message}</p>
           )}
         </div>
       </div>

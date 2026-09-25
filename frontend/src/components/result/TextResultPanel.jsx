@@ -8,6 +8,7 @@ import { SectionTitle } from "../common/PageHeader.jsx";
 import ResultHeadline from "./ResultHeadline.jsx";
 import SignalPanel from "./SignalPanel.jsx";
 import GeminiPanel, { AiAssistStatus } from "./GeminiPanel.jsx";
+import DetectorBreakdown from "./DetectorBreakdown.jsx";
 import SimilarityPanel from "./SimilarityPanel.jsx";
 import HumanizedCard from "./HumanizedCard.jsx";
 import ReportButton from "./ReportButton.jsx";
@@ -15,11 +16,13 @@ import ExtractedContent from "./ExtractedContent.jsx";
 import TechnicalDetail from "./TechnicalDetail.jsx";
 import { postJSON } from "../../lib/api.js";
 import { countWords } from "../../lib/format.js";
-import { toneForSimilarity } from "../../data/constants.js";
+import { toneForSimilarity, toneForVerdict } from "../../data/constants.js";
 
 const VERDICT_BLURB = {
-  "Likely AI": "The statistical profile of this text resembles machine-generated writing more than human writing.",
-  "Likely Human": "The statistical profile of this text resembles human writing more than machine-generated writing.",
+  "Likely AI":
+    "The signals lean towards machine-generated writing. This is an estimate, not proof — read the passages yourself before drawing conclusions.",
+  "Likely Human":
+    "The signals lean towards human writing. This is an estimate: no detector can rule out AI assistance.",
   Uncertain: "The signals point both ways. Treat this as inconclusive rather than as evidence either way.",
 };
 
@@ -29,6 +32,11 @@ export default function TextResultPanel({ result, originalText, showExtracted = 
   const [hError, setHError] = useState("");
 
   const score = result.ai_likelihood_score;
+  const detectors = result.detectors || [];
+  const ranCount = detectors.filter((d) => d.verdict !== "unavailable" && d.ai_probability != null).length;
+  // The headline reflects every detector that ran, not just the local score
+  // shown in the ring — `verdict` alone hid hosted detectors that disagreed.
+  const finalVerdict = result.final_verdict || result.verdict;
   const sentences = result.sentence_breakdown || [];
   const maxPpl = sentences.length ? Math.max(...sentences.map((s) => s.perplexity), 80) : 80;
   const similarityPct =
@@ -55,53 +63,49 @@ export default function TextResultPanel({ result, originalText, showExtracted = 
     }
   };
 
-  // Only surfaced when the AI-assisted check actually produced one — the
-  // local detector does not report a confidence of its own.
   const rows = [];
   if (result.gemini?.confidence) {
     rows.push({
-      label: "Confidence level",
+      // This is Gemini's confidence in its OWN estimate, not in the headline.
+      label: "AI-assisted check confidence",
       value: result.gemini.confidence[0].toUpperCase() + result.gemini.confidence.slice(1),
       icon: "verified_user",
-      hex: "#b4c5ff",
+      hex: "#7C6EEA",
     });
   }
   if (similarityPct != null) {
     rows.push({
-      label: "Similarity index",
-      value: `${similarityPct}%`,
+      label: "Verified overlap",
+      value: `${Math.round(result.similarity.matched_portion ?? 0)}%`,
       icon: "compare_arrows",
-      hex: toneForSimilarity(similarityPct).hex,
+      hex: toneForSimilarity(result.similarity.matched_portion).hex,
     });
   }
-  // Sentence/word counts deliberately stay out of the primary block — they
-  // live in the technical detail panel alongside perplexity and burstiness.
 
   return (
     <div className="stagger space-y-6">
       <ResultHeadline
         score={score}
-        verdict={result.verdict}
-        blurb={VERDICT_BLURB[result.verdict]}
-        code="RES // AI_PROB"
+        ringLabel={ranCount > 1 ? "LOCAL DETECTOR\nESTIMATE" : undefined}
+        aiLabel={ranCount > 1 ? "Local AI likelihood" : undefined}
+        altLabel={ranCount > 1 ? "Local human likelihood" : undefined}
+        verdict={finalVerdict}
+        verdictTone={toneForVerdict(finalVerdict)}
+        blurb={VERDICT_BLURB[finalVerdict]}
+        reason={result.verdict_reason}
         rows={rows}
         actions={
           <>
             <ReportButton historyId={result.history_id} />
             {score > 20 && !humanized && (
-              <Button
-                onClick={doHumanize}
-                loading={humanizing}
-                variant="accent"
-                icon="auto_fix_high"
-              >
+              <Button onClick={doHumanize} loading={humanizing} variant="accent" icon="auto_fix_high">
                 {humanizing ? "Rewriting…" : "Reduce AI phrasing"}
               </Button>
             )}
           </>
         }
       >
-        <AiAssistStatus gemini={result.gemini} />
+        <AiAssistStatus gemini={result.gemini} detectors={detectors} />
         <ErrorMsg msg={hError} />
       </ResultHeadline>
 
@@ -113,12 +117,10 @@ export default function TextResultPanel({ result, originalText, showExtracted = 
         />
       )}
 
-      {/* Renders only when the AI-assisted check actually returned something. */}
+      {ranCount > 1 && <DetectorBreakdown detectors={detectors} consensus={result.consensus} />}
       <GeminiPanel gemini={result.gemini} />
-
       <SimilarityPanel similarity={result.similarity} />
 
-      {/* Secondary by design: the statistical internals stay one click away. */}
       <TechnicalDetail
         summary={
           sentences.length > 0
@@ -135,18 +137,12 @@ export default function TextResultPanel({ result, originalText, showExtracted = 
         />
 
         {sentences.length > 0 && (
-          <GlassCard code="SEC // SENTENCE_MAP">
+          <GlassCard>
             <SectionTitle icon="format_align_left">Sentence heatmap</SectionTitle>
             <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-outline">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-secondary" /> AI-leaning (low perplexity)
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-primary" /> Uncertain
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-tertiary" /> Human-leaning
-              </span>
+              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-secondary" /> AI-leaning</span>
+              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-warning" /> Uncertain</span>
+              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-tertiary" /> Human-leaning</span>
             </div>
             <div className="max-h-[420px] overflow-y-auto pr-1">
               {sentences.map((s, i) => (
@@ -156,9 +152,7 @@ export default function TextResultPanel({ result, originalText, showExtracted = 
           </GlassCard>
         )}
 
-        {showExtracted && result.extracted_text && (
-          <ExtractedContent text={result.extracted_text} />
-        )}
+        {showExtracted && result.extracted_text && <ExtractedContent text={result.extracted_text} />}
       </TechnicalDetail>
 
       <Disclaimer />

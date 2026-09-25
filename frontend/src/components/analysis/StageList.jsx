@@ -1,79 +1,73 @@
 import Icon from "../common/Icon.jsx";
 
 /**
- * The stage sequence (reference screen-4). Exactly one stage is active at a
- * time; completed stages recede, pending stages sit at low opacity.
+ * The stage sequence. Exactly one stage is active at a time; completed
+ * stages show a check, pending stages sit dimmed.
  */
 
 const STATE_META = {
   done: {
-    ring: "border-tertiary/50 bg-tertiary-container/20 text-tertiary",
+    ring: "bg-tertiary-container/12 text-tertiary",
     label: "text-on-surface",
     tag: "text-tertiary",
-    tagText: "DONE",
-    icon: "check_circle",
+    tagText: "Done",
+    icon: "check",
     row: "opacity-70",
   },
   active: {
-    ring: "border-transparent bg-secondary-container text-on-secondary-container animate-pulse-ring shadow-[0_0_12px_#7c03d3]",
-    label: "text-secondary font-semibold",
-    tag: "text-secondary animate-pulse",
-    tagText: "PROCESSING",
-    icon: "sync",
-    row: "bg-secondary-container/10 border border-secondary/20 rounded -mx-3 px-3",
+    ring: "bg-primary-container/12 text-primary",
+    label: "text-on-surface font-medium",
+    tag: "text-primary",
+    tagText: "In progress",
+    icon: "progress_activity",
+    row: "",
   },
   pending: {
-    ring: "border-outline-variant/60 text-outline",
+    ring: "bg-surface-high text-outline",
     label: "text-on-surface-variant",
-    tag: "text-outline-variant",
-    tagText: "PENDING",
+    tag: "text-outline",
+    tagText: "Waiting",
     icon: "hourglass_empty",
-    row: "opacity-40",
+    row: "opacity-45",
   },
-  // The stage the sequence had *reached* when the request failed. Labelled
-  // "HALTED" rather than "FAILED": the request errored, which is not the
-  // same as this particular stage being the thing that broke.
   failed: {
-    ring: "border-error/50 bg-error-container/25 text-error",
-    label: "text-error font-semibold",
+    // The stage the sequence had *reached* when the request failed —
+    // labelled "Halted" rather than "Failed": the request errored, which
+    // is not necessarily this specific stage's fault.
+    ring: "bg-error-container/12 text-error",
+    label: "text-error font-medium",
     tag: "text-error",
-    tagText: "HALTED",
+    tagText: "Halted",
     icon: "error",
-    row: "bg-error-container/10 border border-error/25 rounded -mx-3 px-3",
+    row: "",
   },
 };
 
 export default function StageList({ stages, states, showNotes = true }) {
   return (
-    <ol className="space-y-3.5">
+    <ol className="space-y-1">
       {stages.map((stage, i) => {
         const state = states[i] || "pending";
         const m = STATE_META[state];
         return (
-          <li key={stage.id} className={`flex items-center gap-4 py-2 transition-all duration-300 ${m.row}`}>
-            <span
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${m.ring}`}
-            >
-              <Icon
-                name={m.icon}
-                size={17}
-                fill={state === "done"}
-                className={state === "active" ? "animate-spin-slow" : ""}
-              />
+          <li
+            key={stage.id}
+            className={`flex items-center gap-3.5 rounded-lg px-2 py-2.5 transition-opacity duration-300 ${m.row}`}
+          >
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${m.ring}`}>
+              <Icon name={m.icon} size={16} className={state === "active" ? "animate-spin-slow" : ""} />
             </span>
 
             <span className="min-w-0 flex-1">
-              <span className={`block font-mono text-[14px] leading-tight ${m.label}`}>{stage.label}</span>
+              <span className={`block text-[14px] leading-tight ${m.label}`}>{stage.label}</span>
               {showNotes && stage.note && (
-                <span className="mt-1 block font-mono text-[11px] leading-tight text-outline">
+                <span className="mt-0.5 block text-[12px] leading-tight text-on-surface-variant">
                   {stage.note}
                 </span>
               )}
             </span>
 
-            <span className={`shrink-0 font-mono text-label-caps uppercase tracking-[0.12em] ${m.tag}`}>
-              {state === "done" ? "100%" : m.tagText}
-            </span>
+            <span className={`shrink-0 text-[12px] font-medium ${m.tag}`}>{m.tagText}</span>
           </li>
         );
       })}

@@ -14,15 +14,24 @@ import { postForm, postJSON } from "../../lib/api.js";
 import { ACCEPT, FORMAT_CHIPS, SUPPORTED_LANGUAGES } from "../../data/constants.js";
 import { SAMPLE_CODE_AI } from "../../data/samples.js";
 
-/** Reference screen-9: two real intake routes, presented as OP_ cards. */
 const MODES = [
-  { key: "paste", code: "OP_01", icon: "content_paste", title: "Paste Snippet", blurb: "Direct source injection." },
-  { key: "file", code: "OP_02", icon: "upload_file", title: "Upload Source", blurb: "Source files, or a PDF/DOCX/PPTX containing code." },
+  { key: "paste", icon: "content_paste", title: "Paste snippet", blurb: "Paste source code directly." },
+  { key: "file", icon: "upload_file", title: "Upload source", blurb: "A source file, or a document containing code." },
+];
+
+// Plain source extensions the browser can safely read as text client-side
+// for the Code Optimizer (see CodeResultPanel's sourceCode prop) — NOT
+// documents (PDF/DOCX/PPTX), whose extracted code the backend never
+// echoes back, so there's nothing clean to send to the optimizer for those.
+const CODE_FILE_EXTS = [
+  ".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".cpp", ".cc", ".cxx", ".h",
+  ".hpp", ".c", ".cs", ".php", ".go", ".rb", ".kt", ".swift", ".sql",
 ];
 
 export default function CodeTab() {
   const [mode, setMode] = useState("paste");
   const [file, setFile] = useState(null);
+  const [fileText, setFileText] = useState(null);
   const [code, setCode] = useState("");
   const [inputError, setInputError] = useState("");
   const run = useAnalysisRun(CODE_STAGES);
@@ -43,6 +52,16 @@ export default function CodeTab() {
       return;
     }
     setInputError("");
+    const isPlainCodeFile = CODE_FILE_EXTS.some((ext) => file.name.toLowerCase().endsWith(ext));
+    if (isPlainCodeFile) {
+      try {
+        setFileText(await file.text());
+      } catch {
+        setFileText(null);
+      }
+    } else {
+      setFileText(null); // a document (PDF/DOCX/PPTX) — no clean source text to optimize
+    }
     const form = new FormData();
     form.append("file", file);
     await run.run(({ signal }) => postForm("/detect-code", form, { signal }));
@@ -54,7 +73,6 @@ export default function CodeTab() {
     return (
       <>
         <PageHeader
-          eyebrow="SEC_03 // CODE"
           title="Code Analysis"
           subtitle={mode === "file" ? file?.name : "Pasted snippet"}
           status={run.phase === "error" ? "error" : "running"}
@@ -63,7 +81,7 @@ export default function CodeTab() {
           kind="code"
           run={run}
           stages={CODE_STAGES}
-          subject={{ source: mode === "paste" ? code : null, name: file?.name }}
+          subject={{ name: file?.name }}
           onAbort={run.abort}
           onRetry={start}
           onCancel={backToInput}
@@ -76,7 +94,6 @@ export default function CodeTab() {
     return (
       <>
         <PageHeader
-          eyebrow="SEC_03 // CODE"
           title="Code Report"
           subtitle={mode === "file" ? file?.name : "Pasted snippet"}
           status="done"
@@ -86,7 +103,7 @@ export default function CodeTab() {
             </Button>
           }
         />
-        <CodeResultPanel result={run.result} />
+        <CodeResultPanel result={run.result} sourceCode={mode === "paste" ? code : fileText} />
       </>
     );
   }
@@ -96,13 +113,11 @@ export default function CodeTab() {
   return (
     <>
       <PageHeader
-        eyebrow="MODULE_INIT // READY"
-        title="Initialize Analysis"
-        subtitle="Provide target source via paste or file upload to begin the deep-scan protocol."
+        title="Code Analysis"
+        subtitle="Paste a snippet or upload a source file to assess whether it reads as AI-assisted."
         status={canRun ? "ready" : "idle"}
       />
 
-      {/* Intake mode selector */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2">
         {MODES.map((m) => {
           const active = mode === m.key;
@@ -111,43 +126,36 @@ export default function CodeTab() {
               key={m.key}
               type="button"
               onClick={() => { setMode(m.key); setInputError(""); }}
-              className={`relative overflow-hidden rounded-lg border p-6 text-left transition-all duration-200 ${
+              className={`rounded-xl border p-5 text-left transition-colors ${
                 active
-                  ? "border-primary/60 bg-primary-container/10 shadow-[0_0_20px_rgba(37,99,235,0.18)]"
-                  : "border-outline-variant/35 bg-surface-low/40 hover:border-primary/35 hover:bg-surface-low/70"
+                  ? "border-primary/50 bg-primary-container/6"
+                  : "border-outline-variant/40 bg-surface hover:border-primary/30 hover:bg-primary-container/4"
               }`}
             >
-              <span className="absolute left-4 top-3 font-mono text-label-caps uppercase tracking-[0.14em] text-outline/60">
-                {m.code}
-              </span>
               <div
-                className={`mb-4 mt-5 flex h-12 w-12 items-center justify-center rounded border ${
-                  active
-                    ? "border-primary/45 bg-primary-container/20 text-primary"
-                    : "border-outline-variant/40 bg-surface-high/50 text-on-surface-variant"
+                className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${
+                  active ? "bg-primary-container/12 text-primary" : "bg-surface-high text-on-surface-variant"
                 }`}
               >
-                <Icon name={m.icon} size={24} />
+                <Icon name={m.icon} size={20} />
               </div>
-              <h3 className={`font-mono text-[16px] font-medium ${active ? "text-primary" : "text-on-surface"}`}>
+              <h3 className={`text-[15px] font-semibold ${active ? "text-primary" : "text-on-surface"}`}>
                 {m.title}
               </h3>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-outline">{m.blurb}</p>
+              <p className="mt-1 text-[13px] leading-relaxed text-on-surface-variant">{m.blurb}</p>
             </button>
           );
         })}
       </div>
 
       {mode === "paste" ? (
-        <GlassCard brackets bodyClassName="p-0">
-          <div className="flex items-center justify-between border-b border-outline-variant/20 bg-surface/50 px-4 py-2.5">
-            <span className="font-mono text-label-caps uppercase tracking-[0.14em] text-primary">
-              SRC_IN // RAW
-            </span>
+        <GlassCard bodyClassName="p-0">
+          <div className="flex items-center justify-between border-b border-outline-variant/40 px-4 py-2.5">
+            <span className="text-[12.5px] font-medium text-on-surface-variant">Source code</span>
             <button
               type="button"
               onClick={() => { setCode(SAMPLE_CODE_AI); setInputError(""); }}
-              className="font-mono text-label-caps uppercase tracking-[0.14em] text-outline transition-colors hover:text-primary"
+              className="text-[12.5px] font-medium text-primary hover:underline"
             >
               Load sample
             </button>
@@ -159,10 +167,10 @@ export default function CodeTab() {
             spellCheck="false"
             placeholder="// paste source here — .py .js .ts .java .cpp .go .rb .sql …"
             aria-label="Source code to analyze"
-            className="w-full resize-none border-0 bg-transparent p-5 font-mono text-[12.5px] leading-[1.8] text-on-surface outline-none placeholder:text-outline/50 focus:ring-0"
+            className="w-full resize-none rounded-b-xl border-0 bg-surface-lowest/50 p-5 font-mono text-[12.5px] leading-[1.8] text-on-surface outline-none placeholder:text-outline/60 focus:ring-0"
           />
-          <div className="flex items-center justify-between border-t border-outline-variant/20 bg-surface-low/70 px-5 py-3.5">
-            <span className="font-mono text-data-sm text-outline">
+          <div className="flex items-center justify-between border-t border-outline-variant/40 px-5 py-3.5">
+            <span className="text-[13px] text-on-surface-variant">
               {code.split("\n").length} lines · {code.length.toLocaleString()} chars
             </span>
             <Button onClick={() => setCode("")} variant="quiet" size="sm" icon="delete" disabled={!code}>
@@ -176,7 +184,6 @@ export default function CodeTab() {
           setFile={setFile}
           accept={ACCEPT.code}
           formats={FORMAT_CHIPS.code}
-          zoneCode="ZONE_03 // SOURCE"
           title="Drag & drop a source file here"
           hint="Source files scan directly. PDF, DOCX and PPTX are searched for embedded code blocks."
           onReset={() => { run.reset(); setInputError(""); }}
@@ -185,16 +192,13 @@ export default function CodeTab() {
 
       <ErrorMsg msg={inputError} />
 
-      {/* Supported syntax rail (reference screen-9) */}
-      <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 rounded-lg border border-outline-variant/30 bg-surface-low/40 px-5 py-4">
-        <span className="font-mono text-label-caps uppercase tracking-[0.14em] text-outline">
-          Supported syntax:
-        </span>
-        <div className="flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2.5 rounded-xl border border-outline-variant/40 bg-surface-lowest/50 px-5 py-4">
+        <span className="text-[12.5px] font-medium text-on-surface-variant">Supported languages:</span>
+        <div className="flex flex-wrap gap-1.5">
           {SUPPORTED_LANGUAGES.map((l) => (
             <span
               key={l}
-              className="rounded border border-outline-variant/35 bg-surface-high/50 px-2.5 py-1 font-mono text-[11px] text-on-surface-variant"
+              className="rounded-full border border-outline-variant/50 bg-surface px-2.5 py-1 text-[11.5px] text-on-surface-variant"
             >
               {l}
             </span>
@@ -203,8 +207,8 @@ export default function CodeTab() {
       </div>
 
       <div className="mt-7 flex justify-center">
-        <Button onClick={start} icon="target" size="lg" disabled={!canRun}>
-          Initiate code scan
+        <Button onClick={start} icon="search" size="lg" disabled={!canRun}>
+          Analyze code
         </Button>
       </div>
 

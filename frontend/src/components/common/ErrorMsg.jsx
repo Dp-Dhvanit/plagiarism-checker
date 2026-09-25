@@ -5,10 +5,10 @@ export default function ErrorMsg({ msg, className = "" }) {
   return (
     <div
       role="alert"
-      className={`mt-3 flex items-start gap-2.5 rounded border border-error/35 bg-error-container/15 px-3.5 py-2.5 ${className}`}
+      className={`mt-3 flex items-start gap-2.5 rounded-lg border border-error/30 bg-error-container/6 px-3.5 py-3 ${className}`}
     >
       <Icon name="error" size={16} className="mt-px shrink-0 text-error" />
-      <p className="font-mono text-data-sm leading-relaxed text-error">{msg}</p>
+      <p className="text-[13px] leading-relaxed text-on-surface">{msg}</p>
     </div>
   );
 }

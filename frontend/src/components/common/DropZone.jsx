@@ -3,8 +3,7 @@ import Icon from "./Icon.jsx";
 import { formatBytes } from "../../lib/format.js";
 
 /**
- * Ingest zone (reference screens 5 and 12). Dashed technical boundary,
- * corner brackets, and a scan sweep once a payload is buffered.
+ * File drop / browse area, shared by every upload surface.
  */
 export default function DropZone({
   file,
@@ -13,17 +12,28 @@ export default function DropZone({
   formats = [],
   title = "Drag & drop a file here",
   hint,
-  zoneCode = "ZONE_01 // UPLOAD",
+  zoneCode, // eslint-disable-line no-unused-vars -- accepted for API compatibility, no longer shown
   icon = "cloud_upload",
   onReset,
   preview,
   disabled = false,
 }) {
   const [drag, setDrag] = useState(false);
+  const [rejection, setRejection] = useState("");
   const inputRef = useRef(null);
+
+  // `accept` only filters the browse dialog; a dragged file bypasses it, and
+  // the server would answer "unsupported" only after a fake upload stage.
+  const allowed = (accept || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const isAllowed = (f) => allowed.length === 0 || allowed.some((ext) => f.name.toLowerCase().endsWith(ext));
 
   const pick = (f) => {
     if (!f || disabled) return;
+    if (!isAllowed(f)) {
+      setRejection(`"${f.name}" isn't a supported file type. Accepted: ${formats.join(", ") || accept}.`);
+      return;
+    }
+    setRejection("");
     setFile(f);
     onReset?.();
   };
@@ -40,70 +50,60 @@ export default function DropZone({
       role="button"
       tabIndex={disabled ? -1 : 0}
       aria-label={title}
-      className={`brackets relative overflow-hidden rounded-lg border border-dashed p-8 text-center transition-all duration-300 sm:p-12 ${
+      className={`rounded-xl border-2 border-dashed p-8 text-center transition-all duration-200 sm:p-12 ${
         disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
       } ${
         drag
-          ? "border-primary bg-primary-container/10 shadow-[0_0_28px_rgba(37,99,235,0.25)]"
+          ? "border-primary bg-primary-container/6"
           : file
-          ? "border-tertiary/45 bg-tertiary-container/[0.07]"
-          : "border-outline-variant/60 bg-surface-lowest/40 hover:border-primary/45 hover:bg-surface-low/40"
+          ? "border-tertiary/50 bg-tertiary-container/5"
+          : "border-outline-variant bg-surface-lowest/60 hover:border-primary/50 hover:bg-primary-container/4"
       }`}
     >
-      {/* A buffered file is not being analyzed yet, so no scan sweep here —
-          the static BUFFERED indicator carries that state instead. */}
-      <div className="pointer-events-none absolute left-4 top-3 font-mono text-label-caps uppercase tracking-[0.14em] text-outline/60">
-        {zoneCode}
-      </div>
-      <div className="pointer-events-none absolute right-4 top-3 flex items-center gap-1.5">
-        <span
-          className={`h-1.5 w-1.5 rounded-full ${
-            file ? "bg-tertiary" : "animate-pulse bg-secondary"
-          }`}
-        />
-        <span
-          className={`font-mono text-label-caps uppercase tracking-[0.14em] ${
-            file ? "text-tertiary" : "text-secondary/80"
-          }`}
-        >
-          {file ? "BUFFERED" : "AWAITING_INPUT"}
-        </span>
-      </div>
-
       {preview && file ? (
-        <div className="mt-4 flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4">
           {preview}
           <FileLine file={file} />
         </div>
       ) : (
-        <div className="mt-4 flex flex-col items-center">
+        <div className="flex flex-col items-center">
           <div
-            className={`mb-5 flex h-16 w-16 items-center justify-center rounded-lg border transition-colors ${
-              file
-                ? "border-tertiary/40 bg-tertiary-container/15 text-tertiary"
-                : "border-outline-variant/40 bg-surface-high/60 text-primary"
+            className={`mb-5 flex h-14 w-14 items-center justify-center rounded-full ${
+              file ? "bg-tertiary-container/12 text-tertiary" : "bg-primary-container/10 text-primary"
             }`}
           >
-            <Icon name={file ? "description" : icon} size={30} />
+            <Icon name={file ? "description" : icon} size={26} />
           </div>
 
           {file ? (
             <FileLine file={file} />
           ) : (
             <>
-              <p className="font-display text-[19px] font-bold text-on-surface sm:text-[22px]">
-                {title} or <span className="text-primary underline decoration-primary/40 underline-offset-4">Browse</span>
+              <p className="font-display text-[18px] font-semibold text-on-surface sm:text-[20px]">
+                {title}
               </p>
-              {hint && <p className="mx-auto mt-2 max-w-md text-[13.5px] leading-relaxed text-on-surface-variant/70">{hint}</p>}
+              <p className="mt-1.5 text-[13.5px] text-on-surface-variant">
+                or <span className="font-medium text-primary underline decoration-primary/40 underline-offset-4">browse your files</span>
+              </p>
+              {hint && <p className="mx-auto mt-3 max-w-md text-[13px] leading-relaxed text-outline">{hint}</p>}
             </>
           )}
         </div>
       )}
 
+      {rejection && (
+        <p role="alert" className="mx-auto mt-4 max-w-md text-[13px] leading-relaxed text-error">
+          {rejection}
+        </p>
+      )}
+
       {formats.length > 0 && !file && (
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
           {formats.map((f) => (
-            <span key={f} className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-outline/70">
+            <span
+              key={f}
+              className="rounded-full border border-outline-variant/50 bg-surface px-2.5 py-1 text-[11px] font-medium text-on-surface-variant"
+            >
               {f}
             </span>
           ))}
@@ -115,7 +115,10 @@ export default function DropZone({
         type="file"
         accept={accept}
         className="hidden"
-        onChange={(e) => pick(e.target.files?.[0])}
+        onChange={(e) => {
+          pick(e.target.files?.[0]);
+          e.target.value = ""; // so choosing the same file again still fires onChange
+        }}
       />
     </div>
   );
@@ -124,10 +127,8 @@ export default function DropZone({
 function FileLine({ file }) {
   return (
     <>
-      <p className="max-w-full truncate font-mono text-[15px] font-medium text-on-surface">{file.name}</p>
-      <p className="mt-1.5 font-mono text-data-sm text-outline">
-        {formatBytes(file.size)} · click to replace
-      </p>
+      <p className="max-w-full truncate text-[15px] font-medium text-on-surface">{file.name}</p>
+      <p className="mt-1 text-[13px] text-outline">{formatBytes(file.size)} · click to replace</p>
     </>
   );
 }

@@ -1,34 +1,46 @@
 import Icon from "../common/Icon.jsx";
-import { NAV, NAV_BY_KEY, TERMINAL_NAME } from "../../data/constants.js";
+import Button from "../common/Button.jsx";
+import { NAV } from "../../data/constants.js";
 
 export default function SideNav({ active, onNavigate, open, onClose }) {
-  const activeMeta = NAV_BY_KEY[active];
-
   return (
     <>
-      {/* Scrim for the mobile drawer */}
       {open && (
         <div
-          className="fixed inset-0 top-16 z-40 bg-void/70 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 top-16 z-40 bg-black/30 backdrop-blur-[2px] lg:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
       )}
 
       <nav
-        className={`fixed left-0 top-16 z-40 flex h-[calc(100vh-64px)] w-64 flex-col border-r border-outline-variant/25 bg-surface-low/70 backdrop-blur-md transition-transform duration-300 ease-out lg:translate-x-0 ${
+        className={`fixed left-0 top-16 z-40 flex h-[calc(100vh-64px)] w-64 flex-col border-r border-outline-variant/40 bg-surface transition-transform duration-300 ease-out lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-label="Analysis modules"
       >
-        <div className="border-b border-outline-variant/20 px-5 py-5">
-          <div className="mb-2 flex items-center gap-2.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-secondary shadow-glow-secondary" />
-            <span className="font-mono text-label-caps uppercase tracking-[0.16em] text-on-surface-variant">
-              {activeMeta?.code || "SEC_00"} // ACTIVE
-            </span>
-          </div>
-          <h2 className="font-display text-[19px] font-bold text-on-surface">{TERMINAL_NAME}</h2>
+        <div className="hidden items-center border-b border-outline-variant/30 px-5 py-5 lg:flex">
+          <button
+            type="button"
+            onClick={() => { onNavigate("dashboard"); onClose?.(); }}
+            aria-label="Go to overview"
+            title="Go to overview"
+            className="rounded-xl transition-opacity hover:opacity-80"
+          >
+            {/* Two artworks, one per theme: the light logo's black outlines vanish on dark. */}
+            <img src="/logo-96.png" alt="Application logo" className="h-12 w-12 object-contain dark:hidden" />
+            <img src="/logo-dark-96.png" alt="Application logo" className="hidden h-12 w-12 object-contain dark:block" />
+          </button>
+        </div>
+
+        <div className="px-3 pb-1 pt-4">
+          <Button
+            full
+            icon="add"
+            onClick={() => { onNavigate("text"); onClose?.(); }}
+          >
+            New scan
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto py-3">
@@ -40,28 +52,17 @@ export default function SideNav({ active, onNavigate, open, onClose }) {
                 type="button"
                 onClick={() => { onNavigate(item.key); onClose?.(); }}
                 aria-current={isActive ? "page" : undefined}
-                className={`group flex w-full items-center gap-3.5 border-r-2 px-5 py-3.5 text-left transition-all duration-200 ${
+                className={`group mx-3 mb-1 flex w-[calc(100%-1.5rem)] items-center gap-3 rounded-lg px-3.5 py-2.5 text-left transition-colors ${
                   isActive
-                    ? "border-secondary bg-secondary-container/25 text-secondary"
-                    : "border-transparent text-on-surface-variant hover:bg-surface-variant/25 hover:text-on-surface"
+                    ? "bg-primary-container/10 text-primary"
+                    : "text-on-surface-variant hover:bg-surface-low hover:text-on-surface"
                 }`}
               >
                 <Icon name={item.icon} size={20} fill={isActive} className="shrink-0" />
-                <span className="font-mono text-[13.5px] transition-transform duration-200 group-hover:translate-x-0.5">
-                  {item.label}
-                </span>
+                <span className="text-[14px] font-medium">{item.label}</span>
               </button>
             );
           })}
-        </div>
-
-        <div className="border-t border-outline-variant/20 px-5 py-4">
-          <p className="font-mono text-[10px] leading-[1.7] tracking-[0.04em] text-outline/70">
-            Statistical scoring runs locally.
-          </p>
-          <p className="mt-1.5 font-mono text-[10px] leading-[1.7] tracking-[0.04em] text-outline/70">
-            AI-assisted checks run server-side; the browser never holds an API key.
-          </p>
         </div>
       </nav>
     </>

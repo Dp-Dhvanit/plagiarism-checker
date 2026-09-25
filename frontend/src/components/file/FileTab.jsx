@@ -11,6 +11,8 @@ import TextResultPanel from "../result/TextResultPanel.jsx";
 import CodeResultPanel from "../result/CodeResultPanel.jsx";
 import { useAnalysisRun } from "../../lib/useAnalysisRun.js";
 import { DOCUMENT_STAGES } from "../../data/stages.js";
+import WebCheckToggle from "../common/WebCheckToggle.jsx";
+import { usePref } from "../../lib/prefs.js";
 import { postForm } from "../../lib/api.js";
 import { ACCEPT, FORMAT_CHIPS } from "../../data/constants.js";
 
@@ -19,6 +21,7 @@ const TERMINAL_STATUSES = ["unanalyzable", "insufficient_text", "insufficient", 
 export default function FileTab() {
   const [file, setFile] = useState(null);
   const [inputError, setInputError] = useState("");
+  const [checkWeb, setCheckWeb] = usePref("checkWeb", false);
   const run = useAnalysisRun(DOCUMENT_STAGES);
 
   const start = async (f = file) => {
@@ -29,6 +32,7 @@ export default function FileTab() {
     setInputError("");
     const form = new FormData();
     form.append("file", f);
+    form.append("check_web", checkWeb ? "true" : "false");
     await run.run(({ signal }) => postForm("/upload", form, { signal }));
   };
 
@@ -38,16 +42,15 @@ export default function FileTab() {
     return (
       <>
         <PageHeader
-          eyebrow="SEC_02 // DOCUMENT"
           title="Document Analysis"
-          subtitle={run.phase === "error" ? "Sequence halted" : "Deep content extraction in progress"}
+          subtitle="Extracting content and checking for AI writing and overlap."
           status={run.phase === "error" ? "error" : "running"}
         />
         <AnalysisRunner
           kind="document"
           run={run}
           stages={DOCUMENT_STAGES}
-          subject={{ name: file?.name, size: file?.size }}
+          subject={{ name: file?.name }}
           onAbort={run.abort}
           onRetry={() => start()}
           onCancel={backToInput}
@@ -62,11 +65,10 @@ export default function FileTab() {
     return (
       <>
         <PageHeader
-          eyebrow="SEC_02 // DOCUMENT"
           title="Analysis Report"
           subtitle={file?.name}
           status={declined ? "idle" : "done"}
-          statusLabel={declined ? "NOT ASSESSED" : undefined}
+          statusLabel={declined ? "Not assessed" : undefined}
           action={
             <Button onClick={backToInput} variant="ghost" size="sm" icon="arrow_back">
               New analysis
@@ -79,7 +81,7 @@ export default function FileTab() {
             name={file?.name}
             size={file?.size}
             meta={result.document_class || undefined}
-            status={declined ? "NOT ASSESSED" : "ANALYZED"}
+            status={declined ? "Not assessed" : "Analyzed"}
             tone={declined ? "primary" : "lime"}
           />
         </div>
@@ -113,7 +115,7 @@ export default function FileTab() {
 
         {TERMINAL_STATUSES.includes(result.status) && (
           <div className="space-y-6">
-            <StatusNotice status={result.status} message={result.message} code="SEC_02 // DOCUMENT" />
+            <StatusNotice status={result.status} message={result.message} />
             {result.extracted_text && (
               <TextResultPanel
                 result={{ ...result, signals: null, sentence_breakdown: [] }}
@@ -130,9 +132,8 @@ export default function FileTab() {
   return (
     <>
       <PageHeader
-        eyebrow="SEC_02 // DOCUMENT"
-        title="Document Intake"
-        subtitle="Transfer a document to the analysis engine for deep scanning."
+        title="Document Analysis"
+        subtitle="Upload a document to extract its text and check for AI writing and overlap."
         status={file ? "ready" : "idle"}
       />
 
@@ -141,7 +142,6 @@ export default function FileTab() {
         setFile={setFile}
         accept={ACCEPT.document}
         formats={FORMAT_CHIPS.document}
-        zoneCode="ZONE_02 // UPLOAD"
         title="Drag & drop a document here"
         hint="The file must contain selectable text — scanned page images cannot be read."
         onReset={() => { run.reset(); setInputError(""); }}
@@ -149,25 +149,29 @@ export default function FileTab() {
 
       <ErrorMsg msg={inputError} />
 
+      <div className="mt-4">
+        <WebCheckToggle checked={checkWeb} onChange={setCheckWeb} />
+      </div>
+
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <p className="font-mono text-[11px] text-outline">Maximum upload size: 15 MB</p>
+        <p className="text-[12.5px] text-outline">Maximum upload size: 15 MB</p>
         <div className="flex gap-3">
           {file && (
             <Button onClick={() => setFile(null)} variant="quiet" size="md" icon="delete">
               Clear
             </Button>
           )}
-          <Button onClick={() => start()} icon="radar" disabled={!file}>
-            {file ? "Scan document" : "Select a document"}
+          <Button onClick={() => start()} icon="search" disabled={!file}>
+            {file ? "Analyze document" : "Select a document"}
           </Button>
         </div>
       </div>
 
       <div className="mt-8">
         <Disclaimer>
-          Documents are read locally by the analysis engine. Extracted prose is scored with the same
-          statistical detector used for pasted text, and stored so later uploads can be compared
-          against it.
+          Documents are read on this server. Extracted prose is scored with the same statistical
+          detector used for pasted text — and, if AI-assisted checks are configured, sent to those
+          providers too — then stored so later uploads can be compared against it.
         </Disclaimer>
       </div>
     </>

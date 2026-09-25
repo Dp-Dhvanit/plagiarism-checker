@@ -1,19 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * The headline probability ring (reference screen-3 / screen-6).
- *
- * Counts up from zero on mount so the number *arrives* rather than
- * appearing — the visual continuation of the analysis sweep.
+ * The headline probability ring. Counts up from zero on mount so the
+ * number arrives rather than appearing instantly — a meaningful, restrained
+ * use of animation (communicates "this was just computed").
  */
 export default function ScoreRing({
   value,
-  label = "AI CONTENT\nPROBABILITY",
-  hex = "#ddb8ff",
-  size = 232,
-  stroke = 4,
+  label = "AI LIKELIHOOD\nESTIMATE",
+  hex = "#D97862",
+  size = 220,
+  stroke = 8,
   suffix = "%",
-  duration = 1300,
+  duration = 1100,
 }) {
   const [shown, setShown] = useState(0);
   const raf = useRef(0);
@@ -37,7 +36,7 @@ export default function ScoreRing({
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-        <circle cx="50" cy="50" r={r} fill="transparent" stroke="#2a2a2c" strokeWidth={stroke / 2} />
+        <circle cx="50" cy="50" r={r} fill="transparent" stroke="rgb(var(--surface-container))" strokeWidth={stroke / 2} />
         <circle
           cx="50"
           cy="50"
@@ -48,18 +47,17 @@ export default function ScoreRing({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          style={{ filter: `drop-shadow(0 0 6px ${hex}66)` }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span
-          className="font-display text-[44px] font-extrabold leading-none tracking-tight"
+          className="font-display text-[42px] font-bold leading-none tracking-tight"
           style={{ color: hex }}
         >
           {Math.round(shown)}
-          <span className="text-[26px]">{suffix}</span>
+          <span className="text-[24px]">{suffix}</span>
         </span>
-        <span className="mt-2 whitespace-pre-line text-center font-mono text-label-caps uppercase leading-[1.5] tracking-[0.14em] text-on-surface-variant/70">
+        <span className="mt-2.5 whitespace-pre-line text-center text-[11.5px] font-medium uppercase leading-[1.5] tracking-[0.08em] text-outline">
           {label}
         </span>
       </div>

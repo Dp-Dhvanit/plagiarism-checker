@@ -9,6 +9,7 @@ import ImageTab from "./components/image/ImageTab.jsx";
 import SummaryTab from "./components/summary/SummaryTab.jsx";
 import HistoryTab from "./components/history/HistoryTab.jsx";
 import Icon from "./components/common/Icon.jsx";
+import ErrorBoundary from "./components/common/ErrorBoundary.jsx";
 
 const SURFACES = {
   dashboard: Dashboard,
@@ -20,9 +21,11 @@ const SURFACES = {
   history: HistoryTab,
 };
 
-/** Deep-link support: #text, #history, … so surfaces are addressable. */
+/** Deep-link support: #text, #history, … so surfaces are addressable.
+ *  A surface may take a sub-path (#history/12 opens that record), so only the
+ *  part before the first "/" selects the surface. */
 function surfaceFromHash() {
-  const key = window.location.hash.replace("#", "");
+  const key = window.location.hash.replace("#", "").split("/")[0];
   return SURFACES[key] ? key : "dashboard";
 }
 
@@ -57,7 +60,9 @@ export default function App() {
       {backendOnline === false && <OfflineBanner />}
       {/* Remount on surface change so each module starts from its input state. */}
       <div key={surface} className="animate-rise">
-        <Surface onNavigate={navigate} />
+        <ErrorBoundary resetKey={surface}>
+          <Surface onNavigate={navigate} />
+        </ErrorBoundary>
       </div>
     </AppShell>
   );
@@ -65,15 +70,15 @@ export default function App() {
 
 function OfflineBanner() {
   return (
-    <div className="mb-7 flex items-start gap-3.5 rounded-lg border border-error/35 bg-error-container/15 px-5 py-4">
+    <div className="mb-7 flex items-start gap-3.5 rounded-xl border border-error/30 bg-error-container/6 px-5 py-4">
       <Icon name="cloud_off" size={20} className="mt-px shrink-0 text-error" />
       <div>
-        <p className="font-display text-[15px] font-bold text-error">Analysis engine unreachable</p>
-        <p className="mt-1.5 text-[13.5px] leading-relaxed text-on-surface-variant/85">
-          Nothing responded on <span className="font-mono text-error">127.0.0.1:8000</span>. Start
+        <p className="font-display text-[15px] font-semibold text-error">Analysis engine unreachable</p>
+        <p className="mt-1.5 text-[13.5px] leading-relaxed text-on-surface-variant">
+          Nothing responded on <span className="font-mono text-[12.5px] text-error">127.0.0.1:8000</span>. Start
           the backend with{" "}
-          <span className="font-mono text-on-surface">uvicorn app.main:app --reload --port 8000</span>{" "}
-          from the <span className="font-mono text-on-surface">backend/</span> directory, then
+          <span className="font-mono text-[12.5px] text-on-surface">uvicorn app.main:app --reload --port 8000</span>{" "}
+          from the <span className="font-mono text-[12.5px] text-on-surface">backend/</span> directory, then
           reload this page. You can browse the interface meanwhile, but analyses will fail.
         </p>
       </div>

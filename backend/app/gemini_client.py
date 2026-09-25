@@ -1,11 +1,11 @@
 """
-Shared Gemini client singleton for the new AI-detection features
+Shared Gemini client access for the new AI-detection features
 (text AI-probability + image AI-detection).
 
-Mirrors the lazy-singleton pattern already used in app/gemini_summarizer.py,
-kept as a separate module so that file's own client/model config stay
-completely untouched — this module is used only by app/ai_text_detector.py
-and app/image_detector.py.
+Kept as a separate module so app/gemini_summarizer.py's own model config
+stays completely untouched — this module is used only by
+app/ai_text_detector.py and app/image_detector.py. Multi-key rotation
+itself lives in app/gemini_keys.py, shared with the summarizer.
 """
 from __future__ import annotations
 
@@ -13,6 +13,8 @@ import logging
 import os
 
 from dotenv import load_dotenv
+
+from app import gemini_keys
 
 load_dotenv()
 
@@ -33,26 +35,16 @@ TIMEOUT_MS = 25_000
 # budget made image detection fail every time with 504 DEADLINE_EXCEEDED.
 IMAGE_TIMEOUT_MS = 90_000
 
-try:
-    from google import genai
-    _SDK_AVAILABLE = True
-except ImportError:
-    _SDK_AVAILABLE = False
-
 
 def is_configured() -> bool:
-    return _SDK_AVAILABLE and bool(os.environ.get("GEMINI_API_KEY"))
+    return gemini_keys.is_configured()
 
 
-_client = None
-
-
-def get_client():
-    global _client
-    if _client is None:
-        api_key = os.environ.get("GEMINI_API_KEY", "")
-        _client = genai.Client(api_key=api_key)
-    return _client
+def call_gemini(fn):
+    """Run `fn(client)` with automatic fallback across every configured
+    GEMINI_API_KEY (comma-separated) — see app/gemini_keys.py. Callers keep
+    their existing try/except around this; only which key answers changes."""
+    return gemini_keys.call_with_rotation(fn)
 
 
 def describe_error(exc: Exception) -> str:
@@ -69,6 +61,8 @@ def describe_error(exc: Exception) -> str:
             "— it may have been retired for this account. Check GEMINI_MODEL_FLASH in backend/.env."
         )
     if "429" in msg or "RESOURCE_EXHAUSTED" in msg:
+        if gemini_keys.key_count() > 1:
+            return "every configured Gemini API key hit its rate limit or quota."
         return "the Gemini API rate limit or quota was exceeded."
     if "401" in msg or "403" in msg or "PERMISSION_DENIED" in msg or "API key" in msg:
         return "the Gemini API rejected the credentials. Check GEMINI_API_KEY in backend/.env."

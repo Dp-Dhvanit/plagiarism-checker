@@ -11,6 +11,8 @@ import TextResultPanel from "../result/TextResultPanel.jsx";
 import CodeResultPanel from "../result/CodeResultPanel.jsx";
 import { useAnalysisRun } from "../../lib/useAnalysisRun.js";
 import { TEXT_STAGES } from "../../data/stages.js";
+import WebCheckToggle from "../common/WebCheckToggle.jsx";
+import { usePref } from "../../lib/prefs.js";
 import { postJSON } from "../../lib/api.js";
 import { countWords } from "../../lib/format.js";
 import { SAMPLE_AI, SAMPLE_HUMAN } from "../../data/samples.js";
@@ -21,6 +23,7 @@ export default function TextTab() {
   const [text, setText] = useState("");
   const [inputError, setInputError] = useState("");
   const [submitted, setSubmitted] = useState("");
+  const [checkWeb, setCheckWeb] = usePref("checkWeb", false);
   const run = useAnalysisRun(TEXT_STAGES);
 
   const start = async (value) => {
@@ -31,19 +34,17 @@ export default function TextTab() {
     }
     setInputError("");
     setSubmitted(t);
-    await run.run(({ signal }) => postJSON("/analyze", { text: t }, { signal }));
+    await run.run(({ signal }) => postJSON("/analyze", { text: t, check_web: checkWeb }, { signal }));
   };
 
   const backToInput = () => run.reset();
 
-  // ── Processing / failed ──────────────────────────────────────────────
   if (run.isBusy || run.phase === "error") {
     return (
       <>
         <PageHeader
-          eyebrow="SEC_01 // TEXT"
-          title="Text Analysis Engine"
-          subtitle={run.phase === "error" ? "Sequence halted" : "Linguistic decryption in progress"}
+          title="Text Analysis"
+          subtitle="Checking your text for AI-generated writing and overlap with prior submissions."
           status={run.phase === "error" ? "error" : "running"}
         />
         <AnalysisRunner
@@ -58,20 +59,16 @@ export default function TextTab() {
     );
   }
 
-  // ── Result ───────────────────────────────────────────────────────────
   if (run.phase === "done" && run.result) {
     const result = run.result;
-    // A declined input (too short, unscoreable) finished the request but did
-    // not produce an assessment — badging it "COMPLETE" would overstate it.
     const declined = TERMINAL_STATUSES.includes(result.status);
     return (
       <>
         <PageHeader
-          eyebrow="SEC_01 // TEXT"
           title="Analysis Report"
           subtitle="Pasted text"
           status={declined ? "idle" : "done"}
-          statusLabel={declined ? "NOT ASSESSED" : undefined}
+          statusLabel={declined ? "Not assessed" : undefined}
           action={
             <Button onClick={backToInput} variant="ghost" size="sm" icon="arrow_back">
               New analysis
@@ -106,7 +103,7 @@ export default function TextTab() {
 
         {TERMINAL_STATUSES.includes(result.status) && (
           <div className="space-y-6">
-            <StatusNotice status={result.status} message={result.message} code="SEC_01 // TEXT" />
+            <StatusNotice status={result.status} message={result.message} />
             <Disclaimer />
           </div>
         )}
@@ -114,64 +111,37 @@ export default function TextTab() {
     );
   }
 
-  // ── Input (reference screen-2) ───────────────────────────────────────
   const chars = text.length;
   const words = countWords(text);
 
   return (
     <>
       <PageHeader
-        eyebrow="SEC_01 // TEXT"
-        title="Text Analysis Engine"
-        subtitle="Awaiting input stream for linguistic decryption."
+        title="Text Analysis"
+        subtitle="Paste text below to estimate AI-generated writing and check overlap with documents you've analyzed before."
         status={text.trim() ? "ready" : "idle"}
       />
 
-      <div className="mb-2 flex items-center gap-2 px-1">
-        <span className="h-1 w-1 animate-pulse rounded-full bg-primary" />
-        <span className="font-mono text-label-caps uppercase tracking-[0.2em] text-primary/60">
-          Input_Stream // SEC_01
-        </span>
-      </div>
+      <GlassCard bodyClassName="p-0">
+        <textarea
+          value={text}
+          onChange={(e) => { setText(e.target.value); setInputError(""); }}
+          rows={12}
+          spellCheck="false"
+          placeholder="Paste your text here…"
+          aria-label="Text to analyze"
+          className="w-full resize-none rounded-t-xl border-0 bg-transparent p-6 text-[15px] leading-[1.7] text-on-surface outline-none placeholder:text-outline/60 focus:ring-0"
+        />
 
-      <GlassCard brackets bodyClassName="p-0" className="group">
-        <div className="flex items-center justify-between border-b border-outline-variant/20 bg-surface/50 px-4 py-2.5">
-          <span className="font-mono text-label-caps uppercase tracking-[0.14em] text-primary">
-            TXT_IN // 00
-          </span>
-          <span className="flex items-center gap-2">
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                text.trim() ? "bg-tertiary" : "animate-pulse bg-tertiary/60"
-              }`}
-            />
-            <span className="font-mono text-label-caps uppercase tracking-[0.14em] text-tertiary">
-              {text.trim() ? "STREAM BUFFERED" : "AWAITING STREAM"}
+        <div className="flex flex-col gap-4 border-t border-outline-variant/40 bg-surface-lowest/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-5 text-[13px] text-on-surface-variant">
+            <span className="flex items-center gap-1.5">
+              <Icon name="text_fields" size={16} className="text-outline" />
+              <span className="tabular-nums">{chars.toLocaleString()}</span> characters
             </span>
-          </span>
-        </div>
-
-        <div className="relative">
-          <textarea
-            value={text}
-            onChange={(e) => { setText(e.target.value); setInputError(""); }}
-            rows={12}
-            spellCheck="false"
-            placeholder="Paste your text here…"
-            aria-label="Text to analyze"
-            className="w-full resize-none border-0 bg-transparent p-6 font-mono text-[14.5px] leading-[1.85] text-on-surface outline-none placeholder:text-outline/50 focus:ring-0"
-          />
-        </div>
-
-        <div className="flex flex-col gap-4 border-t border-outline-variant/20 bg-surface-low/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-6 font-mono text-data-sm text-on-surface-variant">
-            <span className="flex items-center gap-2">
-              <Icon name="text_fields" size={15} className="text-outline" />
-              Chars: <span className="font-medium text-on-surface tabular-nums">{chars.toLocaleString()}</span>
-            </span>
-            <span className="flex items-center gap-2">
-              <Icon name="segment" size={15} className="text-outline" />
-              Words: <span className="font-medium text-on-surface tabular-nums">{words.toLocaleString()}</span>
+            <span className="flex items-center gap-1.5">
+              <Icon name="segment" size={16} className="text-outline" />
+              <span className="tabular-nums">{words.toLocaleString()}</span> words
             </span>
           </div>
 
@@ -194,10 +164,12 @@ export default function TextTab() {
 
       <ErrorMsg msg={inputError} />
 
+      <div className="mt-4">
+        <WebCheckToggle checked={checkWeb} onChange={setCheckWeb} />
+      </div>
+
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <span className="font-mono text-label-caps uppercase tracking-[0.14em] text-outline">
-          Load sample:
-        </span>
+        <span className="text-[13px] font-medium text-on-surface-variant">Try a sample:</span>
         <Button onClick={() => { setText(SAMPLE_AI); setInputError(""); }} variant="ghost" size="sm" icon="smart_toy">
           Machine-style
         </Button>

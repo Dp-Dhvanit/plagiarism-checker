@@ -53,7 +53,6 @@ export default function ImageTab() {
     return (
       <>
         <PageHeader
-          eyebrow="SEC_04 // IMG_PROC"
           title="Image Analysis"
           subtitle={file?.name}
           status={run.phase === "error" ? "error" : "running"}
@@ -75,7 +74,6 @@ export default function ImageTab() {
     return (
       <>
         <PageHeader
-          eyebrow="SEC_04 // IMG_PROC"
           title="Image Report"
           subtitle={file?.name}
           status="done"
@@ -90,13 +88,11 @@ export default function ImageTab() {
     );
   }
 
-  // ── Intake (reference screen-12) ─────────────────────────────────────
   return (
     <>
       <PageHeader
-        eyebrow="ANALYSIS_MODULE // IMG_PROC"
-        title="Visual Data Intake"
-        subtitle="Initialize a deep scanning sequence for supported visual formats."
+        title="Image Analysis"
+        subtitle="Upload a JPG, PNG or WEBP image to estimate whether it shows signs of AI generation."
         status={file ? "ready" : "idle"}
       />
 
@@ -106,45 +102,34 @@ export default function ImageTab() {
           setFile={setFile}
           accept={ACCEPT.image}
           formats={FORMAT_CHIPS.image}
-          zoneCode="ZONE_ALPHA"
           icon="add_photo_alternate"
           title="Drop an image here"
           hint="Maximum payload size: 10 MB."
           onReset={() => { run.reset(); setInputError(""); }}
           preview={
             previewUrl && (
-              <div className="relative w-full max-w-sm overflow-hidden rounded border border-tertiary/30">
-                <img src={previewUrl} alt="Selected" className="max-h-56 w-full object-contain bg-surface-lowest" />
+              <div className="w-full max-w-sm overflow-hidden rounded-lg border border-outline-variant/40">
+                <img src={previewUrl} alt="Selected" className="max-h-56 w-full bg-surface-lowest object-contain" />
               </div>
             )
           }
         />
 
-        {/* Buffer status (reference screen-12) */}
         <div className="flex flex-col gap-4">
           <GlassCard className="flex-1" bodyClassName="p-5">
-            <SectionTitle icon="memory">Buffer status</SectionTitle>
+            <SectionTitle icon="info">Image details</SectionTitle>
 
             {file ? (
               <dl className="space-y-3">
-                <Row label="File" value={file.name} mono truncate />
-                <Row label="Payload" value={formatBytes(file.size)} />
+                <Row label="File" value={file.name} truncate />
+                <Row label="Size" value={formatBytes(file.size)} />
                 <Row label="Type" value={file.type || "—"} />
-                <Row
-                  label="Resolution"
-                  value={dimensions ? `${dimensions.w} × ${dimensions.h}` : "reading…"}
-                />
-                <div className="mt-4 flex items-center gap-2 border-t border-outline-variant/20 pt-4">
-                  <span className="h-1.5 w-1.5 rounded-full bg-tertiary" />
-                  <span className="font-mono text-label-caps uppercase tracking-[0.14em] text-tertiary">
-                    Ready for analysis
-                  </span>
-                </div>
+                <Row label="Resolution" value={dimensions ? `${dimensions.w} × ${dimensions.h}` : "reading…"} />
               </dl>
             ) : (
               <div className="flex flex-col items-center justify-center py-10 text-center">
-                <Icon name="hourglass_empty" size={30} className="mb-3 text-outline/50" />
-                <p className="font-mono text-[12px] text-outline">Awaiting image data stream…</p>
+                <Icon name="image" size={28} className="mb-3 text-outline/60" />
+                <p className="text-[13px] text-on-surface-variant">No image selected yet.</p>
               </div>
             )}
           </GlassCard>
@@ -152,11 +137,11 @@ export default function ImageTab() {
           <div className="flex flex-col gap-3">
             {file && (
               <Button onClick={() => setFile(null)} variant="quiet" icon="delete" full>
-                Clear buffer
+                Clear
               </Button>
             )}
-            <Button onClick={start} icon="radar" size="lg" disabled={!file} full>
-              Execute analysis
+            <Button onClick={start} icon="search" size="lg" disabled={!file} full>
+              Analyze image
             </Button>
           </div>
         </div>
@@ -167,23 +152,19 @@ export default function ImageTab() {
       <div className="mt-8">
         <Disclaimer>
           Image detection is a model-assisted visual estimate performed on the server. If the
-          service is not configured or the request fails, you will see a clear unavailable notice
-          rather than an invented score.
+          service is not configured or the request fails, you'll see a clear message rather than an
+          invented score.
         </Disclaimer>
       </div>
     </>
   );
 }
 
-function Row({ label, value, mono, truncate }) {
+function Row({ label, value, truncate }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <dt className="shrink-0 font-mono text-label-caps uppercase tracking-[0.12em] text-outline">{label}</dt>
-      <dd
-        className={`min-w-0 text-right font-mono text-[12px] text-on-surface-variant ${
-          truncate ? "truncate" : ""
-        } ${mono ? "" : "tabular-nums"}`}
-      >
+      <dt className="shrink-0 text-[12.5px] text-on-surface-variant">{label}</dt>
+      <dd className={`min-w-0 text-right text-[13px] font-medium text-on-surface ${truncate ? "truncate" : ""}`}>
         {value}
       </dd>
     </div>

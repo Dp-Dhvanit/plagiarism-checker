@@ -33,16 +33,15 @@ export default function SummaryTab() {
     return (
       <>
         <PageHeader
-          eyebrow="SEC_05 // SUMMARY"
           title="Document Summary"
-          subtitle={run.phase === "error" ? "Sequence halted" : "Semantic extraction in progress"}
+          subtitle="Extracting key points and chartable figures."
           status={run.phase === "error" ? "error" : "running"}
         />
         <AnalysisRunner
           kind="summary"
           run={run}
           stages={SUMMARY_STAGES}
-          subject={{ name: file?.name, size: file?.size }}
+          subject={{ name: file?.name }}
           onAbort={run.abort}
           onRetry={start}
           onCancel={backToInput}
@@ -55,8 +54,7 @@ export default function SummaryTab() {
     return (
       <>
         <PageHeader
-          eyebrow="SEC_05 // SUMMARY"
-          title="Analysis Complete"
+          title="Summary"
           subtitle={file?.name}
           status="done"
           action={
@@ -73,7 +71,6 @@ export default function SummaryTab() {
   return (
     <>
       <PageHeader
-        eyebrow="SEC_05 // SUMMARY"
         title="Document Summary"
         subtitle="Extract key points and chartable figures from a document or dataset."
         status={file ? "ready" : "idle"}
@@ -84,7 +81,6 @@ export default function SummaryTab() {
         setFile={setFile}
         accept={ACCEPT.summary}
         formats={FORMAT_CHIPS.summary}
-        zoneCode="ZONE_05 // INGEST"
         icon="summarize"
         title="Drag & drop a document here"
         hint="Prose documents produce key takeaways. CSV and spreadsheet files produce data breakdowns."
@@ -94,7 +90,7 @@ export default function SummaryTab() {
       <ErrorMsg msg={inputError} />
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <p className="font-mono text-[11px] text-outline">Documents need at least 50 characters of readable text.</p>
+        <p className="text-[12.5px] text-outline">Documents need at least 50 characters of readable text.</p>
         <div className="flex gap-3">
           {file && (
             <Button onClick={() => setFile(null)} variant="quiet" icon="delete">

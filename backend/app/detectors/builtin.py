@@ -13,7 +13,7 @@ class HeuristicDetector(Detector):
     """
 
     name = "heuristic"
-    label = "local statistical"
+    label = "Local statistical"
     local = True
     paid = False
 
@@ -51,7 +51,7 @@ class GeminiDetector(Detector):
     """
 
     name = "gemini"
-    label = "AI-assisted"
+    label = "Gemini"
     local = False
     paid = False  # free tier
 
@@ -65,7 +65,16 @@ class GeminiDetector(Detector):
     def _detect(self, text: str) -> DetectorResult:
         from app.ai_text_detector import analyze_text_ai
 
-        g = analyze_text_ai(text)
+        return self.from_detection(analyze_text_ai(text))
+
+    def from_detection(self, g) -> DetectorResult:
+        """Turn an already-obtained Gemini result (or None) into this
+        provider's opinion. /analyze calls Gemini once for the legacy panel
+        and reuses that result here — asking twice for the same text spent
+        two of the free tier's 20 daily requests per analysis."""
+        ok, reason = self.available()
+        if not ok:
+            return DetectorResult.unavailable(self.name, reason)
         if g is None:
             return DetectorResult.unavailable(
                 self.name, "the AI-assisted check did not return a usable result."

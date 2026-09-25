@@ -5,10 +5,13 @@ Detect whether text, code, or documents were likely written by an AI or a human,
 ## Project structure
 
 ```
-SVG/
+SGP/
 ├── backend/                 # FastAPI + detection engines
+│   ├── evaluation/          # Labelled-data ruler for the detectors — see its README
 │   ├── app/
 │   │   ├── main.py          # API routes (analyze, upload, humanize, detect-code, summarize)
+│   │   ├── detectors/        # Local + hosted AI-text detectors and how their opinions combine
+│   │   ├── web_sources.py    # Opt-in Wikipedia / arXiv comparison for plagiarism
 │   │   ├── scoring.py        # Perplexity + burstiness + AI-marker text scoring
 │   │   ├── code_analyzer.py  # AI-code detection signals
 │   │   ├── humanizer.py      # Rule-based AI-text rewriter
@@ -35,9 +38,22 @@ SVG/
 
 ## Interface
 
-The frontend implements the "Deep Space Intelligence" design system defined in
-`stitch-references/*/DESIGN.md` (all 13 references share one token set).
+The frontend is a light, off-white interface with a lavender accent, plus a dark theme
+(toggle in the top bar; the choice is remembered, and with none saved it follows the
+operating system). Coral, amber and green are reserved for AI-concern, uncertain and
+human-leaning signals. Neutral colours are CSS variables defined for both themes in
+`src/index.css` and mapped in `tailwind.config.js`; accent hues are in
+`src/data/constants.js`. The logo has two artworks, `public/logo-*.png` (light) and
+`public/logo-dark-*.png` (white disc and bones for dark backgrounds). Vite does not
+hot-reload `tailwind.config.js` — restart `npm run dev` after editing it.
+(`stitch-references/` holds the earlier dark "Deep Space Intelligence" design references
+and no longer describes the app.)
 
+- Results lead with one headline verdict, then each detector's own opinion side by
+  side. A directional verdict ("Likely AI" / "Likely Human") is only issued when every
+  detector that ran agrees; otherwise it reads "Uncertain" and says why. The local
+  detector alone can never headline "Likely AI" — see `backend/evaluation/README.md`
+  for the measurements behind that.
 - Opening the app plays a short boot sequence that **actually probes `GET /health`**,
   so an unreachable backend is reported immediately instead of failing later.
 - Each analysis type has a staged processing view whose stages mirror what that
@@ -90,8 +106,11 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 - `GET /health`
-- `POST /analyze` — text in, AI-likelihood score out (`{ "text": "..." }`)
-- `POST /upload` — same, but from a PDF/PPTX/DOCX/TXT file
+- `POST /analyze` — text in, AI-likelihood score out (`{ "text": "...", "check_web": false }`).
+  The response carries every detector's opinion (`detectors`, `consensus`), the headline
+  verdict and its reason (`final_verdict`, `verdict_reason`), and similarity matches with
+  provenance (`source_name`, `source_kind`, `source_created_at`, `source_url`).
+- `POST /upload` — same, but from a PDF/PPTX/DOCX/TXT file (optional form field `check_web`)
 - `POST /humanize` — rewrite AI-flagged sentences to sound more human
 - `POST /detect-code` — upload a source file (or a document containing code) for AI-code detection
 - `POST /detect-code-text` — same, for pasted code (`{ "code": "...", "filename": "" }`)
@@ -105,6 +124,36 @@ uvicorn app.main:app --reload --port 8000
 sent to the browser. Without it, text analysis falls back to the local statistical
 detector, summaries stay extractive, and image detection reports itself as
 unavailable rather than returning a fabricated score.
+
+**Privacy.** AI-assisted checks send the submitted text (or image) from the server to
+the providers you configure (Groq, Google Gemini, ...). `check_web` is off unless the
+user ticks it; when on, a few short excerpts are sent to wikipedia.org and arxiv.org
+as search queries and nothing else leaves the server. Set `EXTERNAL_SOURCES=off` to
+disable that entirely.
+
+**Browser access.** CORS is restricted to the dev frontend origins and requests must
+carry a `localhost` / `127.0.0.1` Host header (this stops other web pages, and DNS
+rebinding, reaching a local instance). To serve the UI from elsewhere set
+`CORS_ORIGINS` and `ALLOWED_HOSTS`.
+
+## Tests and evaluation
+
+The backend tests are standalone scripts (no pytest):
+
+```bash
+cd backend
+python test_detection.py
+python test_new_features.py
+python test_similarity_eval.py
+python test_originality_rewrite.py
+python test_gemini_key_rotation.py
+python test_analyze_endpoint.py
+python test_web_sources.py
+```
+
+`test_analyze_endpoint.py` and `test_web_sources.py` use fake providers and an isolated
+database, so they spend no API quota and never touch `backend/data/history.db`.
+To measure detector accuracy on labelled data, see `backend/evaluation/README.md`.
 
 ## Frontend setup
 

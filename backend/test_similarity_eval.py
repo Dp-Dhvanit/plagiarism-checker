@@ -12,6 +12,13 @@ Fixtures live in samples/eval/. Run:
 These thresholds encode measured behaviour, not aspirations. Before the
 windowing fix, the partial-copy case scored 55.3% with ZERO reported
 passages; it now reports 84% with half the document flagged.
+
+Before the lexical-corroboration fix (this file's second half), a document
+independently written on the same topic as the source — no copying, just
+the same subject — scored 80.9% top_match with ~100% of its passages over
+the match threshold: indistinguishable from a real partial copy. It now
+reports matched_portion=0% (nothing corroborated) with possible_portion
+carrying the topical-overlap signal separately and honestly.
 """
 from __future__ import annotations
 
@@ -98,7 +105,19 @@ def main() -> int:
     check("patchwork portion is partial, not total",
           10 <= partial.matched_portion <= 90, f"portion={partial.matched_portion}%")
 
-    print("\n-- originals must stay clean --")
+    moderate = analyze_similarity(extract("16_copy_paraphrased_moderate.docx"))
+    check("realistic paraphrase caught", moderate.top_match >= 70, f"top={moderate.top_match}%")
+    check("realistic paraphrase VERIFIED (not just semantic)", moderate.matched_portion > 0,
+          f"matched_portion={moderate.matched_portion}%")
+    check("realistic paraphrase top match is corroborated", moderate.top_match_verified is True)
+
+    print("\n-- the hard case: a thoroughly reworded copy (0% shared phrasing) --")
+    hard = analyze_similarity(extract("03_copy_paraphrased.docx"))
+    check("still surfaces as high semantic similarity", hard.top_match >= 70, f"top={hard.top_match}%")
+    check("but NOT presented as strongly verified at its peak", hard.top_match_verified is False,
+          "known limit — see module docstring in app/similarity.py")
+
+    print("\n-- originals must stay clean: unrelated subject matter --")
     for fname, label in [
         ("05_unrelated.pdf", "unrelated document"),
         ("09_human_academic.pdf", "human academic"),
@@ -109,11 +128,47 @@ def main() -> int:
         check(f"{label} not flagged", len(r.matches) == 0,
               f"top={r.top_match}% (threshold {MATCH_THRESHOLD*100:.0f}%)")
 
+    print("\n-- the critical false-positive case: SAME TOPIC, independently written --")
+    same_topic = analyze_similarity(extract("14_same_topic_independent.txt"))
+    check(
+        "same-topic writing is NOT verified as copied",
+        same_topic.matched_portion == 0.0,
+        f"matched_portion={same_topic.matched_portion}% (must be 0 — no corroborated overlap)",
+    )
+    check(
+        "same-topic writing's peak match is hedged, not asserted",
+        same_topic.top_match_verified is False,
+        f"top_match={same_topic.top_match}% but top_match_verified={same_topic.top_match_verified}",
+    )
+    check(
+        "topical overlap is still visible somewhere (not silently dropped)",
+        same_topic.possible_portion > 0 or same_topic.top_match > 0,
+        f"possible_portion={same_topic.possible_portion}%",
+    )
+
     print("\n-- invariants --")
-    allr = [verbatim, para, partial]
+    allr = [verbatim, para, partial, moderate, hard, same_topic]
     check("no negative percentages", all(r.top_match >= 0 for r in allr))
     check("top >= mean for every result",
           all(r.top_match >= r.overall_similarity - 0.05 for r in allr))
+    check(
+        "matched_portion never exceeds possible+matched (100%)",
+        all(r.matched_portion + r.possible_portion <= 100.01 for r in allr),
+    )
+    check(
+        "every verified match clears at least one corroboration floor",
+        all(
+            (m.word_overlap >= 25.0 or m.ngram_overlap >= 15.0)
+            for r in allr for m in r.matches if m.verified
+        ),
+    )
+    check(
+        "no unverified match is misreported as verified",
+        all(
+            not (m.word_overlap >= 25.0 or m.ngram_overlap >= 15.0)
+            for r in allr for m in r.matches if not m.verified
+        ),
+    )
 
     dup = analyze_similarity(source, exclude_file_name="01_source_original.txt")
     check("re-upload does not self-flag", len(dup.matches) == 0,

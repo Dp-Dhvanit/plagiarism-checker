@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
 import TopBar from "./TopBar.jsx";
 import SideNav from "./SideNav.jsx";
+import { useTheme } from "../../lib/theme.js";
 
-export default function AppShell({ active, onNavigate, backendOnline, children }) {
+export default function AppShell({ active, onNavigate, children }) {
   const [navOpen, setNavOpen] = useState(false);
+  const { isDark, toggle: toggleTheme } = useTheme();
 
-  // Close the mobile drawer whenever the surface changes.
   useEffect(() => { setNavOpen(false); }, [active]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-void">
       <TopBar
         navOpen={navOpen}
         onToggleNav={() => setNavOpen((v) => !v)}
-        backendOnline={backendOnline}
+        isDark={isDark}
+        onToggleTheme={toggleTheme}
+        onHome={() => onNavigate("dashboard")}
       />
       <SideNav
         active={active}
@@ -27,13 +30,10 @@ export default function AppShell({ active, onNavigate, backendOnline, children }
           <div className="mx-auto w-full max-w-content">{children}</div>
         </main>
 
-        <footer className="border-t border-outline-variant/15 px-4 py-6 sm:px-6 lg:px-page">
-          <div className="mx-auto flex max-w-content flex-col items-center gap-3 sm:flex-row sm:justify-between">
-            <span className="font-mono text-label-caps uppercase tracking-[0.14em] text-outline">
-              Local analysis terminal · results are estimates, not proof
-            </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-outline/60">
-              engine :8000 · interface :5173
+        <footer className="border-t border-outline-variant/30 px-4 py-6 sm:px-6 lg:px-page">
+          <div className="mx-auto max-w-content text-center">
+            <span className="text-[12.5px] text-on-surface-variant/70">
+              Results are estimates, not proof of authorship or plagiarism.
             </span>
           </div>
         </footer>

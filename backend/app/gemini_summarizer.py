@@ -31,13 +31,27 @@ from typing import Any, Literal
 from dotenv import load_dotenv
 from pydantic import BaseModel, ValidationError
 
+from app import gemini_keys
+
 load_dotenv()
 
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
 _TIMEOUT_MS = 20_000
 _MAX_CONTEXT_CHARS = 4000
 
+# Local LM Studio server (OpenAI-compatible /v1/chat/completions). Tried
+# FIRST when configured — it's free, offline, and has no daily cap, unlike
+# Gemini's 20/day free tier. Falls back to Gemini automatically if the local
+# call fails or LM Studio isn't running; never a hard dependency.
+LMSTUDIO_BASE_URL = os.environ.get("LMSTUDIO_BASE_URL", "http://localhost:1234/v1").rstrip("/")
+LMSTUDIO_MODEL = os.environ.get("LMSTUDIO_MODEL", "")
+_LMSTUDIO_TIMEOUT_S = 60
+
 _logger = logging.getLogger("app.gemini")
+
+
+def _lmstudio_configured() -> bool:
+    return bool(LMSTUDIO_MODEL)
 
 
 def _log_failure(feature: str, exc: Exception) -> None:
@@ -89,23 +103,7 @@ class GeminiResult(BaseModel):
 
 
 def is_configured() -> bool:
-    return _SDK_AVAILABLE and bool(os.environ.get("GEMINI_API_KEY"))
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Client singleton (mirrors the get_scorer() lazy-singleton pattern in
-# app/scoring.py) — constructed once, reused across requests.
-# ══════════════════════════════════════════════════════════════════════════════
-
-_client = None
-
-
-def _get_client():
-    global _client
-    if _client is None:
-        api_key = os.environ.get("GEMINI_API_KEY", "")
-        _client = genai.Client(api_key=api_key)
-    return _client
+    return _lmstudio_configured() or (_SDK_AVAILABLE and gemini_keys.is_configured())
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -229,6 +227,11 @@ sentence "overview", 3-6 "key_takeaways" (concise, human-readable, no raw \
 Total/Avg/Min/Max style dumps), up to 5 "important_numbers" (each with label, value, \
 and a one-sentence context — only numbers that appear in the data above), and a \
 "visualization" recommendation as described above.
+
+Reply with ONLY a JSON object, no prose and no code fences, matching exactly this shape:
+{{"title": "...", "overview": "...", "key_takeaways": ["...", "..."], \
+"important_numbers": [{{"label": "...", "value": "...", "context": "..."}}], \
+"visualization": {{"recommended": true, "chart_type": "bar", "reason": "..."}}}}
 """
 
 
@@ -251,6 +254,44 @@ def _numbers_grounded_in_context(numbers: list[GeminiNumber], context: dict) -> 
     return kept
 
 
+def _call_lmstudio(prompt: str) -> GeminiResult | None:
+    """Ask a local LM Studio server (OpenAI-compatible /v1/chat/completions).
+
+    Any failure — server not running, model not loaded, bad JSON — returns
+    None so the caller falls back to Gemini or the deterministic summary,
+    exactly like a Gemini failure does.
+    """
+    import requests
+    from app.detectors.openai_compat import OpenAICompatDetector
+
+    try:
+        resp = requests.post(
+            f"{LMSTUDIO_BASE_URL}/chat/completions",
+            json={
+                "model": LMSTUDIO_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.2,
+                "response_format": {"type": "json_object"},
+            },
+            timeout=_LMSTUDIO_TIMEOUT_S,
+        )
+        resp.raise_for_status()
+        content = resp.json()["choices"][0]["message"]["content"]
+    except Exception as exc:
+        _log_failure("summary / lmstudio request", exc)
+        return None
+
+    payload = OpenAICompatDetector._extract_json(content)
+    if payload is None:
+        _log_failure("summary / lmstudio parsing", ValueError("no JSON object in response"))
+        return None
+    try:
+        return GeminiResult.model_validate(payload)
+    except ValidationError as exc:
+        _log_failure("summary / lmstudio schema", exc)
+        return None
+
+
 async def enhance_summary(context: dict, kind: Literal["tabular", "prose"]) -> GeminiResult | None:
     if not is_configured():
         return None
@@ -258,10 +299,20 @@ async def enhance_summary(context: dict, kind: Literal["tabular", "prose"]) -> G
     import asyncio
 
     def _call() -> GeminiResult | None:
+        prompt = _PROMPT_TEMPLATE.format(context_json=json.dumps(context, default=str, indent=2))
+
+        if _lmstudio_configured():
+            result = _call_lmstudio(prompt)
+            if result is not None:
+                result.important_numbers = _numbers_grounded_in_context(result.important_numbers, context)
+                return result
+            # Local server unavailable/failed — fall through to Gemini only
+            # if it's actually configured; otherwise give up here.
+            if not (_SDK_AVAILABLE and gemini_keys.is_configured()):
+                return None
+
         try:
-            client = _get_client()
-            prompt = _PROMPT_TEMPLATE.format(context_json=json.dumps(context, default=str, indent=2))
-            response = client.models.generate_content(
+            response = gemini_keys.call_with_rotation(lambda client: client.models.generate_content(
                 model=GEMINI_MODEL,
                 contents=prompt,
                 config=genai_types.GenerateContentConfig(
@@ -270,7 +321,7 @@ async def enhance_summary(context: dict, kind: Literal["tabular", "prose"]) -> G
                     temperature=0.2,
                     http_options=genai_types.HttpOptions(timeout=_TIMEOUT_MS),
                 ),
-            )
+            ))
             result = response.parsed
             if result is None:
                 # Known SDK quirk: nested-schema parsing can return None

@@ -1,49 +1,55 @@
 // ── Product identity ─────────────────────────────────────────────────────
-// The Stitch references carry a placeholder wordmark; this keeps the real
-// project name. Change these two strings to rebrand the whole shell.
-export const BRAND = "AI Detective";
-export const TERMINAL_NAME = "Core Terminal";
+// No text wordmark is shown in the UI — the sidebar uses a logo image
+// instead (see layout/SideNav.jsx). These stay as internal fallbacks
+// (page <title>, aria-labels) so removing the visible brand text didn't
+// require touching every place a name might be read programmatically.
+export const BRAND = "Analysis Terminal";
+export const TERMINAL_NAME = "Overview";
 
 // ── Palette shortcuts (mirror tailwind.config.js) ────────────────────────
 export const C = {
-  primary: "#b4c5ff",
-  primaryContainer: "#2563eb",
-  secondary: "#ddb8ff",
-  secondaryContainer: "#7c03d3",
-  tertiary: "#b3d17a",
-  tertiaryContainer: "#5b762a",
-  error: "#ffb4ab",
-  outline: "#8d90a0",
-  outlineVariant: "#434655",
-  onSurface: "#e5e1e4",
-  onSurfaceVariant: "#c3c6d7",
-  surfaceHigh: "#2a2a2c",
+  primary: "#7C6EEA",
+  primaryContainer: "#7C6EEA",
+  secondary: "#D97862",
+  secondaryContainer: "#D97862",
+  tertiary: "#6FAF7C",
+  tertiaryContainer: "#6FAF7C",
+  error: "#D6544A",
+  outline: "#8F8A80",
+  outlineVariant: "#C6BFAE",
+  onSurface: "#2B2A27",
+  onSurfaceVariant: "#6E6B64",
+  surfaceHigh: "#E3DED0",
 };
 
 // ── Navigation ───────────────────────────────────────────────────────────
-// Matches the sidebar in the Stitch references, plus the overview that the
-// existing /dashboard endpoint backs.
 export const NAV = [
-  { key: "dashboard", icon: "space_dashboard", label: "Overview", code: "SEC_00" },
-  { key: "text", icon: "description", label: "Text", code: "SEC_01" },
-  { key: "file", icon: "upload_file", label: "Upload File", code: "SEC_02" },
-  { key: "code", icon: "code", label: "Code", code: "SEC_03" },
-  { key: "image", icon: "image", label: "Image", code: "SEC_04" },
-  { key: "summary", icon: "summarize", label: "Summary", code: "SEC_05" },
-  { key: "history", icon: "history", label: "History", code: "SEC_06" },
+  { key: "dashboard", icon: "space_dashboard", label: "Overview" },
+  { key: "text", icon: "description", label: "Text" },
+  { key: "file", icon: "upload_file", label: "Upload File" },
+  { key: "code", icon: "code", label: "Code" },
+  { key: "image", icon: "image", label: "Image" },
+  { key: "summary", icon: "summarize", label: "Summary" },
+  { key: "history", icon: "history", label: "History" },
 ];
 
 export const NAV_BY_KEY = Object.fromEntries(NAV.map((n) => [n.key, n]));
 
 // ── Semantics ────────────────────────────────────────────────────────────
-// Electric purple = machine signature. Cyber lime = human origin.
-// Tech blue = indeterminate / system-neutral.
+// Restrained, single-hue meanings: soft red for higher concern, soft green
+// for lower concern, amber for genuinely uncertain. `neutral` is kept
+// separate from `uncertain` on purpose — neutral is used for plain
+// informational badges (a document-type tag, a content-type label), which
+// have nothing to do with a score and shouldn't borrow the brand lavender
+// used for buttons/navigation, nor the amber reserved for "the score sits
+// in the middle and that itself is the finding".
 export const TONE = {
-  ai: { text: "text-secondary", bg: "bg-secondary-container/15", border: "border-secondary/40", hex: "#ddb8ff" },
-  human: { text: "text-tertiary", bg: "bg-tertiary-container/15", border: "border-tertiary/40", hex: "#b3d17a" },
-  neutral: { text: "text-primary", bg: "bg-primary-container/15", border: "border-primary/40", hex: "#b4c5ff" },
-  muted: { text: "text-outline", bg: "bg-surface-high/40", border: "border-outline-variant/40", hex: "#8d90a0" },
-  error: { text: "text-error", bg: "bg-error-container/20", border: "border-error/40", hex: "#ffb4ab" },
+  ai: { text: "text-secondary", bg: "bg-secondary-container/10", border: "border-secondary/35", hex: "#D97862" },
+  human: { text: "text-tertiary", bg: "bg-tertiary-container/10", border: "border-tertiary/35", hex: "#6FAF7C" },
+  uncertain: { text: "text-warning", bg: "bg-warning-container/10", border: "border-warning/35", hex: "#D99A3C" },
+  neutral: { text: "text-primary", bg: "bg-primary-container/8", border: "border-primary/30", hex: "#7C6EEA" },
+  muted: { text: "text-outline", bg: "bg-surface-high/60", border: "border-outline-variant/50", hex: "#8F8A80" },
+  error: { text: "text-error", bg: "bg-error-container/10", border: "border-error/35", hex: "#D6544A" },
 };
 
 /** AI-likelihood score (0-100) → semantic tone. */
@@ -51,22 +57,30 @@ export function toneForScore(score) {
   if (score == null) return TONE.muted;
   if (score >= 60) return TONE.ai;
   if (score <= 40) return TONE.human;
-  return TONE.neutral;
+  return TONE.uncertain;
+}
+
+/** Headline verdict → semantic tone (null for an unrecognised verdict). */
+export function toneForVerdict(verdict) {
+  if (verdict === "Likely AI") return TONE.ai;
+  if (verdict === "Likely Human") return TONE.human;
+  if (verdict === "Uncertain") return TONE.uncertain;
+  return null;
 }
 
 /** Similarity/overlap (0-100) → semantic tone. High overlap is the flag. */
 export function toneForSimilarity(pct) {
   if (pct == null) return TONE.muted;
   if (pct >= 50) return TONE.ai;
-  if (pct >= 25) return TONE.neutral;
+  if (pct >= 25) return TONE.uncertain;
   return TONE.human;
 }
 
 export const CONFIDENCE_TONE = {
   high: TONE.ai,
   High: TONE.ai,
-  medium: TONE.neutral,
-  Medium: TONE.neutral,
+  medium: TONE.uncertain,
+  Medium: TONE.uncertain,
   low: TONE.muted,
   Low: TONE.muted,
 };
@@ -74,7 +88,7 @@ export const CONFIDENCE_TONE = {
 export const IMAGE_CLASSIFICATION_META = {
   potentially_ai_generated: { label: "Potentially AI-generated", tone: TONE.ai },
   likely_real: { label: "Likely Real", tone: TONE.human },
-  uncertain: { label: "Uncertain", tone: TONE.neutral },
+  uncertain: { label: "Uncertain", tone: TONE.uncertain },
 };
 
 export const DOC_TYPE_META = {
@@ -93,12 +107,12 @@ export const LANG_ICON = {
   ruby: "code", kotlin: "code", swift: "code", sql: "database", unknown: "code_off",
 };
 
-// Chart series colours — drawn from the Deep Space accents so the summary
-// visuals read as part of the same system.
+// Chart series colours — muted pastels drawn from the app's own accent
+// family, so summary visuals read as part of the same clean system.
 export const CHART_COLORS = [
-  "#b4c5ff", "#ddb8ff", "#b3d17a", "#7c9cf5",
-  "#c79bf0", "#8fb85c", "#5b8de8", "#9d7ad6",
-  "#d4e89a", "#6f86c9", "#b58fe0", "#7fa844",
+  "#7C6EEA", "#6FAF7C", "#D99A3C", "#D97862",
+  "#5FA8C7", "#9A8FF0", "#8CC49A", "#E0B968",
+  "#E0947F", "#7FBFD6", "#B0A6F2", "#A9D4B3",
 ];
 
 // ── Accepted inputs (kept in step with the backend) ──────────────────────

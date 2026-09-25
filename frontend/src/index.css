@@ -3,32 +3,75 @@
 @tailwind utilities;
 
 /* ══════════════════════════════════════════════════════════════════════
-   The Void — flat solid background, applied once globally on body so
-   every page inherits the same color via normal CSS cascade.
+   Foundation — warm off-white background, dark charcoal text.
    ══════════════════════════════════════════════════════════════════════ */
 @layer base {
-  html {
+  /* ── Theme palette ─────────────────────────────────────────────────────
+     Neutral colours are RGB channels ("R G B") so tailwind.config.js can wrap
+     them as rgb(var(--x) / <alpha>) and opacity utilities keep working. The
+     `.dark` class on <html> (set by src/lib/theme.js, and by the inline script
+     in index.html before first paint) swaps the whole set. Accent hues
+     (primary / secondary / tertiary / warning / error) are fixed in the config. */
+  :root {
+    color-scheme: light;
+    --void: 247 246 242;
+    --surface: 255 255 255;
+    --surface-lowest: 244 242 236;
+    --surface-low: 239 236 228;
+    --surface-container: 234 230 219;
+    --surface-high: 227 222 208;
+    --surface-highest: 216 209 192;
+    --on-surface: 43 42 39;
+    --on-surface-variant: 110 107 100;
+    --outline: 143 138 128;
+    --outline-variant: 198 191 174;
+    --field-border: 220 214 200;
+    --placeholder: 168 162 151;
+    --scroll: 216 209 192;
+    --scroll-hover: 198 191 174;
+    --shadow: 43 42 39;
+    --primary-text: 124 110 234;
+  }
+
+  .dark {
     color-scheme: dark;
+    --void: 20 19 17;
+    --surface: 30 29 26;
+    --surface-lowest: 24 23 21;
+    --surface-low: 38 37 33;
+    --surface-container: 46 44 40;
+    --surface-high: 56 54 48;
+    --surface-highest: 70 67 60;
+    --on-surface: 236 233 225;
+    --on-surface-variant: 168 163 152;
+    --outline: 138 133 121;
+    --outline-variant: 98 94 84;
+    --field-border: 74 71 63;
+    --placeholder: 111 107 98;
+    --scroll: 70 67 60;
+    --scroll-hover: 98 94 84;
+    --shadow: 0 0 0;
+    /* The fixed lavender is only ~3.9:1 on a dark card; links and labels use this. */
+    --primary-text: 169 159 247;
   }
 
   body {
     margin: 0;
     min-height: 100vh;
-    background-color: #0a0a0b;
-    color: #e5e1e4;
+    background-color: rgb(var(--void));
+    color: rgb(var(--on-surface));
     font-family: "Hanken Grotesk", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
   ::selection {
-    background: #2563eb;
-    color: #eeefff;
+    background: #7c6eea;
+    color: #ffffff;
   }
 
-  /* Scrollbars, tuned to the surface stack. */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #353437 transparent;
+    scrollbar-color: rgb(var(--scroll)) transparent;
   }
   ::-webkit-scrollbar {
     width: 8px;
@@ -38,14 +81,13 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background-color: #353437;
+    background-color: rgb(var(--scroll));
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #434655;
+    background-color: rgb(var(--scroll-hover));
   }
 
-  /* Material Symbols — block display so glyph names never flash as text. */
   .ms {
     font-family: "Material Symbols Outlined";
     font-weight: normal;
@@ -66,167 +108,106 @@
   }
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   Keyframes used by the hand-written component classes below.
-   These must live here, not only in tailwind.config.js: Tailwind emits a
-   config keyframe only when a matching `animate-*` utility appears in the
-   scanned source, and these are referenced from CSS instead.
-   ══════════════════════════════════════════════════════════════════════ */
-@keyframes scan-y {
-  0% { top: 0%; opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
-}
-
-@keyframes shimmer {
-  0% { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
-}
-
 @layer components {
-  /* ── The Glass Layer ────────────────────────────────────────────────── */
+  /* ── Cards ─────────────────────────────────────────────────────────── */
   .glass {
-    background-color: rgba(19, 19, 21, 0.62);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(67, 70, 85, 0.35);
-    box-shadow: 0 0 15px rgba(37, 99, 235, 0.08);
+    background-color: rgb(var(--surface));
+    border: 1px solid rgb(var(--outline-variant) / 0.4);
+    box-shadow: 0 1px 2px rgb(var(--shadow) / 0.04), 0 6px 16px -4px rgb(var(--shadow) / 0.05);
   }
 
   .glass-strong {
-    background-color: rgba(19, 19, 21, 0.82);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(67, 70, 85, 0.45);
-    box-shadow: 0 0 30px rgba(37, 99, 235, 0.1), inset 0 0 12px rgba(180, 197, 255, 0.03);
+    background-color: rgb(var(--surface));
+    border: 1px solid rgb(var(--outline-variant) / 0.5);
+    box-shadow: 0 1px 3px rgb(var(--shadow) / 0.05), 0 8px 20px -4px rgb(var(--shadow) / 0.07);
   }
 
   .glass-inset {
-    background-color: rgba(14, 14, 16, 0.7);
-    border: 1px solid rgba(67, 70, 85, 0.3);
+    background-color: rgb(var(--surface-lowest));
+    border: 1px solid rgb(var(--outline-variant) / 0.35);
   }
 
-  /* ── Reinforced corner brackets (screen-2 "tech decorations") ───────── */
-  .brackets::before,
-  .brackets::after {
-    content: "";
-    position: absolute;
-    width: 22px;
-    height: 22px;
-    pointer-events: none;
-    border-color: rgba(180, 197, 255, 0.35);
+  /* `.brackets` and `.chamfer` were sci-fi corner decorations on the old
+     terminal theme. Kept as harmless no-ops so existing className strings
+     stay valid without touching every call site. */
+  .brackets {
+    position: relative;
   }
-  .brackets::before {
-    top: -1px;
-    left: -1px;
-    border-top: 1px solid;
-    border-left: 1px solid;
-  }
-  .brackets::after {
-    bottom: -1px;
-    right: -1px;
-    border-bottom: 1px solid;
-    border-right: 1px solid;
+  .chamfer {
+    border-radius: inherit;
+    clip-path: none;
   }
 
-  /* ── The Scanner Line ───────────────────────────────────────────────── */
-  .scanner {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    pointer-events: none;
-    z-index: 5;
-    background: linear-gradient(90deg, transparent, #b4c5ff, transparent);
-    box-shadow: 0 0 10px rgba(180, 197, 255, 0.7);
-    animation: scan-y 3s linear infinite;
-  }
-  .scanner-lime {
-    background: linear-gradient(90deg, transparent, #b3d17a, transparent);
-    box-shadow: 0 0 10px rgba(179, 209, 122, 0.7);
-  }
-  .scanner-purple {
-    background: linear-gradient(90deg, transparent, #ddb8ff, transparent);
-    box-shadow: 0 0 10px rgba(221, 184, 255, 0.7);
-  }
-
-  /* ── Buttons: a light beam passes across on hover ───────────────────── */
+  /* ── Buttons: a gentle lift + shadow on hover, no light-sweep gimmick ── */
   .btn-scan {
     position: relative;
-    overflow: hidden;
-    isolation: isolate;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
   }
-  .btn-scan::after {
-    content: "";
-    position: absolute;
-    inset-block: 0;
-    left: -100%;
-    width: 45%;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.18), transparent);
-    transform: skewX(-20deg);
-    transition: left 0.7s ease;
-    pointer-events: none;
+  .btn-scan:hover:not(:disabled) {
+    transform: translateY(-1px);
   }
-  .btn-scan:hover:not(:disabled)::after {
-    left: 200%;
+  .btn-scan:active:not(:disabled) {
+    transform: translateY(0);
   }
 
-  /* ── Live progress fill: a moving tri-tone gradient ─────────────────── */
+  /* ── Progress fill: solid brand color, gentle shimmer only while live ── */
   .progress-live {
-    background: linear-gradient(90deg, #0053db, #7c03d3, #b4c5ff, #0053db);
+    background: linear-gradient(90deg, #7c6eea, #9a8ff0, #7c6eea);
     background-size: 200% 100%;
-    animation: shimmer 2s linear infinite;
+    animation: shimmer 1.8s linear infinite;
   }
   .progress-done {
-    background: linear-gradient(90deg, #5b762a, #b3d17a);
+    background: #6fac7c;
   }
   .progress-failed {
-    background: linear-gradient(90deg, #93000a, #ffb4ab);
+    background: #d6544a;
   }
 
-  /* ── Inputs: inset box, bottom border glows on focus ────────────────── */
+  /* ── Inputs ────────────────────────────────────────────────────────── */
   .field {
-    background-color: rgba(14, 14, 16, 0.72);
-    border: 1px solid rgba(67, 70, 85, 0.45);
-    color: #e5e1e4;
-    font-family: "JetBrains Mono", ui-monospace, monospace;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: rgb(var(--surface));
+    border: 1px solid rgb(var(--field-border));
+    color: rgb(var(--on-surface));
+    font-family: "Hanken Grotesk", system-ui, sans-serif;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
   .field::placeholder {
-    color: rgba(141, 144, 160, 0.55);
+    color: rgb(var(--placeholder));
   }
   .field:focus,
   .field:focus-visible {
     outline: none;
-    border-color: rgba(180, 197, 255, 0.6);
-    box-shadow: 0 0 0 1px rgba(180, 197, 255, 0.18), 0 0 18px rgba(180, 197, 255, 0.14);
+    border-color: #7c6eea;
+    box-shadow: 0 0 0 3px rgba(124, 110, 234, 0.16);
   }
 
-  /* ── Chamfered corner — "military-grade" status flags ───────────────── */
-  .chamfer {
-    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
-  }
-
-  /* ── Terminal log stream ────────────────────────────────────────────── */
+  /* No-op: the old terminal log stream used this to fade its scroll edges.
+     LogStream is retired; kept as a harmless utility. */
   .log-mask {
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
-    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }
 
 @layer utilities {
-  /* Sequential card entrance — used by result panels. */
+  /* Lavender text on a dark card needs a lighter shade (see --primary-text). */
+  .dark .text-primary {
+    color: rgb(var(--primary-text) / var(--tw-text-opacity, 1));
+  }
+  .dark .hover\:text-primary:hover {
+    color: rgb(var(--primary-text) / var(--tw-text-opacity, 1));
+  }
+
   .stagger > * {
-    animation: rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .stagger > *:nth-child(1) { animation-delay: 0ms; }
-  .stagger > *:nth-child(2) { animation-delay: 70ms; }
-  .stagger > *:nth-child(3) { animation-delay: 140ms; }
-  .stagger > *:nth-child(4) { animation-delay: 210ms; }
-  .stagger > *:nth-child(5) { animation-delay: 280ms; }
-  .stagger > *:nth-child(6) { animation-delay: 350ms; }
-  .stagger > *:nth-child(n + 7) { animation-delay: 420ms; }
+  .stagger > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger > *:nth-child(6) { animation-delay: 300ms; }
+  .stagger > *:nth-child(n + 7) { animation-delay: 360ms; }
 
   .text-balance {
     text-wrap: balance;

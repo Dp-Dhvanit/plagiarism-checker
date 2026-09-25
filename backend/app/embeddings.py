@@ -10,6 +10,7 @@ used for the local scorer in app/scoring.py.
 from __future__ import annotations
 
 import os
+import threading
 
 import numpy as np
 from dotenv import load_dotenv
@@ -20,13 +21,18 @@ EMBEDDING_MODEL_NAME = os.environ.get("EMBEDDING_MODEL", "sentence-transformers/
 EMBEDDING_DIM = 384  # all-MiniLM-L6-v2's output dimension
 
 _model = None
+_load_lock = threading.Lock()
 
 
 def _get_model():
     global _model
     if _model is None:
-        from sentence_transformers import SentenceTransformer
-        _model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        # Guards against concurrent first requests each loading their own
+        # copy of the model (same race as app/scoring.py's TextScorer.load).
+        with _load_lock:
+            if _model is None:
+                from sentence_transformers import SentenceTransformer
+                _model = SentenceTransformer(EMBEDDING_MODEL_NAME)
     return _model
 
 

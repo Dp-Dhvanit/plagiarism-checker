@@ -7,8 +7,10 @@ Run (from backend/):
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
 import io
 import os
+import time
 from dataclasses import asdict
 from typing import Any
 
@@ -16,8 +18,9 @@ import pdfplumber
 from docx import Document as DocxDocument
 from pptx import Presentation
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
@@ -41,6 +44,8 @@ from app.chunking import chunk_code
 from app import db
 from app.ai_text_detector import analyze_text_ai, GeminiTextDetection
 from app.similarity import analyze_similarity, store_reference_chunks, SimilarityResult
+from app.originality_rewriter import rewrite_to_reduce_overlap
+from app.code_optimizer import optimize_code
 from app.image_detector import analyze_image, validate_image, ImageValidationError
 from app.pdf_report import generate_report
 
@@ -49,12 +54,28 @@ MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024
 
 app = FastAPI(title="AI Text Detective", version="0.2.0")
 
+
+def _env_list(name: str, default: str) -> list[str]:
+    return [v.strip() for v in os.environ.get(name, default).split(",") if v.strip()]
+
+
+# This API has no authentication and holds every analysed document, so it must
+# not be readable by whatever web page happens to be open in the same browser.
+# The bundled frontend reaches it through Vite's same-origin proxy, so it needs
+# no CORS access at all; the allowed origins below only matter if the UI is
+# served from somewhere else (set CORS_ORIGINS / ALLOWED_HOSTS to add them).
+# The Host check is what stops DNS-rebinding, where a hostile page resolves its
+# own domain to 127.0.0.1 and becomes "same-origin" with this server.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_env_list("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"),
+    allow_credentials=False,  # no cookies or sessions are used
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type"],
+)
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=_env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver"),
 )
 
 # ── Source-code file extensions ──────────────────────────────────────────────
@@ -73,6 +94,10 @@ class AnalyzeRequest(BaseModel):
     text: str = Field(..., min_length=1)
     ppl_weight: float | None = None
     burst_weight: float | None = None
+    # Opt-in: also compare against Wikipedia / arXiv (app/web_sources.py).
+    # Sends a few short excerpts of the text to those sites, so it is off
+    # unless the user asks for it.
+    check_web: bool = False
 
 
 class SentenceBreakdown(BaseModel):
@@ -132,8 +157,36 @@ class SimilarityMatchModel(BaseModel):
     query_excerpt: str
     matched_text: str
     source_file: str
-    source_history_id: int
+    # None for an external source, which has no history row.
+    source_history_id: int | None = None
     score: float
+    # Lexical corroboration for this specific pair — see SimilarityResult
+    # docstring in app/similarity.py for why cosine alone isn't enough.
+    word_overlap: float = 0.0
+    ngram_overlap: float = 0.0
+    verified: bool = False
+    # Provenance: what the passage matched, and when/where it came from.
+    # `source_kind` is "submission" (an earlier analysis on file, dated by
+    # `source_created_at`) or "wikipedia" / "arxiv" (a page with a `source_url`).
+    source_name: str = ""
+    source_created_at: str | None = None
+    source_kind: str = "submission"
+    source_url: str | None = None
+
+
+class ExternalSourceModel(BaseModel):
+    kind: str
+    title: str
+    url: str
+
+
+class ExternalCheckModel(BaseModel):
+    """What the opt-in external-source check did. `sources` lists every page
+    that was compared, matched or not."""
+
+    status: str  # ok | no_candidates | unavailable | disabled | too_short
+    note: str = ""
+    sources: list[ExternalSourceModel] = []
 
 
 class SimilarityModel(BaseModel):
@@ -143,10 +196,18 @@ class SimilarityModel(BaseModel):
     corpus_size: int = 0
     note: str = ""
     # Strongest single passage match (0-100) — stable as the archive grows,
-    # unlike the mean in `overall_similarity`.
+    # unlike the mean in `overall_similarity`. Raw embedding cosine: check
+    # top_match_verified before treating this as a strong finding.
     top_match: float = 0.0
-    # Percentage of this document's passages that crossed the match threshold.
+    top_match_verified: bool = False
+    # Percentage of passages VERIFIED as copied (semantic + lexical
+    # corroboration both present).
     matched_portion: float = 0.0
+    # Percentage of passages that are semantically close but NOT verified —
+    # topic overlap without shared phrasing.
+    possible_portion: float = 0.0
+    # Present only when the caller opted in to the external-source check.
+    external: ExternalCheckModel | None = None
 
 
 class DetectorResultModel(BaseModel):
@@ -202,6 +263,12 @@ class AnalyzeResponse(BaseModel):
     # also present here as one entry among several.
     detectors: list[DetectorResultModel] = []
     consensus: ConsensusModel | None = None
+    # Additive — the verdict the UI should headline once every detector's
+    # opinion is taken into account, and why. `verdict` above stays the local
+    # detector's own verdict; this is "Uncertain" whenever the detectors that
+    # ran disagree. None when no detector breakdown exists (e.g. code).
+    final_verdict: str | None = None
+    verdict_reason: str | None = None
 
 
 class HumanizeRequest(BaseModel):
@@ -245,6 +312,9 @@ class ImageAnalyzeResponse(BaseModel):
     indicators: list[str] = []
     explanation: str = ""
     history_id: int | None = None
+    # Which provider actually produced this result: "gemini" (primary) or
+    # "openrouter" (fallback, only used when Gemini is unavailable/fails).
+    provider: str | None = None
 
 
 class HistoryItem(BaseModel):
@@ -270,6 +340,15 @@ class DashboardStats(BaseModel):
     image_analyses: int
     ai_flagged: int
     average_similarity: float
+    # Additive — week-over-week context for the overview cards. All optional
+    # so older callers ignoring these fields are unaffected.
+    average_ai_probability: float = 0.0
+    scans_this_week: int = 0
+    scans_prev_week: int = 0
+    avg_ai_this_week: float | None = None
+    avg_ai_prev_week: float | None = None
+    avg_similarity_this_week: float | None = None
+    avg_similarity_prev_week: float | None = None
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -362,6 +441,7 @@ def _build_response(
             marker_signal=result.signals.marker_signal,
             uniformity_signal=result.signals.uniformity_signal,
         )
+    head = _headline_for(detectors, result.verdict)
     return AnalyzeResponse(
         status=status,
         message=message,
@@ -383,6 +463,8 @@ def _build_response(
         history_id=history_id,
         detectors=_detectors_to_models(detectors),
         consensus=_consensus_to_model(detectors),
+        final_verdict=head["verdict"] if head else None,
+        verdict_reason=head["reason"] if head else None,
     )
 
 
@@ -435,6 +517,16 @@ def _consensus_to_model(results: list | None) -> ConsensusModel | None:
     )
 
 
+def _headline_for(results: list | None, local_verdict: str) -> dict | None:
+    """The verdict to headline given every detector's opinion (see
+    detectors.registry.headline). None when there is no breakdown to judge."""
+    if not results:
+        return None
+    from app.detectors.registry import headline
+
+    return headline(results, local_label=local_verdict)
+
+
 def _gemini_to_model(g: GeminiTextDetection | None) -> GeminiTextModel | None:
     if g is None:
         return None
@@ -456,7 +548,10 @@ def _similarity_to_model(s: SimilarityResult | None) -> SimilarityModel | None:
         corpus_size=s.corpus_size,
         note=s.note,
         top_match=s.top_match,
+        top_match_verified=s.top_match_verified,
         matched_portion=s.matched_portion,
+        possible_portion=s.possible_portion,
+        external=ExternalCheckModel(**s.external) if s.external else None,
     )
 
 
@@ -472,17 +567,19 @@ def _derive_confidence(score: float) -> str:
     return "low"
 
 
-def _run_detectors(text: str, prose_result) -> list:
-    """Every hosted provider, plus the local scorer result we already have.
+def _assemble_detectors(
+    prose_result, gemini_result, gemini_ms: int, hosted: list
+) -> list:
+    """Every detector's opinion, in registry order.
 
-    The heuristic is excluded from run_all() and rebuilt from `prose_result`
-    instead — re-running it would recompute perplexity over the whole
-    document for no new information.
+    Two of them are not re-run: the local heuristic is rebuilt from the
+    `prose_result` we already have (re-running it would recompute perplexity
+    over the whole document), and Gemini is rebuilt from the single call made
+    for the legacy panel (a second call for the same text would spend another
+    of the free tier's 20 daily requests). `hosted` is everything else.
     """
     from app.detectors.base import DetectorResult
-    from app.detectors.registry import run_all
-
-    results = run_all(text, exclude={"heuristic"})
+    from app.detectors.registry import get_detector, in_registry_order
 
     local = DetectorResult(
         provider="heuristic",
@@ -494,31 +591,99 @@ def _run_detectors(text: str, prose_result) -> list:
             "Derived from writing-pattern statistics only."
         ),
     )
-    return [local, *results]
+    opinions = [local, *hosted]
+    gemini_detector = get_detector("gemini")
+    if gemini_detector is not None:  # someone may have de-registered it; don't 500 over that
+        gemini = gemini_detector.from_detection(gemini_result)
+        gemini.elapsed_ms = gemini_ms
+        opinions.append(gemini)
+    return in_registry_order(opinions)
+
+
+def _compare_corpus(
+    text: str, exclude_file_name: str | None, check_web: bool
+) -> SimilarityResult:
+    """Similarity against earlier submissions, plus — only if asked — the
+    Wikipedia/arXiv pages found for this text (fetched first, since their
+    passages have to be in hand before the comparison runs)."""
+    external = None
+    if check_web:
+        from app.web_sources import check_external
+
+        external = check_external(text)
+    result = analyze_similarity(
+        text, exclude_file_name, extra_corpus=external.corpus if external else None
+    )
+    if external is not None:
+        result.external = external.to_dict()
+    return result
 
 
 def _run_text_ai_features(
-    text: str, file_name: str | None = None, prose_result=None
+    text: str,
+    exclude_file_name: str | None = None,
+    prose_result=None,
+    check_web: bool = False,
 ) -> tuple[GeminiTextDetection | None, SimilarityResult, list]:
-    gemini_result = analyze_text_ai(text)
-    similarity_result = analyze_similarity(text, exclude_file_name=file_name)
-    detectors = _run_detectors(text, prose_result) if prose_result is not None else []
-    return gemini_result, similarity_result, detectors
+    """The checks that follow local scoring — Gemini, corpus similarity and
+    the other hosted detectors — run concurrently. They are independent, and
+    the slowest (a hosted model call) used to be waited on before the next
+    one even started."""
+    from app.detectors.registry import run_all
 
+    def timed_gemini():
+        t0 = time.perf_counter()
+        return analyze_text_ai(text), int((time.perf_counter() - t0) * 1000)
 
-async def _run_text_ai_features_async(
-    text: str, file_name: str | None = None, prose_result=None
-) -> tuple[GeminiTextDetection | None, SimilarityResult, list]:
-    gemini_result = await asyncio.to_thread(analyze_text_ai, text)
-    similarity_result = await asyncio.to_thread(
-        analyze_similarity, text, file_name
-    )
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+        gemini_f = pool.submit(timed_gemini)
+        similarity_f = pool.submit(_compare_corpus, text, exclude_file_name, check_web)
+        hosted_f = (
+            pool.submit(run_all, text, exclude={"heuristic", "gemini"})
+            if prose_result is not None
+            else None
+        )
+        gemini_result, gemini_ms = gemini_f.result()
+        similarity_result = similarity_f.result()
+        hosted = hosted_f.result() if hosted_f is not None else []
+
     detectors = (
-        await asyncio.to_thread(_run_detectors, text, prose_result)
+        _assemble_detectors(prose_result, gemini_result, gemini_ms, hosted)
         if prose_result is not None
         else []
     )
     return gemini_result, similarity_result, detectors
+
+
+async def _run_text_ai_features_async(
+    text: str,
+    exclude_file_name: str | None = None,
+    prose_result=None,
+    check_web: bool = False,
+) -> tuple[GeminiTextDetection | None, SimilarityResult, list]:
+    return await asyncio.to_thread(
+        _run_text_ai_features, text, exclude_file_name, prose_result, check_web
+    )
+
+
+def _pasted_text_tag(text: str) -> str:
+    """Deterministic per-content identifier for pasted text.
+
+    Used to tag stored corpus chunks, and by /reduce-overlap to exclude the
+    copy of this exact text that /analyze stored moments earlier — never shown
+    as the History list's display name (that stays the readable "Pasted
+    text"). Every pasted submission shares that literal display string, so
+    without a per-content tag they can't be told apart.
+
+    /analyze deliberately does NOT exclude by this tag: it compares before it
+    stores, so there is no self-match to avoid, and excluding would make an
+    identical paste from someone else invisible — the one thing a plagiarism
+    check must catch.
+    """
+    import hashlib
+
+    digest = hashlib.sha256(text.strip().encode("utf-8")).hexdigest()[:12]
+    return f"Pasted text ({digest})"
 
 
 def _log_text_history(
@@ -528,9 +693,15 @@ def _log_text_history(
     gemini_result: GeminiTextDetection | None,
     similarity_result: SimilarityResult,
     full_text: str,
+    corpus_tag: str | None = None,
+    detectors: list | None = None,
 ) -> int:
     ai_probability = gemini_result.ai_probability if gemini_result else prose_result.ai_likelihood_score
     confidence = gemini_result.confidence if gemini_result else _derive_confidence(prose_result.ai_likelihood_score)
+
+    detector_models = _detectors_to_models(detectors)
+    consensus_model = _consensus_to_model(detectors)
+    head = _headline_for(detectors, prose_result.verdict)
 
     result_json: dict[str, Any] = {
         "heuristic": {
@@ -546,24 +717,38 @@ def _log_text_history(
             "chunks_compared": similarity_result.chunks_compared,
             "corpus_size": similarity_result.corpus_size,
             "note": similarity_result.note,
+            "top_match": similarity_result.top_match,
+            "top_match_verified": similarity_result.top_match_verified,
+            "matched_portion": similarity_result.matched_portion,
+            "possible_portion": similarity_result.possible_portion,
+            "external": similarity_result.external,
         },
         "image_result": None,
         "extracted_text_preview": full_text[:3000],
+        # Additive — every registered provider's independent opinion plus
+        # how much they agreed, so it survives past the single live
+        # response and can be shown again later (e.g. the Overview page's
+        # "AI Detection Breakdown"). Not exposed anywhere before this.
+        "detectors": [d.model_dump() for d in detector_models],
+        "consensus": consensus_model.model_dump() if consensus_model else None,
+        "final_verdict": head["verdict"] if head else None,
+        "verdict_reason": head["reason"] if head else None,
     }
     history_id = db.insert_history(
         file_name=file_name,
         file_type=file_type,
         analysis_type="text",
         ai_probability=round(ai_probability, 1),
-        # Store the strongest single-passage match rather than the mean:
-        # the mean rises purely as the archive grows, so it is not
-        # comparable between an early and a late analysis.
-        similarity_score=similarity_result.top_match,
+        # Verified-overlap portion, not raw top-passage cosine: a document
+        # that merely shares a topic with something on file can score high
+        # on semantics alone (see app/similarity.py), and that must not
+        # inflate the History list or the dashboard's average similarity.
+        similarity_score=similarity_result.matched_portion,
         confidence=confidence,
         status="analyzed",
         result_json=result_json,
     )
-    store_reference_chunks(history_id, file_name, full_text)
+    store_reference_chunks(history_id, corpus_tag or file_name, full_text)
     return history_id
 
 
@@ -614,10 +799,14 @@ def analyze(body: AnalyzeRequest) -> AnalyzeResponse:
         quality = assess_quality(text)
         if quality.status == "ok":
             prose_result = get_scorer().analyze(text)
+            tag = _pasted_text_tag(text)
             gemini_result, similarity_result, detectors = _run_text_ai_features(
-                text, prose_result=prose_result
+                text, prose_result=prose_result, check_web=body.check_web
             )
-            history_id = _log_text_history("Pasted text", "text", prose_result, gemini_result, similarity_result, text)
+            history_id = _log_text_history(
+                "Pasted text", "text", prose_result, gemini_result, similarity_result, text,
+                corpus_tag=tag, detectors=detectors,
+            )
             return _build_response(
                 prose_result, status="mixed", code_result=code_response,
                 gemini=gemini_result, similarity=similarity_result, history_id=history_id,
@@ -631,10 +820,14 @@ def analyze(body: AnalyzeRequest) -> AnalyzeResponse:
 
     scorer = get_scorer()
     result = scorer.analyze(text)
+    tag = _pasted_text_tag(text)
     gemini_result, similarity_result, detectors = _run_text_ai_features(
-        text, prose_result=result
+        text, prose_result=result, check_web=body.check_web
     )
-    history_id = _log_text_history("Pasted text", "text", result, gemini_result, similarity_result, text)
+    history_id = _log_text_history(
+        "Pasted text", "text", result, gemini_result, similarity_result, text,
+        corpus_tag=tag, detectors=detectors,
+    )
     return _build_response(
         result, gemini=gemini_result, similarity=similarity_result,
         history_id=history_id, detectors=detectors,
@@ -642,7 +835,10 @@ def analyze(body: AnalyzeRequest) -> AnalyzeResponse:
 
 
 @app.post("/upload", response_model=AnalyzeResponse)
-async def upload_file(file: UploadFile = File(...)) -> AnalyzeResponse:
+async def upload_file(
+    file: UploadFile = File(...),
+    check_web: bool = Form(False),  # opt-in Wikipedia/arXiv comparison; see AnalyzeRequest
+) -> AnalyzeResponse:
     filename = (file.filename or "").lower()
     if not any(filename.endswith(ext) for ext in DOCUMENT_EXTENSIONS):
         raise HTTPException(status_code=400, detail="Only PDF, PPTX, PPT, DOCX, or TXT files are supported.")
@@ -655,7 +851,10 @@ async def upload_file(file: UploadFile = File(...)) -> AnalyzeResponse:
     if not data:
         raise HTTPException(status_code=400, detail="The uploaded file is empty.")
 
-    pipeline = run_detection_pipeline(filename, data)
+    # PDF/DOCX/PPTX parsing is CPU-bound and synchronous; run it off the
+    # event loop so a large upload doesn't stall every other in-flight
+    # request while it parses.
+    pipeline = await asyncio.to_thread(run_detection_pipeline, filename, data)
     code_response = _build_code_response(pipeline.code_result) if pipeline.code_result else None
     preview = pipeline.extracted_preview or None
 
@@ -666,10 +865,12 @@ async def upload_file(file: UploadFile = File(...)) -> AnalyzeResponse:
             pipeline.full_prose_text,
             file.filename or filename,
             prose_result=pipeline.text_result,
+            check_web=check_web,
         )
         history_id = _log_text_history(
             file.filename or filename, filename.rsplit(".", 1)[-1],
             pipeline.text_result, gemini_result, similarity_result, pipeline.full_prose_text,
+            detectors=detectors,
         )
         return _build_response(
             pipeline.text_result,
@@ -701,6 +902,70 @@ def humanize(body: HumanizeRequest) -> HumanizeResponse:
     breakdown = [{"sentence": s.sentence, "perplexity": s.perplexity} for s in body.sentence_breakdown]
     humanized, changed = humanize_text(text, breakdown, ai_score=body.ai_score)
     return HumanizeResponse(original=text, humanized=humanized, sentences_changed=changed)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# NEW: Similarity-aware rewrite (distinct from /humanize above, which targets
+# the local AI-detector score, not corpus overlap)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class ReduceOverlapRequest(BaseModel):
+    text: str = Field(..., min_length=1)
+    # Excludes a prior submission with this filename from the comparison,
+    # matching /analyze's self-match prevention for re-submitted documents.
+    file_name: str | None = None
+    # Gemini is a candidate-generation source here too (see
+    # app/originality_rewriter.py), but never called unless explicitly
+    # requested — its free quota is scarce and this endpoint already tries
+    # the free local rewriter, Groq, and OpenRouter first.
+    include_gemini: bool = False
+
+
+class ReduceOverlapResponse(BaseModel):
+    original: str
+    rewritten: str
+    changed: bool
+    improved: bool
+    attempts_tried: int
+    sentences_rewritten: int
+    before: SimilarityModel
+    after: SimilarityModel
+    note: str
+    # Which candidate source actually won: "local" | "groq" | "openrouter" |
+    # "gemini" | "none". Transparency only — the similarity numbers above
+    # are what actually decided the result.
+    source: str = "none"
+    sources_tried: list[str] = []
+
+
+@app.post("/reduce-overlap", response_model=ReduceOverlapResponse)
+def reduce_overlap(body: ReduceOverlapRequest) -> ReduceOverlapResponse:
+    """Rewrite only the passages VERIFIED as overlapping with stored
+    documents, then confirm the rewrite actually reduced that overlap
+    before returning it. See app/originality_rewriter.py for the full
+    pipeline and the measured evidence behind it."""
+    text = body.text.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Please provide some text.")
+    # If the caller didn't identify a real source file, fall back to the
+    # same content-hash tag /analyze uses for pasted text — otherwise a
+    # "reduce overlap" call on text just analyzed a moment ago would
+    # self-match against the copy /analyze had just stored.
+    exclude = body.file_name or _pasted_text_tag(text)
+    result = rewrite_to_reduce_overlap(text, exclude_file_name=exclude, include_gemini=body.include_gemini)
+    return ReduceOverlapResponse(
+        original=result.original_text,
+        rewritten=result.rewritten_text,
+        changed=result.changed,
+        improved=result.improved,
+        attempts_tried=result.attempts_tried,
+        sentences_rewritten=result.sentences_rewritten,
+        before=_similarity_to_model(result.before),
+        after=_similarity_to_model(result.after),
+        note=result.note,
+        source=result.source,
+        sources_tried=result.sources_tried,
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -805,6 +1070,89 @@ def detect_code_text(body: CodeAnalyzeRequest) -> CodeAnalyzeResponse:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# NEW: Code Optimizer — an addition to Code Analysis, not a replacement.
+# Uses the SAME code the user already submitted for analysis (see
+# app/code_optimizer.py); never re-extracts or re-uploads anything.
+# ══════════════════════════════════════════════════════════════════════════════
+
+class OptimizeCodeRequest(BaseModel):
+    code: str = Field(..., min_length=1)
+    language: str | None = None
+    # Gemini is a candidate source here too, but — same as /reduce-overlap —
+    # never called unless explicitly requested, to protect its free quota.
+    include_gemini: bool = False
+
+
+class LocalCodeMetricsModel(BaseModel):
+    lines: int
+    functions: int
+    classes: int
+    imports: int
+
+
+class ComplexitySideModel(BaseModel):
+    time: str = "O(?)"
+    space: str = "O(?)"
+
+
+class ComplexityEstimateModel(BaseModel):
+    # The MODEL's own claim, never locally verified — labeled as an
+    # estimate in the UI, not a measured fact.
+    before: ComplexitySideModel = ComplexitySideModel()
+    after: ComplexitySideModel = ComplexitySideModel()
+    reasoning: str = ""
+    # A genuinely local cross-check (real AST parse), Python only. None for
+    # every other language rather than a guessed/unreliable number.
+    loop_nesting_before: int | None = None
+    loop_nesting_after: int | None = None
+
+
+class OptimizeCodeResponse(BaseModel):
+    available: bool
+    provider: str | None = None
+    optimized_code: str
+    changed: bool
+    changes: list[str] = []
+    summary: str = ""
+    original: LocalCodeMetricsModel
+    optimized: LocalCodeMetricsModel
+    validation_passed: bool
+    validation_label: str
+    validation_notes: list[str] = []
+    complexity: ComplexityEstimateModel
+    error: str | None = None
+
+
+@app.post("/optimize-code", response_model=OptimizeCodeResponse)
+def optimize_code_endpoint(body: OptimizeCodeRequest) -> OptimizeCodeResponse:
+    code = body.code.strip()
+    if len(code) < 10:
+        raise HTTPException(status_code=400, detail="Please provide at least 10 characters of code.")
+    result = optimize_code(code, language=body.language or "unknown", include_gemini=body.include_gemini)
+    return OptimizeCodeResponse(
+        available=result.available,
+        provider=result.provider,
+        optimized_code=result.optimized_code,
+        changed=result.changed,
+        changes=result.changes,
+        summary=result.summary,
+        original=LocalCodeMetricsModel(**vars(result.original)),
+        optimized=LocalCodeMetricsModel(**vars(result.optimized)),
+        validation_passed=result.validation_passed,
+        validation_label=result.validation_label,
+        validation_notes=result.validation_notes,
+        complexity=ComplexityEstimateModel(
+            before=ComplexitySideModel(**vars(result.complexity.before)),
+            after=ComplexitySideModel(**vars(result.complexity.after)),
+            reasoning=result.complexity.reasoning,
+            loop_nesting_before=result.complexity.loop_nesting_before,
+            loop_nesting_after=result.complexity.loop_nesting_after,
+        ),
+        error=result.error,
+    )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # NEW: Smart Document Summary
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -883,7 +1231,7 @@ async def summarize(file: UploadFile = File(...)) -> SummarizeResponse:
         return await _apply_gemini(response, context, "tabular", charts)
 
     try:
-        text = _extract_by_filename(data, filename, join_bullets=False)
+        text = await asyncio.to_thread(_extract_by_filename, data, filename, join_bullets=False)
     except Exception as exc:
         raise HTTPException(status_code=422, detail=f"Could not extract text: {exc}")
 
@@ -968,6 +1316,7 @@ async def analyze_image_endpoint(file: UploadFile = File(...)) -> ImageAnalyzeRe
         indicators=result.indicators,
         explanation=result.explanation,
         history_id=history_id,
+        provider=result.provider,
     )
 
 

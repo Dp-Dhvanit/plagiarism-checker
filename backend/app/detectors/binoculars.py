@@ -51,6 +51,7 @@ from __future__ import annotations
 
 import math
 import os
+import threading
 
 import torch
 
@@ -78,7 +79,7 @@ MAX_TOKENS = 1024
 
 class BinocularsDetector(Detector):
     name = "binoculars"
-    label = "cross-perplexity"
+    label = "Binoculars"
     local = True
     paid = False
 
@@ -88,21 +89,27 @@ class BinocularsDetector(Detector):
         self._tok = None
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._load_error: str | None = None
+        self._load_lock = threading.Lock()
 
     # ── lifecycle ────────────────────────────────────────────────────────
     def _load(self) -> None:
         if self._obs is not None or self._load_error:
             return
-        try:
-            from transformers import AutoModelForCausalLM, AutoTokenizer
+        # Two large models loaded here; a concurrency race would double-load
+        # both (same class of bug as app/scoring.py's TextScorer.load).
+        with self._load_lock:
+            if self._obs is not None or self._load_error:
+                return
+            try:
+                from transformers import AutoModelForCausalLM, AutoTokenizer
 
-            self._tok = AutoTokenizer.from_pretrained(OBSERVER_MODEL)
-            if self._tok.pad_token is None:
-                self._tok.pad_token = self._tok.eos_token
-            self._obs = AutoModelForCausalLM.from_pretrained(OBSERVER_MODEL).to(self._device).eval()
-            self._perf = AutoModelForCausalLM.from_pretrained(PERFORMER_MODEL).to(self._device).eval()
-        except Exception as exc:  # noqa: BLE001
-            self._load_error = f"could not load local models ({type(exc).__name__})"
+                self._tok = AutoTokenizer.from_pretrained(OBSERVER_MODEL)
+                if self._tok.pad_token is None:
+                    self._tok.pad_token = self._tok.eos_token
+                self._obs = AutoModelForCausalLM.from_pretrained(OBSERVER_MODEL).to(self._device).eval()
+                self._perf = AutoModelForCausalLM.from_pretrained(PERFORMER_MODEL).to(self._device).eval()
+            except Exception as exc:  # noqa: BLE001
+                self._load_error = f"could not load local models ({type(exc).__name__})"
 
     def available(self) -> tuple[bool, str]:
         if not ENABLED:

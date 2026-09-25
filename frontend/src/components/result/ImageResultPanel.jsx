@@ -2,51 +2,50 @@ import GlassCard from "../common/GlassCard.jsx";
 import Icon from "../common/Icon.jsx";
 import Button from "../common/Button.jsx";
 import Disclaimer from "../common/Disclaimer.jsx";
-import StatusNotice from "../common/StatusNotice.jsx";
-import StatusBadge from "../common/StatusBadge.jsx";
+import StatusBadge, { MetaChip } from "../common/StatusBadge.jsx";
 import { SectionTitle } from "../common/PageHeader.jsx";
 import ResultHeadline from "./ResultHeadline.jsx";
 import ReportButton from "./ReportButton.jsx";
 import { CONFIDENCE_TONE, IMAGE_CLASSIFICATION_META, TONE } from "../../data/constants.js";
 
+const PROVIDER_LABEL = { gemini: "Gemini", openrouter: "OpenRouter" };
+
 export default function ImageResultPanel({ result, previewUrl, onRetry }) {
   // No local fallback exists for images, so an unavailable service is
-  // reported plainly rather than filled in with a fabricated score.
+  // reported plainly — but in plain end-user language. The backend's own
+  // message can carry technical detail (env var names, provider errors)
+  // that is meant for logs/API consumers, not shown here.
   if (result.status === "unavailable") {
     return (
       <div className="stagger space-y-6">
-        <StatusNotice status="unavailable" message={result.message} code="SEC // IMG_PROC" />
+        <GlassCard>
+          <div className="flex items-start gap-3.5">
+            <Icon name="cloud_off" size={22} className="mt-0.5 shrink-0 text-outline" />
+            <div className="min-w-0">
+              <p className="font-display text-[15px] font-semibold text-on-surface">
+                AI image analysis is currently unavailable
+              </p>
+              <p className="mt-1.5 text-[13.5px] leading-relaxed text-on-surface-variant">
+                Please try again in a little while. Nothing was saved to your history for this
+                attempt. Image checks are performed by an external AI provider, so the image is sent
+                to it whenever a check is attempted.
+              </p>
+            </div>
+          </div>
+          {onRetry && (
+            <div className="mt-5">
+              <Button onClick={onRetry} variant="ghost" icon="refresh">Try again</Button>
+            </div>
+          )}
+        </GlassCard>
 
         {previewUrl && (
-          <GlassCard code="SEC // SOURCE_IMAGE" bodyClassName="px-4 pb-4 pt-11">
-            <div className="overflow-hidden rounded border border-outline-variant/35 bg-surface-lowest">
+          <GlassCard bodyClassName="p-3">
+            <div className="overflow-hidden rounded-lg bg-surface-lowest">
               <img src={previewUrl} alt="Submitted" className="max-h-[380px] w-full object-contain" />
             </div>
           </GlassCard>
         )}
-
-        <GlassCard code="SEC // NEXT_STEPS">
-          <SectionTitle icon="build">Getting image detection running</SectionTitle>
-          <ul className="space-y-2.5 text-[13.5px] leading-relaxed text-on-surface-variant/85">
-            {[
-              "Image detection needs GEMINI_API_KEY set in the backend environment — see backend/.env.example.",
-              "Restart the backend after setting it so the key is picked up.",
-              "Text, document, code and summary analysis all work without it.",
-            ].map((line) => (
-              <li key={line} className="flex gap-3">
-                <Icon name="chevron_right" size={16} className="mt-px shrink-0 text-primary/70" />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-          {onRetry && (
-            <div className="mt-5">
-              <Button onClick={onRetry} variant="ghost" icon="refresh">
-                Try again
-              </Button>
-            </div>
-          )}
-        </GlassCard>
       </div>
     );
   }
@@ -61,9 +60,8 @@ export default function ImageResultPanel({ result, previewUrl, onRetry }) {
         ringLabel={"AI GENERATION\nLIKELIHOOD"}
         verdict={meta.label}
         blurb="A visual assessment of how closely this image matches the artefacts typical of AI image generators."
-        code="RES // IMG_PROB"
-        aiLabel="AI-GENERATED"
-        altLabel="AUTHENTIC CAPTURE"
+        aiLabel="AI-generated"
+        altLabel="Authentic capture"
         rows={[
           {
             label: "Confidence level",
@@ -71,39 +69,41 @@ export default function ImageResultPanel({ result, previewUrl, onRetry }) {
             icon: "verified_user",
             hex: (CONFIDENCE_TONE[result.confidence] || TONE.muted).hex,
           },
-          {
-            label: "Indicators observed",
-            value: String(result.indicators?.length || 0),
-            icon: "troubleshoot",
-          },
+          { label: "Indicators observed", value: String(result.indicators?.length || 0), icon: "troubleshoot" },
         ]}
         actions={<ReportButton historyId={result.history_id} />}
       >
-        <StatusBadge label={meta.label} tone={meta.tone} chamfer dot />
+        <StatusBadge label={meta.label} tone={meta.tone} dot />
       </ResultHeadline>
 
       {previewUrl && (
-        <GlassCard code="SEC // SOURCE_IMAGE" bodyClassName="px-4 pb-4 pt-11">
-          <div className="overflow-hidden rounded border border-outline-variant/35 bg-surface-lowest">
+        <GlassCard bodyClassName="p-3">
+          <div className="overflow-hidden rounded-lg bg-surface-lowest">
             <img src={previewUrl} alt="Analyzed" className="max-h-[440px] w-full object-contain" />
           </div>
         </GlassCard>
       )}
 
-      <GlassCard code="SEC // EXPLANATION">
-        <SectionTitle icon="visibility">Visual assessment</SectionTitle>
-        <p className="text-[13.5px] leading-relaxed text-on-surface-variant/85">{result.explanation}</p>
+      <GlassCard>
+        <SectionTitle
+          icon="visibility"
+          right={
+            result.provider && (
+              <MetaChip icon="cloud">{PROVIDER_LABEL[result.provider] || result.provider}</MetaChip>
+            )
+          }
+        >
+          Visual assessment
+        </SectionTitle>
+        <p className="text-[13.5px] leading-relaxed text-on-surface-variant">{result.explanation}</p>
       </GlassCard>
 
       {result.indicators?.length > 0 && (
-        <GlassCard code="SEC // INDICATORS">
+        <GlassCard>
           <SectionTitle icon="troubleshoot">Observed indicators</SectionTitle>
           <ul className="space-y-2.5">
             {result.indicators.map((ind, i) => (
-              <li
-                key={i}
-                className="flex items-start gap-3 rounded border-l-2 border-secondary/50 bg-secondary-container/[0.08] px-4 py-3"
-              >
+              <li key={i} className="flex items-start gap-3 rounded-lg border-l-[3px] border-secondary/50 bg-secondary-container/6 px-4 py-3">
                 <Icon name="chevron_right" size={16} className="mt-px shrink-0 text-secondary" />
                 <span className="text-[13.5px] leading-relaxed text-on-surface-variant">{ind}</span>
               </li>
